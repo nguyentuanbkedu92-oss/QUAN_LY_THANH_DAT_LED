@@ -10,10 +10,32 @@
         header { text-align: center; margin-bottom: 20px; }
         header h1 { font-size: 22px; color: #38bdf8; text-transform: uppercase; }
 
-        /* Lưới file làm việc */
-        .file-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 600px; margin-bottom: 25px; }
-        .file-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 5px; text-align: center; text-decoration: none; color: #fff; font-size: 11px; font-weight: bold; }
-        .file-card span { display: block; font-size: 24px; margin-bottom: 5px; }
+        /* Lưới file làm việc - Cập nhật 5 cột */
+        .file-grid { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 8px; 
+            width: 100%; 
+            max-width: 650px; 
+            margin-bottom: 25px; 
+        }
+        .file-card { 
+            background: #1e293b; 
+            border: 1px solid #334155; 
+            border-radius: 10px; 
+            padding: 12px 2px; 
+            text-align: center; 
+            text-decoration: none; 
+            color: #fff; 
+            font-size: 10px; 
+            font-weight: bold; 
+            transition: 0.2s;
+        }
+        .file-card:active { background: #334155; transform: scale(0.95); }
+        .file-card span { display: block; font-size: 22px; margin-bottom: 5px; }
+        
+        /* Highlight riêng cho nút tính đèn */
+        .btn-calc { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
 
         /* Lưới Copy */
         .copy-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 600px; }
@@ -40,6 +62,7 @@
         <a href="bao-hanh.html" target="_blank" class="file-card"><span>🛡️</span>BẢO HÀNH</a>
         <a href="tem-bac.html" target="_blank" class="file-card"><span>🏷️</span>TEM BẠC</a>
         <a href="tdl_bao_gia_hop_dong_xuat_kho_Zalo.html" target="_blank" class="file-card"><span>💼</span>BÁO GIÁ</a>
+        <a href="tinh-toan-anh-sang.html" target="_blank" class="file-card btn-calc"><span>🧮</span>TÍNH ĐÈN</a>
     </div>
 
     <div class="copy-grid">

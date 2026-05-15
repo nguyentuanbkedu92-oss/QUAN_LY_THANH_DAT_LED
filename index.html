@@ -3,41 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thành Đạt LED - Management</title>
+    <title>Quản Lý Thành Đạt LED - TDL</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 15px; display: flex; flex-direction: column; align-items: center; }
         header { text-align: center; margin-bottom: 20px; }
-        header h1 { font-size: 22px; color: #38bdf8; text-transform: uppercase; }
+        header h1 { font-size: 20px; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Lưới file làm việc - Cập nhật 5 cột */
+        /* Lưới 5 nút - Tối ưu cho mọi loại điện thoại */
         .file-grid { 
             display: grid; 
             grid-template-columns: repeat(5, 1fr); 
-            gap: 8px; 
+            gap: 6px; 
             width: 100%; 
-            max-width: 650px; 
+            max-width: 600px; 
             margin-bottom: 25px; 
         }
         .file-card { 
             background: #1e293b; 
             border: 1px solid #334155; 
             border-radius: 10px; 
-            padding: 12px 2px; 
+            padding: 10px 2px; 
             text-align: center; 
             text-decoration: none; 
             color: #fff; 
-            font-size: 10px; 
+            font-size: 9px; 
             font-weight: bold; 
-            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .file-card:active { background: #334155; transform: scale(0.95); }
-        .file-card span { display: block; font-size: 22px; margin-bottom: 5px; }
+        .file-card:active { background: #334155; transform: scale(0.9); }
+        .file-card span { display: block; font-size: 20px; margin-bottom: 4px; }
         
-        /* Highlight riêng cho nút tính đèn */
+        /* Highlight nút tính đèn */
         .btn-calc { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
 
-        /* Lưới Copy */
+        /* Lưới Copy Chính sách */
         .copy-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 600px; }
         @media (min-width: 600px) { .copy-grid { grid-template-columns: 1fr 1fr; } .full-width { grid-column: span 2; } }
 
@@ -48,7 +50,7 @@
         .btn-copy { background: #38bdf8; color: #0f172a; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 12px; }
         .btn-copy:active { background: #22c55e; color: #fff; }
         
-        .toast { position: fixed; top: 20px; background: #22c55e; color: white; padding: 10px 25px; border-radius: 30px; display: none; z-index: 999; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .toast { position: fixed; top: 20px; background: #22c55e; color: white; padding: 10px 25px; border-radius: 30px; display: none; z-index: 999; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -66,22 +68,12 @@
     </div>
 
     <div class="copy-grid">
-        
         <div class="copy-card full-width">
             <h3>📝 QUY ĐỊNH THANH TOÁN</h3>
             <pre id="q_dinh">HÌNH THỨC & QUY ĐỊNH THANH TOÁN - THÀNH ĐẠT LED
-
-1. Thanh toán qua Bưu điện (COD):
-- Quý khách vui lòng đặt cọc trước 20% - 30% giá trị đơn hàng.
-- Số tiền còn lại thanh toán trực tiếp cho nhân viên giao hàng (Shipper) khi nhận hàng.
-
-2. Gửi hàng qua Xe khách/Xe tải:
-- Quý khách vui lòng thanh toán 100% giá trị đơn hàng trước khi hàng rời kho.
-- (Hỗ trợ giao hàng ra bến xe miễn phí hoặc theo thỏa thuận).
-
-3. Thanh toán qua Tài khoản Công ty (Xuất hóa đơn VAT):
-- Quý khách thanh toán 100% trước khi giao hàng.
-- Đơn vị thụ hưởng: CÔNG TY TNHH TM & DV THÀNH ĐẠT LED.</pre>
+1. Thanh toán qua Bưu điện (COD): Cọc trước 20-30%, nhận hàng thanh toán nốt cho Shipper.
+2. Gửi Xe khách/Xe tải: Thanh toán 100% trước khi giao hàng ra xe.
+3. Chuyển khoản CTY: Thanh toán 100% trước khi giao hàng.</pre>
             <button class="btn-copy" onclick="copy('q_dinh')">COPY QUY ĐỊNH</button>
         </div>
 
@@ -90,8 +82,7 @@
             <pre id="tk_cty">CÔNG TY TNHH TM & DV THÀNH ĐẠT LED
 STK: 1020594263
 Ngân hàng: Vietcombank
-Chi nhánh: Tây Hà Nội
-MST: 0109594143</pre>
+CN: Tây Hà Nội</pre>
             <button class="btn-copy" onclick="copy('tk_cty')">COPY TK CÔNG TY</button>
         </div>
 
@@ -102,10 +93,9 @@ Chủ TK: Nguyễn Văn Tuấn
 Ngân hàng: Techcombank</pre>
             <button class="btn-copy" onclick="copy('tk_cn')">COPY TK CÁ NHÂN</button>
         </div>
-
     </div>
 
-    <div id="toast" class="toast">Đã copy thành công! ✅</div>
+    <div id="toast" class="toast">Đã copy! ✅</div>
 
     <script>
         function copy(id) {

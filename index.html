@@ -3,143 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Quản Lý Thành Đạt LED</title>
+    <title>Thành Đạt LED - Management</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            background: #0f172a; 
-            color: #f8fafc;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        header { text-align: center; margin-bottom: 20px; }
+        header h1 { font-size: 22px; color: #38bdf8; text-transform: uppercase; }
 
-        header { text-align: center; margin-bottom: 30px; }
-        header h1 { font-size: 24px; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        header p { color: #94a3b8; font-size: 14px; font-style: italic; }
+        /* Lưới file làm việc */
+        .file-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 600px; margin-bottom: 25px; }
+        .file-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 5px; text-align: center; text-decoration: none; color: #fff; font-size: 11px; font-weight: bold; }
+        .file-card span { display: block; font-size: 24px; margin-bottom: 5px; }
 
-        /* Cấu hình Lưới linh hoạt */
-        .container {
-            display: grid;
-            /* Mặc định 2 cột trên điện thoại */
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 15px;
-            width: 100%;
-            max-width: 1000px;
-        }
+        /* Lưới Copy */
+        .copy-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 600px; }
+        @media (min-width: 600px) { .copy-grid { grid-template-columns: 1fr 1fr; } .full-width { grid-column: span 2; } }
 
-        /* Khi màn hình lớn hơn (Máy tính) sẽ chia 4 cột hoặc theo minmax */
-        @media (min-width: 768px) {
-            .container {
-                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-                gap: 25px;
-            }
-            header h1 { font-size: 32px; }
-        }
-
-        .card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 20px 10px;
-            text-align: center;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .card:active { transform: scale(0.95); background: #24334d; } /* Hiệu ứng nhấn trên điện thoại */
-
-        .icon { font-size: 40px; margin-bottom: 10px; }
-
-        .card h2 { font-size: 15px; margin-bottom: 8px; color: #fff; line-height: 1.2; }
-
-        /* Ẩn mô tả trên điện thoại để tiết kiệm diện tích, hiện lại trên máy tính */
-        .card p { display: none; }
-        @media (min-width: 768px) {
-            .card p { 
-                display: block; 
-                font-size: 13px; 
-                color: #94a3b8; 
-                line-height: 1.5; 
-                margin-bottom: 15px; 
-            }
-            .icon { font-size: 50px; }
-            .card h2 { font-size: 18px; }
-        }
-
-        .tag {
-            padding: 2px 8px;
-            border-radius: 15px;
-            font-size: 10px;
-            font-weight: bold;
-            background: rgba(56, 189, 248, 0.1);
-            color: #38bdf8;
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            white-space: nowrap;
-        }
-
-        .btn-open {
-            margin-top: 10px;
-            color: #38bdf8;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        footer { margin-top: auto; padding-top: 40px; color: #475569; font-size: 11px; text-align: center; }
+        .copy-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; position: relative; }
+        .copy-card h3 { font-size: 13px; color: #e87722; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 5px; text-transform: uppercase; }
+        .copy-card pre { font-family: inherit; font-size: 13px; white-space: pre-wrap; color: #cbd5e1; line-height: 1.6; flex-grow: 1; }
+        
+        .btn-copy { background: #38bdf8; color: #0f172a; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 12px; }
+        .btn-copy:active { background: #22c55e; color: #fff; }
+        
+        .toast { position: fixed; top: 20px; background: #22c55e; color: white; padding: 10px 25px; border-radius: 30px; display: none; z-index: 999; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>THÀNH ĐẠT LED</h1>
-        <p>Hệ thống quản lý biểu mẫu</p>
+        <h1>THÀNH ĐẠT LED - TDL</h1>
     </header>
 
-    <div class="container">
-        <a href="phieu-xuat-xuong.html" target="_blank" class="card">
-            <span class="icon">📜</span>
-            <h2>Chứng Nhận</h2>
-            <p>Tạo giấy chứng nhận chất lượng cho dự án, cho phép thêm bớt thông số.</p>
-            <span class="tag">Khổ A4</span>
-            <span class="btn-open">Mở ↗</span>
-        </a>
-
-        <a href="bao-hanh.html" target="_blank" class="card">
-            <span class="icon">🛡️</span>
-            <h2>Bảo Hành</h2>
-            <p>Hệ thống tạo phiếu bảo hành A5 chuyên nghiệp cho khách lẻ và công trình.</p>
-            <span class="tag">Khổ A5</span>
-            <span class="btn-open">Mở ↗</span>
-        </a>
-
-        <a href="tem-bac.html" target="_blank" class="card">
-            <span class="icon">🏷️</span>
-            <h2>Tem Bạc</h2>
-            <p>Thiết kế tem nhãn thông số kỹ thuật dán trực tiếp lên vỏ đèn.</p>
-            <span class="tag">In Tem</span>
-            <span class="btn-open">Mở ↗</span>
-        </a>
-
-        <a href="tdl_bao_gia_hop_dong_xuat_kho_Zalo.html" target="_blank" class="card">
-            <span class="icon">💼</span>
-            <h2>Báo Giá</h2>
-            <p>Quản lý báo giá, hợp đồng và lệnh xuất kho với giao diện hiện đại.</p>
-            <span class="tag">Kinh Doanh</span>
-            <span class="btn-open">Mở ↗</span>
-        </a>
+    <div class="file-grid">
+        <a href="phieu-xuat-xuong.html" target="_blank" class="file-card"><span>📜</span>XUẤT XƯỞNG</a>
+        <a href="bao-hanh.html" target="_blank" class="file-card"><span>🛡️</span>BẢO HÀNH</a>
+        <a href="tem-bac.html" target="_blank" class="file-card"><span>🏷️</span>TEM BẠC</a>
+        <a href="tdl_bao_gia_hop_dong_xuat_kho_Zalo.html" target="_blank" class="file-card"><span>💼</span>BÁO GIÁ</a>
     </div>
 
-    <footer>
-        &copy; 2026 THÀNH ĐẠT LED<br>Professional Lighting Solution
-    </footer>
+    <div class="copy-grid">
+        
+        <div class="copy-card full-width">
+            <h3>📝 QUY ĐỊNH THANH TOÁN</h3>
+            <pre id="q_dinh">HÌNH THỨC & QUY ĐỊNH THANH TOÁN - THÀNH ĐẠT LED
 
+1. Thanh toán qua Bưu điện (COD):
+- Quý khách vui lòng đặt cọc trước 20% - 30% giá trị đơn hàng.
+- Số tiền còn lại thanh toán trực tiếp cho nhân viên giao hàng (Shipper) khi nhận hàng.
+
+2. Gửi hàng qua Xe khách/Xe tải:
+- Quý khách vui lòng thanh toán 100% giá trị đơn hàng trước khi hàng rời kho.
+- (Hỗ trợ giao hàng ra bến xe miễn phí hoặc theo thỏa thuận).
+
+3. Thanh toán qua Tài khoản Công ty (Xuất hóa đơn VAT):
+- Quý khách thanh toán 100% trước khi giao hàng.
+- Đơn vị thụ hưởng: CÔNG TY TNHH TM & DV THÀNH ĐẠT LED.</pre>
+            <button class="btn-copy" onclick="copy('q_dinh')">COPY QUY ĐỊNH</button>
+        </div>
+
+        <div class="copy-card">
+            <h3>🏢 TÀI KHOẢN CÔNG TY</h3>
+            <pre id="tk_cty">CÔNG TY TNHH TM & DV THÀNH ĐẠT LED
+STK: 1020594263
+Ngân hàng: Vietcombank
+Chi nhánh: Tây Hà Nội
+MST: 0109594143</pre>
+            <button class="btn-copy" onclick="copy('tk_cty')">COPY TK CÔNG TY</button>
+        </div>
+
+        <div class="copy-card">
+            <h3>👤 TÀI KHOẢN CÁ NHÂN</h3>
+            <pre id="tk_cn">STK: 19031281402017
+Chủ TK: Nguyễn Văn Tuấn
+Ngân hàng: Techcombank</pre>
+            <button class="btn-copy" onclick="copy('tk_cn')">COPY TK CÁ NHÂN</button>
+        </div>
+
+    </div>
+
+    <div id="toast" class="toast">Đã copy thành công! ✅</div>
+
+    <script>
+        function copy(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 1500);
+            });
+        }
+    </script>
 </body>
 </html>

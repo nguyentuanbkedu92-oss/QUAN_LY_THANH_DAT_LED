@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chứng Nhận Xuất Xưởng - Thành Đạt LED</title>
+    <style>
+        @page { size: A4; margin: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; }
+        body { background-color: #f4f4f4; font-family: "Times New Roman", Times, serif; display: flex; justify-content: center; padding: 20px; }
+
+        /* Bảng điều khiển */
+        .dashboard {
+            position: fixed; left: 10px; top: 10px; width: 340px; background: white;
+            padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000; max-height: 95vh; overflow-y: auto;
+        }
+        @media print { .dashboard { display: none; } body { background: white; padding: 0; } }
+
+        .dashboard h3 { margin-bottom: 10px; font-size: 16px; color: #1a365d; border-bottom: 2px solid #c53030; padding-bottom: 5px; }
+        .dashboard label { display: block; font-size: 11px; font-weight: bold; margin-top: 8px; color: #555; }
+        .dashboard input { width: 100%; padding: 6px; margin-top: 2px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+        
+        .extra-param { display: flex; gap: 5px; margin-top: 8px; padding: 8px; background: #f9f9f9; border-radius: 4px; border: 1px dashed #ccc; }
+        .btn-remove { background: #ff4d4d; color: white; border: none; padding: 0 8px; border-radius: 4px; cursor: pointer; }
+        .btn-add { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 15px; font-weight: bold; }
+
+        .btn-update { width: 100%; padding: 12px; background: #1a365d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-print { width: 100%; padding: 12px; background: #c53030; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+
+        /* Trang A4 */
+        .a4-page { width: 210mm; height: 297mm; background: white; padding: 10mm; position: relative; }
+        .outer-border { border: 5px double #1a365d; height: 100%; padding: 3px; }
+        .inner-border { border: 1px solid #c53030; height: 100%; padding: 10mm 15mm; display: flex; flex-direction: column; position: relative; }
+
+        .header { display: flex; align-items: center; border-bottom: 2px solid #1a365d; padding-bottom: 10px; margin-bottom: 15px; }
+        .logo-area { width: 100px; font-weight: 900; font-size: 35pt; color: #1a365d; letter-spacing: -2px; }
+        .company-info { text-align: right; flex: 1; font-size: 10pt; line-height: 1.4; color: #333; }
+        .co-name { color: #c53030; font-weight: bold; font-size: 14pt; text-transform: uppercase; }
+
+        .title-box { text-align: center; margin: 20px 0; }
+        .title-main { font-size: 26pt; font-weight: bold; color: #1a365d; text-transform: uppercase; letter-spacing: 2px; }
+        .title-sub { font-size: 15pt; font-weight: bold; color: #c53030; margin-top: 5px; text-transform: uppercase; }
+
+        .info-row { display: flex; margin-bottom: 8px; font-size: 13pt; }
+        .label-text { font-weight: bold; min-width: 150px; color: #1a365d; }
+        .value-text { flex: 1; border-bottom: 1px dotted #999; padding-left: 10px; }
+
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th { background-color: #1a365d; color: white; border: 1px solid #1a365d; padding: 10px; font-size: 11pt; }
+        td { border: 1px solid #ccc; padding: 8px; font-size: 12pt; text-align: center; }
+        .col-name { text-align: left; padding-left: 15px; width: 47%; }
+        .col-val { font-weight: bold; color: #1a365d; width: 45%; }
+
+        .footer { margin-top: auto; display: flex; justify-content: space-between; }
+        .sig-box { width: 45%; text-align: center; }
+        .sig-date { font-style: italic; margin-bottom: 8px; font-size: 11pt; }
+        .sig-title { font-weight: bold; font-size: 12pt; text-transform: uppercase; color: #1a365d; }
+        .sig-space { height: 80px; }
+
+        .watermark {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 70pt; opacity: 0.04; font-weight: 900; pointer-events: none; white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <h3>Cấu Hình Chứng Nhận TDL</h3>
+    <label>Ngày cấp phiếu</label><input type="text" id="in_date" value="15 tháng 05 năm 2026">
+    <label>Dự án</label><input type="text" id="in_duan" value="DỰ ÁN CHIẾU SÁNG SÂN PICKLEBALL">
+    <label>Khách hàng</label><input type="text" id="in_kh" value="CÔNG TY XÂY DỰNG THÀNH ĐẠT">
+    <label>Tên sản phẩm</label><input type="text" id="in_sp" value="Đèn Led Module 200W">
+    <label>Mã sản phẩm</label><input type="text" id="in_ma" value="TDL-M200-PKL">
+    <label>Số lượng</label><input type="text" id="in_sl" value="20 Bộ">
+
+    <h4 style="margin-top:15px; color:#c53030; font-size:14px;">7 Thông số cố định:</h4>
+    <label>1. Công suất</label><input type="text" id="p1" value="200W">
+    <label>2. Điện áp</label><input type="text" id="p2" value="220V/50-60Hz">
+    <label>3. Quang thông</label><input type="text" id="p3" value="24.000 lm">
+    <label>4. Nhiệt độ màu</label><input type="text" id="p4" value="4000K/6000K">
+    <label>5. Chỉ số CRI</label><input type="text" id="p5" value="> 85 Ra">
+    <label>6. Cấp bảo vệ</label><input type="text" id="p6" value="IP66 / IK08">
+    <label>7. Nguồn / Chip LED</label><input type="text" id="p7" value="Philips / Meanwell">
+
+    <div id="extra-container"></div>
+    
+    <button class="btn-add" onclick="addExtraRow()">+ Thêm biến (8, 9...)</button>
+    <button class="btn-update" onclick="updateCert()">CẬP NHẬT PHIẾU</button>
+    <button class="btn-print" onclick="window.print()">IN / XUẤT PDF</button>
+</div>
+
+<div class="a4-page">
+    <div class="watermark">THÀNH ĐẠT LED</div>
+    <div class="outer-border">
+        <div class="inner-border">
+            <div class="header">
+                <div class="logo-area">TDL</div>
+                <div class="company-info">
+                    <div class="co-name">Công Ty TNHH TM & DV Thành Đạt LED</div>
+                    Website: www.thanhdatled.com | Hotline: 0986.474.671<br>
+                    Địa chỉ: Số 938 đường Quang Trung, P.Yên Nghĩa, TP Hà Nội
+                </div>
+            </div>
+
+            <div class="title-box">
+                <h1 class="title-main">Giấy Chứng Nhận</h1>
+                <h2 class="title-sub">Chất Lượng Xuất Xưởng</h2>
+            </div>
+
+            <div class="info-section">
+                <div class="info-row"><span class="label-text">Dự án:</span><span class="value-text" id="out_duan"></span></div>
+                <div class="info-row"><span class="label-text">Khách hàng:</span><span class="value-text" id="out_kh"></span></div>
+                <div class="info-row"><span class="label-text">Sản phẩm:</span><span class="value-text" id="out_sp"></span></div>
+                <div class="info-row"><span class="label-text">Mã sản phẩm:</span><span class="value-text" id="out_ma" style="font-weight:bold; color:#c53030;"></span></div>
+                <div class="info-row"><span class="label-text">Số lượng:</span><span class="value-text" id="out_sl"></span></div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 8%">STT</th>
+                        <th class="col-name">Chỉ Tiêu Kỹ Thuật</th>
+                        <th class="col-val">Thông Số Chi Tiết</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr><td>1</td><td class="col-name">Công suất tiêu thụ</td><td class="col-val" id="out_p1"></td></tr>
+                    <tr><td>2</td><td class="col-name">Điện áp hoạt động</td><td class="col-val" id="out_p2"></td></tr>
+                    <tr><td>3</td><td class="col-name">Quang thông (Lumen)</td><td class="col-val" id="out_p3"></td></tr>
+                    <tr><td>4</td><td class="col-name">Nhiệt độ màu (CCT)</td><td class="col-val" id="out_p4"></td></tr>
+                    <tr><td>5</td><td class="col-name">Chỉ số hoàn màu (CRI)</td><td class="col-val" id="out_p5"></td></tr>
+                    <tr><td>6</td><td class="col-name">Cấp bảo vệ (IP/IK)</td><td class="col-val" id="out_p6"></td></tr>
+                    <tr><td>7</td><td class="col-name">Nguồn / Chip LED</td><td class="col-val" id="out_p7"></td></tr>
+                </tbody>
+            </table>
+
+            <p style="font-style: italic; font-size: 11pt; margin-top: 10px;">
+                * Chứng nhận sản phẩm đáp ứng các tiêu chuẩn kỹ thuật hiện hành của Thành Đạt LED.
+            </p>
+
+            <div class="footer">
+                <div class="sig-box">
+                    <div class="sig-date">Ngày ...... tháng ...... năm 2026</div>
+                    <div class="sig-title">QUẢN LÝ CHẤT LƯỢNG</div>
+                    <div class="sig-space"></div>
+                    <p>(Ký tên)</p>
+                </div>
+                <div class="sig-box">
+                    <div class="sig-date">Hà Nam, ngày <span id="out_date">...</span></div>
+                    <div class="sig-title">ĐẠI DIỆN THÀNH ĐẠT LED</div>
+                    <div class="sig-space"></div>
+                    <p>(Ký tên và đóng dấu)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function addExtraRow() {
+        const container = document.getElementById('extra-container');
+        const count = document.querySelectorAll('.extra-row-item').length + 8;
+        const div = document.createElement('div');
+        div.className = 'extra-param extra-row-item';
+        div.innerHTML = `
+            <div style="flex:1">
+                <input type="text" class="ex-name" placeholder="Tên biến ${count}">
+                <input type="text" class="ex-val" placeholder="Thông số">
+            </div>
+            <button class="btn-remove" onclick="this.parentElement.remove()">X</button>
+        `;
+        container.appendChild(div);
+    }
+
+    function updateCert() {
+        document.getElementById('out_date').innerText = document.getElementById('in_date').value;
+        document.getElementById('out_duan').innerText = document.getElementById('in_duan').value;
+        document.getElementById('out_kh').innerText = document.getElementById('in_kh').value;
+        document.getElementById('out_sp').innerText = document.getElementById('in_sp').value;
+        document.getElementById('out_ma').innerText = document.getElementById('in_ma').value;
+        document.getElementById('out_sl').innerText = document.getElementById('in_sl').value;
+
+        for(let i=1; i<=7; i++) {
+            document.getElementById('out_p'+i).innerText = document.getElementById('p'+i).value;
+        }
+
+        const tableBody = document.getElementById('table-body');
+        const rows = tableBody.querySelectorAll('tr');
+        for (let i = rows.length - 1; i >= 7; i--) { rows[i].remove(); }
+
+        const exNames = document.getElementsByClassName('ex-name');
+        const exVals = document.getElementsByClassName('ex-val');
+
+        for (let i = 0; i < exNames.length; i++) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${i + 8}</td><td class="col-name">${exNames[i].value}</td><td class="col-val">${exVals[i].value}</td>`;
+            tableBody.appendChild(row);
+        }
+    }
+    updateCert();
+</script>
+</body>
+</html>

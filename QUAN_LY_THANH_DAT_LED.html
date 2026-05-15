@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Thành Đạt LED</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: #0f172a; 
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        header { text-align: center; margin-bottom: 50px; }
+        header h1 { font-size: 32px; color: #38bdf8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        header p { color: #94a3b8; font-style: italic; }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Hiệu ứng khi di chuột vào: Nổi bật và đổi màu viền */
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: #38bdf8;
+            background: #24334d;
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.15);
+        }
+
+        .icon { font-size: 50px; margin-bottom: 20px; }
+
+        .card h2 { font-size: 18px; margin-bottom: 12px; color: #fff; }
+
+        .card p { font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 15px; }
+
+        .tag {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .btn-open {
+            margin-top: 15px;
+            color: #38bdf8;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        footer { margin-top: auto; padding-top: 60px; color: #475569; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Thành Đạt LED - Central Hub</h1>
+        <p>Hệ thống phím tắt truy cập nhanh biểu mẫu</p>
+    </header>
+
+    <div class="container">
+        <a href="phieu-xuat-xuong.html" target="_blank" class="card">
+            <span class="icon">📜</span>
+            <h2>Chứng Nhận Xuất Xưởng</h2>
+            <p>Tạo giấy chứng nhận chất lượng cho dự án, cho phép thêm bớt thông số.</p>
+            <span class="tag">Khổ A4 / In ấn</span>
+            <span class="btn-open">Mở tab mới ↗</span>
+        </a>
+
+        <a href="bao-hanh.html" target="_blank" class="card">
+            <span class="icon">🛡️</span>
+            <h2>Phiếu Bảo Hành</h2>
+            <p>Hệ thống tạo phiếu bảo hành A5 chuyên nghiệp cho khách lẻ và công trình.</p>
+            <span class="tag">Khổ A5 / Xuất ảnh</span>
+            <span class="btn-open">Mở tab mới ↗</span>
+        </a>
+
+        <a href="tem-bac.html" target="_blank" class="card">
+            <span class="icon">🏷️</span>
+            <h2>Tem Bạc Sản Phẩm</h2>
+            <p>Thiết kế tem nhãn thông số kỹ thuật dán trực tiếp lên vỏ đèn.</p>
+            <span class="tag">Label / 4x Scale</span>
+            <span class="btn-open">Mở tab mới ↗</span>
+        </a>
+
+        <a href="tdl_bao_gia_hop_dong_xuat_kho_Zalo.html" target="_blank" class="card">
+            <span class="icon">💼</span>
+            <h2>Báo Giá & Hợp Đồng</h2>
+            <p>Quản lý báo giá, hợp đồng và lệnh xuất kho với giao diện hiện đại.</p>
+            <span class="tag">Kinh Doanh / Zalo Style</span>
+            <span class="btn-open">Mở tab mới ↗</span>
+        </a>
+    </div>
+
+    <footer>
+        &copy; 2026 THÀNH ĐẠT LED - Giải pháp chiếu sáng chuyên nghiệp
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Bảo Hành - Thành Đạt LED </title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f4f4f4; font-family: "Segoe UI", Arial, sans-serif; padding: 10px; }
+        
+        /* Wrapper linh hoạt trên mobile */
+        .wrapper { 
+            display: flex; 
+            gap: 20px; 
+            justify-content: center; 
+            align-items: flex-start; 
+            flex-wrap: wrap; /* Tự xuống dòng trên điện thoại */
+        }
+
+        .form-box { 
+            width: 100%; 
+            max-width: 320px; 
+            background: #fff; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+        }
+        .form-box h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #e31a1a; padding-bottom: 5px; }
+        .form-box label { font-size: 11px; font-weight: bold; color: #444; display: block; margin-top: 8px; }
+        .form-box input { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #ddd; border-radius: 5px; }
+        .btn-up { width: 100%; padding: 12px; background: #333; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 15px; }
+        .btn-down { width: 100%; padding: 12px; background: #e31a1a; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+
+        /* KHỔ A5 CHUẨN - Fix lỗi hiển thị điện thoại */
+        #warrantyArea {
+            width: 210mm;
+            height: 148mm;
+            background: #fff;
+            padding: 7mm;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0; /* Không cho phép bị bóp méo */
+        }
+
+        /* Responsive: Thu nhỏ vùng hiển thị trên mobile để không bị tràn */
+        @media (max-width: 768px) {
+            #warrantyArea {
+                transform: scale(0.45); /* Thu nhỏ hiển thị */
+                transform-origin: top center;
+                margin-bottom: -80mm; /* Bù lại khoảng trống do scale */
+            }
+        }
+        @media (max-width: 480px) {
+            #warrantyArea {
+                transform: scale(0.38);
+                margin-bottom: -95mm;
+            }
+        }
+
+        .border-inner {
+            border: 2px solid #000;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 5mm 8mm;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #000; padding-bottom: 2mm; }
+        .logo-text h1 { font-size: 20pt; font-weight: 900; }
+        .contact-info { text-align: right; font-size: 9pt; line-height: 1.3; }
+
+        .title-section { text-align: center; margin: 4mm 0; }
+        .title-section h2 { font-size: 24pt; text-transform: uppercase; letter-spacing: 4px; font-weight: 800; }
+
+        .content-section { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .info-group { display: flex; margin-bottom: 3mm; border-bottom: 1px dotted #ccc; padding-bottom: 1mm; }
+        .label { font-weight: bold; width: 150px; font-size: 12pt; }
+        .value { font-size: 12pt; flex: 1; color: #000; }
+
+        .terms { 
+            margin-top: 2mm; 
+            font-size: 9.5pt; 
+            color: #111; 
+            line-height: 1.5; 
+            padding-top: 2mm;
+            border-top: 1px solid #000;
+        }
+
+        .watermark { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); 
+            font-size: 80pt; opacity: 0.03; font-weight: 900; pointer-events: none; z-index: 1; white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="form-box">
+        <h2>Dữ Liệu Bảo Hành</h2>
+        <label>Khách Hàng</label><input type="text" id="i1" value="Nguyễn Văn A">
+        <label>Số Điện Thoại</label><input type="text" id="i2" value="0986.xxx.xxx">
+        <label>Sản Phẩm</label><input type="text" id="i3" value="Đèn Pha Led Module 100W">
+        <label>Mã Đơn Hàng</label><input type="text" id="i4" value="TDL-2026-9999">
+        <label>Ngày Mua</label><input type="text" id="i5" value="15/05/2026">
+        <label>Thời Hạn</label><input type="text" id="i6" value="36 Tháng">
+
+        <button class="btn-up" onclick="update()">CẬP NHẬT PHIẾU</button>
+        <button class="btn-down" onclick="download()">XUẤT ẢNH A5</button>
+    </div>
+
+    <div id="warrantyArea">
+        <div class="watermark">THÀNH ĐẠT LED</div>
+        <div class="border-inner">
+            <div class="header">
+                <div class="logo-text">
+                    <h1>THÀNH ĐẠT LED - TDL </h1>
+                    <p style="font-size: 8pt; letter-spacing: 1px;">Bừng sáng không gian</p>
+                </div>
+                <div class="contact-info">
+                    <b>Website:</b> thanhdatled.com<br>
+                    <b>Hotline:</b> 0986.474.671 - 0867.933.396 <br>
+                    <b>Địa chỉ:</b> Hà Nội
+                </div>
+            </div>
+
+            <div class="title-section">
+                <h2>PHIẾU BẢO HÀNH</h2>
+                <p style="font-size: 10pt; font-style: italic;">Chất lượng tạo nên niềm tin</p>
+            </div>
+
+            <div class="content-section">
+                <div class="info-group"><span class="label">Khách hàng:</span><span class="value" id="o1">Nguyễn Văn A</span></div>
+                <div class="info-group"><span class="label">Số điện thoại:</span><span class="value" id="o2">0986.xxx.xxx</span></div>
+                <div class="info-group"><span class="label">Sản phẩm:</span><span class="value" id="o3">Đèn Pha Led Module 100W</span></div>
+                <div class="info-group"><span class="label">Mã đơn hàng:</span><span class="value" id="o4">TDL-2026-9999</span></div>
+                <div class="info-group"><span class="label">Ngày mua hàng:</span><span class="value" id="o5">15/05/2026</span></div>
+                <div class="info-group"><span class="label">Thời hạn bảo hành:</span><span class="value" id="o6">36 Tháng</span></div>
+            </div>
+
+            <div class="terms">
+                <b>ĐIỀU KIỆN BẢO HÀNH:</b><br>
+                (1) Phiếu còn nguyên vẹn, không có dấu hiệu tẩy xóa. (2) Sản phẩm còn trong thời hạn bảo hành và hỏng do lỗi kỹ thuật của nhà sản xuất. (3) Không bảo hành do thiên tai, cháy nổ hoặc khách hàng tự ý tháo dỡ thiết bị.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function update() {
+        for(let i=1; i<=6; i++) {
+            document.getElementById('o'+i).innerText = document.getElementById('i'+i).value;
+        }
+    }
+
+    function download() {
+        const target = document.getElementById('warrantyArea');
+        
+        // Khi tải ảnh, tạm thời bỏ scale của mobile để ảnh ra đúng kích thước A5
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            target.style.transform = "none";
+        }
+
+        html2canvas(target, {
+            scale: 3, // Độ sắc nét
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            width: target.offsetWidth,
+            height: target.offsetHeight
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.download = 'PhieuBaoHanh_' + document.getElementById('i1').value + '.png';
+            link.click();
+
+            // Sau khi tải xong, trả lại scale cho mobile hiển thị đẹp
+            if (isMobile) {
+                location.reload(); // Cách đơn giản nhất để reset lại giao diện mobile
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

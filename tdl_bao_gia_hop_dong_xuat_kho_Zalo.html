@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thành Đạt LED — Báo Giá & Hợp Đồng</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0B1120;
+  --surface: #131D30;
+  --surface2: #1A2640;
+  --border: #1E3050;
+  --accent: #E87722;
+  --accent2: #1D4ED8;
+  --green: #22C55E;
+  --red: #EF4444;
+  --yellow: #F59E0B;
+  --text: #E2EAF8;
+  --muted: #5A7099;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,#1a3a7a 0%,#0f2456 100%);
+  padding:16px 20px 14px;text-align:center;
+  border-bottom:3px solid var(--accent);
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 4px 24px rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;gap:14px;
+}
+.header-logo{height:48px;width:auto;object-fit:contain;flex-shrink:0}
+.header-text{text-align:left}
+.header-title{font-size:18px;font-weight:800;color:#fff;line-height:1.2}
+.header-sub{font-size:12px;color:var(--accent);font-weight:600;margin-top:2px}
+
+/* TABS */
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:82px;z-index:99;overflow-x:auto}
+.tab-btn{flex:1;min-width:90px;padding:12px 8px;font-family:inherit;font-size:12.5px;font-weight:700;background:none;border:none;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* PANELS */
+.panel{display:none;padding:16px}
+.panel.active{display:block}
+
+/* FORM */
+.section-title{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin:20px 0 12px}
+.section-title:first-child{margin-top:0}
+.field{margin-bottom:12px}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}
+input[type=text],input[type=date],input[type=number],textarea,select{
+  width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-family:inherit;font-size:14px;
+  outline:none;transition:border-color .2s;-webkit-appearance:none
+}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+textarea{resize:vertical;min-height:80px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* PRODUCT */
+.product-list{display:flex;flex-direction:column;gap:10px}
+.product-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;position:relative}
+.product-num{font-size:10px;font-weight:800;color:var(--accent);letter-spacing:1px;margin-bottom:10px}
+.del-btn{position:absolute;top:10px;right:10px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red);border-radius:7px;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.product-subtotal{margin-top:10px;text-align:right;font-size:13px;font-weight:700;color:var(--green)}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:13px;border-radius:12px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-add{background:rgba(232,119,34,.1);border:1px dashed rgba(232,119,34,.4);color:var(--accent);margin-top:10px}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#c45e10);color:#fff;margin-top:16px;box-shadow:0 4px 15px rgba(232,119,34,.4)}
+.btn-primary:active{transform:scale(.98)}
+.btn-blue{background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;margin-top:10px;box-shadow:0 4px 15px rgba(37,99,235,.4)}
+.btn-green{background:linear-gradient(135deg,#16A34A,#15803D);color:#fff;margin-top:10px;box-shadow:0 4px 15px rgba(22,163,74,.4)}
+.btn-purple{background:linear-gradient(135deg,#7C3AED,#6D28D9);color:#fff;margin-top:10px;box-shadow:0 4px 15px rgba(124,58,237,.4)}
+.btn-word{background:linear-gradient(135deg,#2563EB,#1e40af);color:#fff;margin-top:10px;box-shadow:0 4px 15px rgba(37,99,235,.4)}
+
+/* SUMMARY */
+.summary-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:16px}
+.sum-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px}
+.sum-row:last-child{border-bottom:none}
+.sum-label{color:var(--muted);font-weight:500}
+.sum-value{font-weight:700;color:var(--text)}
+.sum-total .sum-label{color:var(--accent);font-size:15px;font-weight:700}
+.sum-total .sum-value{color:var(--accent);font-size:16px}
+
+/* PREVIEW CONTROLS */
+#previewBaoGiaPanel,#previewHopDongPanel{padding:0}
+.preview-controls{padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+.preview-controls .btn{margin:0;flex:1;min-width:80px;padding:10px 8px;font-size:13px}
+
+/* PAPER */
+.quote-paper,.contract-paper,.xk-paper{
+  background:#fff;color:#1a1a1a;
+  max-width:794px;margin:0 auto;
+  padding:28px 30px 36px;
+  font-family:'Be Vietnam Pro',Arial,sans-serif;
+  min-height:500px;font-size:13px;
+}
+/* Company Header */
+.q-company-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;padding-bottom:12px;border-bottom:2.5px solid #E87722}
+.q-company-name{font-size:14px;font-weight:800;color:#E87722;margin-bottom:3px;line-height:1.2}
+.q-company-info{font-size:11px;color:#555;line-height:1.7}
+.q-logo-box{flex-shrink:0}
+.q-logo-box img{height:55px;width:auto;object-fit:contain;display:block}
+/* Quote */
+.q-title{text-align:center;font-size:17px;font-weight:800;color:#1D4ED8;letter-spacing:1px;margin:14px 0 12px;text-transform:uppercase}
+.q-meta{display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:12px;font-size:12px;line-height:1.7}
+.q-meta-right{text-align:right;color:#555}
+.q-meta strong{color:#1a1a1a}
+.q-intro{font-size:12px;margin-bottom:10px;font-style:italic;color:#444;text-align:center}
+.q-table{width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:12px}
+.q-table th{background:#1D4ED8;color:#fff;padding:7px 5px;font-weight:700;text-align:center;font-size:11px}
+.q-table td{padding:6px 5px;border:1px solid #d0d8e8;vertical-align:top}
+.q-table tr:nth-child(even) td{background:#f0f5ff}
+.td-center{text-align:center}.td-right{text-align:right}.td-desc{max-width:230px;line-height:1.5}
+.q-totals{margin-bottom:10px}
+.q-totals-row{display:flex;justify-content:flex-end;gap:16px;padding:4px 0;font-size:12.5px;border-bottom:1px solid #e5e7eb}
+.q-totals-row:last-child{border-bottom:none}
+.q-totals-label{color:#555;min-width:150px;text-align:right}
+.q-totals-value{font-weight:700;min-width:130px;text-align:right;color:#1a1a1a}
+.q-total-main .q-totals-label{color:#1D4ED8;font-weight:700;font-size:13px}
+.q-total-main .q-totals-value{color:#1D4ED8;font-size:14px}
+.q-bangchu{font-size:11px;font-style:italic;color:#555;text-align:right;margin-bottom:14px}
+.q-footer-table{width:100%;border-collapse:collapse;font-size:11px}
+.q-footer-table td{border:1px solid #d0d8e8;padding:9px 10px;vertical-align:top;width:50%}
+.q-footer-title{font-weight:800;color:#1D4ED8;font-size:11.5px;margin-bottom:5px;text-transform:uppercase}
+.q-footer-body{color:#444;line-height:1.8}
+.q-sign{font-weight:800;color:#1D4ED8;text-align:center;margin-top:8px;font-size:11.5px}
+
+/* CONTRACT STYLES */
+.c-header-nation{text-align:center;font-size:12px;font-weight:800;color:#1D4ED8;margin-bottom:2px;text-transform:uppercase}
+.c-header-slogan{text-align:center;font-size:11.5px;font-weight:700;color:#555;letter-spacing:1px;margin-bottom:10px}
+.c-divider{text-align:center;font-size:12px;color:#E87722;margin-bottom:10px;font-weight:700}
+.c-title{text-align:center;font-size:16px;font-weight:800;color:#1D4ED8;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.c-subtitle{text-align:center;font-size:12px;color:#555;font-style:italic;margin-bottom:12px}
+.c-parties{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.c-party-box{border:1px solid #d0d8e8;border-radius:6px;padding:10px;background:#f8faff}
+.c-party-title{font-weight:800;color:#1D4ED8;font-size:12px;text-align:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #d0d8e8;text-transform:uppercase}
+.c-party-info{font-size:11px;line-height:1.9;color:#333}
+.c-party-info strong{color:#1a1a1a}
+.c-section{margin:12px 0}
+.c-section-title{font-weight:800;font-size:12.5px;color:#1D4ED8;margin-bottom:6px;border-bottom:1px solid #e0e7ff;padding-bottom:4px;text-transform:uppercase}
+.c-body{font-size:11.5px;line-height:1.9;color:#333}
+.c-body p{margin-bottom:6px}
+.c-body .indent{padding-left:16px}
+.c-table{width:100%;border-collapse:collapse;font-size:11px;margin:8px 0}
+.c-table th{background:#1D4ED8;color:#fff;padding:6px 5px;font-weight:700;text-align:center;font-size:10.5px}
+.c-table td{padding:5px;border:1px solid #d0d8e8;vertical-align:top;text-align:center}
+.c-table td:nth-child(2){text-align:left}
+.c-table tr:nth-child(even) td{background:#f0f5ff}
+.c-totals{background:#f0f5ff;border:1px solid #d0d8e8;border-radius:4px;padding:8px 12px;margin:8px 0}
+.c-total-row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px;border-bottom:1px solid #d0d8e8}
+.c-total-row:last-child{border-bottom:none;font-weight:800;color:#1D4ED8;font-size:13px}
+.c-sign-table{width:100%;border-collapse:collapse;margin-top:20px}
+.c-sign-table td{width:50%;text-align:center;padding:10px;vertical-align:top;border:1px solid #d0d8e8}
+.c-sign-title{font-weight:800;color:#1D4ED8;font-size:12px;margin-bottom:4px;text-transform:uppercase}
+.c-sign-name{font-size:11px;color:#555;margin-bottom:50px}
+.c-sign-line{border-top:1px solid #aaa;width:80%;margin:0 auto;padding-top:4px;font-size:11px;color:#333;font-weight:700}
+.c-note{font-size:11px;font-style:italic;color:#666;margin-top:4px;text-align:center}
+.c-footer-line{margin-top:16px;padding-top:10px;border-top:2px solid #E87722;display:flex;justify-content:space-between;align-items:center}
+.c-footer-contact{font-size:10.5px;color:#555;line-height:1.6}
+.c-footer-hotline{font-size:13px;font-weight:800;color:#E87722}
+
+/* XUẤT KHO STYLES */
+.xk-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:10px;border-bottom:2.5px solid #E87722}
+.xk-company-name{font-size:13px;font-weight:800;color:#E87722;margin-bottom:3px}
+.xk-company-info{font-size:10.5px;color:#555;line-height:1.7}
+.xk-nation{text-align:center;font-size:11.5px;font-weight:800;color:#1D4ED8;text-transform:uppercase;margin-bottom:1px}
+.xk-slogan{text-align:center;font-size:10.5px;font-weight:700;color:#555;letter-spacing:1px;margin-bottom:6px}
+.xk-divider{text-align:center;font-size:11px;color:#E87722;font-weight:700;margin-bottom:4px}
+.xk-title{text-align:center;font-size:16px;font-weight:800;color:#E87722;letter-spacing:1px;text-transform:uppercase;margin:8px 0 4px}
+.xk-subtitle{text-align:center;font-size:11px;color:#555;font-style:italic;margin-bottom:10px}
+.xk-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px 16px;margin:10px 0;font-size:11.5px;line-height:1.9;border:1px solid #fcd9ae;border-radius:6px;padding:10px;background:#fff8f0}
+.xk-info-grid span{color:#555}
+.xk-info-grid strong{color:#1a1a1a}
+.xk-table{width:100%;border-collapse:collapse;font-size:11.5px;margin:10px 0}
+.xk-table th{background:#E87722;color:#fff;padding:7px 5px;font-weight:700;text-align:center;font-size:11px}
+.xk-table td{padding:6px 5px;border:1px solid #d0d8e8;vertical-align:top}
+.xk-table tr:nth-child(even) td{background:#fff8f0}
+.xk-td-center{text-align:center}
+.xk-td-right{text-align:right}
+.xk-totals-row{display:flex;justify-content:flex-end;gap:16px;padding:6px 0;font-size:12.5px;border-top:2px solid #E87722;margin-top:4px}
+.xk-totals-label{color:#555;min-width:130px;text-align:right}
+.xk-totals-value{font-weight:800;min-width:120px;text-align:right;color:#E87722}
+.xk-bangchu{font-size:11px;font-style:italic;color:#555;text-align:right;margin-bottom:12px}
+.xk-note-box{background:#fff8f0;border:1px solid #fcd9ae;border-radius:6px;padding:8px 12px;font-size:11px;color:#555;margin-bottom:12px;line-height:1.7}
+.xk-note-label{font-weight:800;color:#E87722;margin-bottom:2px}
+.xk-sign-table{width:100%;border-collapse:collapse;margin-top:14px}
+.xk-sign-table td{width:33.33%;text-align:center;padding:8px 6px;vertical-align:top;border:1px solid #d0d8e8}
+.xk-sign-title{font-weight:800;color:#E87722;font-size:11px;margin-bottom:3px;text-transform:uppercase}
+.xk-sign-sub{font-size:10px;color:#777;font-style:italic;margin-bottom:36px}
+.xk-sign-line{border-top:1px solid #aaa;width:80%;margin:0 auto;padding-top:3px;font-size:10.5px;color:#333;font-weight:700}
+.xk-footer{margin-top:12px;padding-top:8px;border-top:2px solid #E87722;display:flex;justify-content:space-between;align-items:center}
+.xk-footer-info{font-size:10px;color:#555;line-height:1.6}
+.xk-footer-hotline{font-size:11.5px;font-weight:800;color:#E87722}
+
+/* ZALO BOX */
+.zalo-section{margin-top:20px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.zalo-section-header{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:rgba(29,78,216,.12);border-bottom:1px solid var(--border)}
+.zalo-section-label{font-size:11px;font-weight:800;letter-spacing:1.5px;color:#3b9af5;text-transform:uppercase}
+.zalo-section-sub{font-size:10.5px;color:var(--muted);margin-top:1px}
+.btn-copy-zalo{background:linear-gradient(135deg,#0068ff,#0050cc);color:#fff;border:none;border-radius:9px;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .2s}
+.btn-copy-zalo:active{transform:scale(.97)}
+.btn-copy-zalo.copied{background:linear-gradient(135deg,var(--green),#15803d)}
+.zalo-content{padding:14px;font-size:13px;line-height:1.75;color:var(--text);white-space:pre-wrap;word-break:break-word;font-family:'Be Vietnam Pro',monospace;min-height:60px;user-select:all;letter-spacing:.01em}
+
+@media print {
+  @page { size: A4; margin: 15mm 12mm; }
+  body { background: #fff !important; }
+  .header, .tabs, .preview-controls, .zalo-section { display: none !important; }
+  .panel { display: none !important; }
+  .panel.active { display: block !important; padding: 0 !important; }
+  .quote-paper, .contract-paper, .xk-paper {
+    max-width: 100% !important; margin: 0 !important;
+    padding: 0 !important; box-shadow: none !important;
+  }
+  .q-table th, .c-table th, .xk-table th {
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+  }
+  .q-table tr:nth-child(even) td, .c-table tr:nth-child(even) td,
+  .xk-table tr:nth-child(even) td, .c-party-box, .c-totals,
+  .xk-info-grid, .xk-note-box {
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img class="header-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgODAiPgogIDx0ZXh0IHg9IjEwIiB5PSI2MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9Ijc0IiBmb250LXdlaWdodD0iOTAwIiBmaWxsPSIjRTg3NzIyIj5UREw8L3RleHQ+CiAgPHRleHQgeD0iMTAiIHk9Ijc4IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMyMjM4NkUiPkLhu6luZyBzw6FuZyBraMO0bmcgZ2lhbjwvdGV4dD4KPC9zdmc+" alt="TDL">
+  <div class="header-text">
+    <div class="header-title">THÀNH ĐẠT LED</div>
+    <div class="header-sub">Báo giá & Hợp đồng tự động</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('form')">📝 Nhập liệu</button>
+  <button class="tab-btn" onclick="switchTab('previewBaoGia')">📄 Báo giá</button>
+  <button class="tab-btn" onclick="switchTab('previewXuatKho')">📦 Xuất kho</button>
+  <button class="tab-btn" onclick="switchTab('previewHopDong')">📋 Hợp đồng</button>
+</div>
+
+<!-- ===== FORM PANEL ===== -->
+<div id="formPanel" class="panel active">
+
+  <div class="section-title">🏢 Thông tin khách hàng (Bên Mua)</div>
+  <div class="field">
+    <label>Tên công ty / khách hàng *</label>
+    <input type="text" id="khachHang" placeholder="VD: CÔNG TY CỔ PHẦN ABC">
+  </div>
+  <div class="row2">
+    <div class="field">
+      <label>Mã số thuế</label>
+      <input type="text" id="mst" placeholder="0109xxxxx">
+    </div>
+    <div class="field">
+      <label>Số điện thoại</label>
+      <input type="text" id="sdt" placeholder="0xxx.xxx.xxx">
+    </div>
+  </div>
+  <div class="field">
+    <label>Địa chỉ khách hàng</label>
+    <input type="text" id="diaChi" placeholder="Địa chỉ khách hàng">
+  </div>
+  <div class="row2">
+    <div class="field">
+      <label>Người đại diện</label>
+      <input type="text" id="daiDien" placeholder="Nguyễn Văn A">
+    </div>
+    <div class="field">
+      <label>Chức vụ</label>
+      <input type="text" id="chucVu" placeholder="Giám đốc">
+    </div>
+  </div>
+  <div class="row2">
+    <div class="field">
+      <label>Số tài khoản</label>
+      <input type="text" id="stk" placeholder="123456789">
+    </div>
+    <div class="field">
+      <label>Ngân hàng</label>
+      <input type="text" id="nganhang" placeholder="Vietcombank">
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">📋 Thông tin hợp đồng</div>
+  <div class="row3">
+    <div class="field">
+      <label>Số hợp đồng</label>
+      <input type="text" id="soHopDong" placeholder="HDTDL-xxxxxx">
+    </div>
+    <div class="field">
+      <label>Ngày ký *</label>
+      <input type="date" id="ngayKy">
+    </div>
+    <div class="field">
+      <label>Thời gian giao hàng (ngày)</label>
+      <input type="number" id="tgGiaoHang" placeholder="15" min="1" value="15">
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">📦 Sản phẩm</div>
+  <div class="product-list" id="productList"></div>
+  <button class="btn btn-add" onclick="addProduct()">＋ Thêm sản phẩm</button>
+
+  <div class="section-title" style="margin-top:24px">🧾 Thuế & Chiết khấu</div>
+  <div class="row2">
+    <div class="field">
+      <label>VAT (%)</label>
+      <select id="vatRate">
+        <option value="0">0% — Không VAT</option>
+        <option value="8" selected>8%</option>
+        <option value="10">10%</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Chiết khấu (%)</label>
+      <input type="number" id="discount" placeholder="0" min="0" max="100" step="0.1" value="0">
+    </div>
+  </div>
+
+  <div class="summary-box">
+    <div class="sum-row"><span class="sum-label">Tổng tiền hàng</span><span class="sum-value" id="sumSubtotal">0 VNĐ</span></div>
+    <div class="sum-row" id="discountRow" style="display:none"><span class="sum-label">Chiết khấu</span><span class="sum-value" id="sumDiscount" style="color:var(--red)">0 VNĐ</span></div>
+    <div class="sum-row" id="vatRow"><span class="sum-label">VAT (8%)</span><span class="sum-value" id="sumVat">0 VNĐ</span></div>
+    <div class="sum-row sum-total"><span class="sum-label">TỔNG THANH TOÁN</span><span class="sum-value" id="sumTotal">0 VNĐ</span></div>
+  </div>
+
+  <button class="btn btn-primary" onclick="generateAll()">▶ Tạo Báo Giá · Xuất Kho · Hợp Đồng →</button>
+
+  <!-- ZALO BOX -->
+  <div class="zalo-section" id="zaloSection">
+    <div class="zalo-section-header">
+      <div>
+        <div class="zalo-section-label">💬 NỘI DUNG ZALO</div>
+        <div class="zalo-section-sub">Tự động tạo từ báo giá — nhấn copy gửi khách</div>
+      </div>
+      <button class="btn-copy-zalo" id="btnCopyZalo" onclick="copyZaloText()">
+        📋 Copy Zalo
+      </button>
+    </div>
+    <div class="zalo-content" id="zaloContent">Nhập thông tin và nhấn "Tạo Báo Giá · Xuất Kho · Hợp Đồng" để tạo nội dung Zalo.</div>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">📦 Thông tin xuất kho</div>
+  <div class="row2">
+    <div class="field">
+      <label>Số phiếu xuất kho</label>
+      <input type="text" id="soPhieuXuat" placeholder="PXK-xxxxxx">
+    </div>
+    <div class="field">
+      <label>Ngày xuất kho</label>
+      <input type="date" id="ngayXuatKho">
+    </div>
+  </div>
+  <div class="row2">
+    <div class="field">
+      <label>Kho xuất</label>
+      <input type="text" id="khoXuat" placeholder="Kho Hà Nội" value="Kho Hà Nội">
+    </div>
+    <div class="field">
+      <label>Địa điểm giao hàng</label>
+      <input type="text" id="diaDiemGiao" placeholder="Địa chỉ nhận hàng">
+    </div>
+  </div>
+  <div class="row2">
+    <div class="field">
+      <label>Người giao hàng</label>
+      <input type="text" id="nguoiGiao" placeholder="Nguyễn Văn B">
+    </div>
+    <div class="field">
+      <label>Phương tiện vận chuyển</label>
+      <input type="text" id="phuongTien" placeholder="Xe tải / Grab...">
+    </div>
+  </div>
+  <div class="row2">
+    <div class="field">
+      <label>Người nhận hàng</label>
+      <input type="text" id="nguoiNhan" placeholder="Nguyễn Văn C">
+    </div>
+    <div class="field">
+      <label>Thủ kho</label>
+      <input type="text" id="thuKho" placeholder="Trần Văn D">
+    </div>
+  </div>
+  <div class="field">
+    <label>Ghi chú xuất kho</label>
+    <input type="text" id="ghiChuXuat" placeholder="Hàng mới 100%, đóng gói nguyên kiện...">
+  </div>
+</div>
+
+<!-- ===== BÁO GIÁ PANEL ===== -->
+<div id="previewBaoGiaPanel" class="panel">
+  <div class="preview-controls">
+    <button class="btn btn-green" onclick="printDoc('quotePaper')">🖨 In Báo Giá</button>
+    <button class="btn btn-word" onclick="exportWord('quotePaper','BaoGia')">📄 Xuất Word</button>
+    <button class="btn btn-purple" onclick="downloadDoc('quotePaper','BaoGia')">⬇ Tải HTML</button>
+    <button class="btn btn-blue" onclick="switchTab('previewHopDong')">📋 Xem HĐ →</button>
+    <button class="btn" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);flex:0 0 60px" onclick="switchTab('form')">✏ Sửa</button>
+  </div>
+  <div class="quote-paper" id="quotePaper">
+    <div style="color:#aaa;text-align:center;padding:40px;font-size:14px">
+      Nhập thông tin và nhấn <strong>"Tạo Báo Giá & Hợp Đồng"</strong>.
+    </div>
+  </div>
+</div>
+
+<!-- ===== PHIẾU XUẤT KHO PANEL ===== -->
+<div id="previewXuatKhoPanel" class="panel">
+  <div class="preview-controls">
+    <button class="btn btn-green" onclick="printDoc('xuatKhoPaper')">🖨 In Phiếu</button>
+    <button class="btn btn-word" onclick="exportWord('xuatKhoPaper','PhieuXuatKho')">📄 Xuất Word</button>
+    <button class="btn btn-purple" onclick="downloadDoc('xuatKhoPaper','PhieuXuatKho')">⬇ Tải HTML</button>
+    <button class="btn btn-blue" onclick="switchTab('previewBaoGia')">📄 ← BG</button>
+    <button class="btn btn-blue" onclick="switchTab('previewHopDong')">📋 HĐ →</button>
+    <button class="btn" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);flex:0 0 60px" onclick="switchTab('form')">✏ Sửa</button>
+  </div>
+  <div class="xk-paper" id="xuatKhoPaper">
+    <div style="color:#aaa;text-align:center;padding:40px;font-size:14px">
+      Nhập thông tin và nhấn <strong>"Tạo Báo Giá · Xuất Kho · Hợp Đồng"</strong>.
+    </div>
+  </div>
+</div>
+
+<!-- ===== HỢP ĐỒNG PANEL ===== -->
+<div id="previewHopDongPanel" class="panel">
+  <div class="preview-controls">
+    <button class="btn btn-green" onclick="printDoc('contractPaper')">🖨 In Hợp Đồng</button>
+    <button class="btn btn-word" onclick="exportWord('contractPaper','HopDong')">📄 Xuất Word</button>
+    <button class="btn btn-purple" onclick="downloadDoc('contractPaper','HopDong')">⬇ Tải HTML</button>
+    <button class="btn btn-blue" onclick="switchTab('previewBaoGia')">📄 ← Xem BG</button>
+    <button class="btn" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);flex:0 0 60px" onclick="switchTab('form')">✏ Sửa</button>
+  </div>
+  <div class="contract-paper" id="contractPaper">
+    <div style="color:#aaa;text-align:center;padding:40px;font-size:14px">
+      Nhập thông tin và nhấn <strong>"Tạo Báo Giá & Hợp Đồng"</strong>.
+    </div>
+  </div>
+</div>
+
+<!-- PRINT TARGET -->
+<div id="printTarget" style="display:none"></div>
+
+<script>
+// TDL Logo SVG as base64
+const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 95">
+  <text x="8" y="72" font-family="Arial" font-size="88" font-weight="900" fill="#E87722">TDL</text>
+  <text x="8" y="90" font-family="Arial" font-size="14" fill="#22386E">Bừng sáng không gian</text>
+</svg>`;
+const LOGO_DATA = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(LOGO_SVG)));
+
+let products = [], productId = 0;
+const today = new Date();
+document.getElementById('ngayKy').value = today.toISOString().split('T')[0];
+// Auto generate contract number
+const d = today;
+document.getElementById('soHopDong').value = 'HDTDL-' + String(d.getDate()).padStart(2,'0') + String(d.getMonth()+1).padStart(2,'0') + String(d.getFullYear()).slice(-2);
+document.getElementById('ngayXuatKho').value = today.toISOString().split('T')[0];
+document.getElementById('soPhieuXuat').value = 'PXK-' + String(d.getDate()).padStart(2,'0') + String(d.getMonth()+1).padStart(2,'0') + String(d.getFullYear()).slice(-2);
+addProduct();
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const map = {form:0, previewBaoGia:1, previewXuatKho:2, previewHopDong:3};
+  document.querySelectorAll('.tab-btn')[map[tab]].classList.add('active');
+  document.getElementById(tab+'Panel').classList.add('active');
+}
+
+function addProduct() {
+  const id = ++productId;
+  products.push({id, mo_ta:'', ghi_chu:'', don_gia:'', so_luong:1});
+  renderProducts();
+}
+function removeProduct(id) {
+  if (products.length <= 1) { alert('Phải có ít nhất 1 sản phẩm.'); return; }
+  products = products.filter(p => p.id !== id);
+  renderProducts();
+}
+function renderProducts() {
+  const list = document.getElementById('productList');
+  list.innerHTML = '';
+  products.forEach((p, idx) => {
+    const sub = (parseFloat(p.don_gia)||0)*(parseFloat(p.so_luong)||0);
+    const div = document.createElement('div');
+    div.className = 'product-item';
+    div.innerHTML = `
+      <div class="product-num">SẢN PHẨM #${idx+1}</div>
+      ${products.length>1?`<button class="del-btn" onclick="removeProduct(${p.id})">×</button>`:''}
+      <div class="field"><label>Mô tả sản phẩm *</label>
+        <textarea placeholder="Tên SP, thông số kỹ thuật..." oninput="updateProduct(${p.id},'mo_ta',this.value)">${p.mo_ta}</textarea>
+      </div>
+      <div class="field"><label>Ghi chú</label>
+        <input type="text" placeholder="VD: Done / Bridgelux" value="${p.ghi_chu}" oninput="updateProduct(${p.id},'ghi_chu',this.value)">
+      </div>
+      <div class="row2">
+        <div class="field"><label>Đơn giá (VNĐ) *</label>
+          <input type="number" placeholder="0" value="${p.don_gia}" min="0" oninput="updateProduct(${p.id},'don_gia',this.value)">
+        </div>
+        <div class="field"><label>Số lượng *</label>
+          <input type="number" placeholder="1" value="${p.so_luong}" min="0.01" step="any" oninput="updateProduct(${p.id},'so_luong',this.value)">
+        </div>
+      </div>
+      <div class="product-subtotal">Thành tiền: ${fmt(sub)} VNĐ</div>`;
+    list.appendChild(div);
+  });
+  updateSummary();
+}
+function updateProduct(id, field, value) {
+  const p = products.find(x => x.id === id);
+  if(p) p[field] = value;
+  const idx = products.indexOf(p);
+  const sub = (parseFloat(p.don_gia)||0)*(parseFloat(p.so_luong)||0);
+  const items = document.querySelectorAll('.product-subtotal');
+  if(items[idx]) items[idx].textContent = `Thành tiền: ${fmt(sub)} VNĐ`;
+  updateSummary();
+}
+function updateSummary() {
+  const sub = products.reduce((s,p) => s+(parseFloat(p.don_gia)||0)*(parseFloat(p.so_luong)||0), 0);
+  const discPct = parseFloat(document.getElementById('discount').value)||0;
+  const vatPct = parseFloat(document.getElementById('vatRate').value)||0;
+  const discAmt = sub*discPct/100;
+  const base = sub - discAmt;
+  const vat = base*vatPct/100;
+  const total = base+vat;
+  document.getElementById('sumSubtotal').textContent = fmt(sub)+' VNĐ';
+  document.getElementById('sumVat').textContent = fmt(vat)+' VNĐ';
+  document.getElementById('sumTotal').textContent = fmt(total)+' VNĐ';
+  document.getElementById('vatRow').querySelector('.sum-label').textContent = `VAT (${vatPct}%)`;
+  if(discPct>0) { document.getElementById('discountRow').style.display='flex'; document.getElementById('sumDiscount').textContent='-'+fmt(discAmt)+' VNĐ'; }
+  else document.getElementById('discountRow').style.display='none';
+}
+document.getElementById('vatRate').addEventListener('change', updateSummary);
+document.getElementById('discount').addEventListener('input', updateSummary);
+
+function fmt(n) { return Math.round(n).toLocaleString('vi-VN'); }
+
+function fmtDate(raw) {
+  if(!raw) return '';
+  const d = new Date(raw+'T00:00:00');
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
+// Số thành chữ
+function soToText(so) {
+  if(so===0) return 'không đồng';
+  const u=['','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
+  const t=['mười','mười một','mười hai','mười ba','mười bốn','mười lăm','mười sáu','mười bảy','mười tám','mười chín'];
+  function rg(n) {
+    if(n===0) return '';
+    if(n<10) return u[n];
+    if(n<20) return t[n-10];
+    if(n<100) { const a=Math.floor(n/10),b=n%10; return u[a]+' mươi'+(b===0?'':b===5?' lăm':b===1?' mốt':' '+u[b]); }
+    const h=Math.floor(n/100),r=n%100;
+    let s=u[h]+' trăm';
+    if(r>0&&r<10) s+=' lẻ '+u[r]; else if(r>=10) s+=' '+rg(r);
+    return s;
+  }
+  const parts=[];
+  const scales=[{v:1e9,n:'tỷ'},{v:1e6,n:'triệu'},{v:1e3,n:'nghìn'},{v:1,n:''}];
+  let rem=Math.round(so);
+  for(const sc of scales) { const q=Math.floor(rem/sc.v); if(q>0){parts.push(rg(q)+(sc.n?' '+sc.n:''));rem-=q*sc.v;} }
+  return parts.join(' ')+' đồng';
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase()+s.slice(1); }
+
+function calcTotals() {
+  const sub = products.reduce((s,p) => s+(parseFloat(p.don_gia)||0)*(parseFloat(p.so_luong)||0), 0);
+  const discPct = parseFloat(document.getElementById('discount').value)||0;
+  const vatPct = parseFloat(document.getElementById('vatRate').value)||0;
+  const discAmt = sub*discPct/100;
+  const base = sub-discAmt;
+  const vat = base*vatPct/100;
+  const total = base+vat;
+  const deposit = Math.round(total*0.3);
+  const remain = total-deposit;
+  return {sub,discPct,discAmt,vatPct,vat,base,total,deposit,remain};
+}
+
+function generateAll() {
+  const kh = document.getElementById('khachHang').value.trim();
+  if(!kh) { alert('Vui lòng nhập tên khách hàng!'); return; }
+  if(products.some(p => !p.mo_ta.trim()||!p.don_gia)) { alert('Vui lòng nhập đầy đủ mô tả và đơn giá!'); return; }
+
+  const data = {
+    khachHang: kh,
+    mst: document.getElementById('mst').value.trim(),
+    sdt: document.getElementById('sdt').value.trim(),
+    diaChi: document.getElementById('diaChi').value.trim(),
+    daiDien: document.getElementById('daiDien').value.trim()||'Ông/Bà ___________',
+    chucVu: document.getElementById('chucVu').value.trim()||'Giám đốc',
+    stk: document.getElementById('stk').value.trim(),
+    nganhang: document.getElementById('nganhang').value.trim(),
+    soHopDong: document.getElementById('soHopDong').value.trim(),
+    ngayKy: document.getElementById('ngayKy').value,
+    tgGiaoHang: document.getElementById('tgGiaoHang').value||'15',
+    ngayKyStr: fmtDate(document.getElementById('ngayKy').value),
+  };
+
+  generateQuote(data);
+  generateXuatKho(data);
+  generateContract(data);
+  generateZaloText(data);
+  switchTab('previewBaoGia');
+}
+
+function generateZaloText(data) {
+  const t = calcTotals();
+
+  // Chi tiết từng sản phẩm
+  let productLines = '';
+  products.forEach((p, i) => {
+    const dg = parseFloat(p.don_gia)||0;
+    const sl = parseFloat(p.so_luong)||0;
+    const tt = dg * sl;
+    const moTa = p.mo_ta.replace(/\n/g,' ').trim();
+    productLines += `${i+1}. ${moTa}\n   SL: ${sl} × ${fmt(dg)} = ${fmt(tt)} VNĐ\n`;
+    if(p.ghi_chu && p.ghi_chu.trim()) {
+      productLines += `   (${p.ghi_chu.trim()})\n`;
+    }
+  });
+
+  // Dòng tổng
+  let tongDong = `💰 TỔNG: ${fmt(t.sub)} VNĐ`;
+  if(t.discPct > 0) tongDong += ` − CK ${t.discPct}% = ${fmt(t.base)} VNĐ`;
+  if(t.vatPct > 0) tongDong += ` + VAT ${t.vatPct}% = ${fmt(t.total)} VNĐ`;
+  else if(t.discPct === 0) tongDong += ` (chưa VAT)`;
+  tongDong += ' (chưa ship)';
+
+  // Khách hàng
+  const kh = data.khachHang || '';
+  const sdt = data.sdt || '';
+  const dc = data.diaChi || '';
+
+  const text =
+`📦 ĐƠN HÀNG ĐÈN LED TDL
+──────────────────
+🛒 CHI TIẾT SẢN PHẨM:
+${productLines.trimEnd()}
+──────────────────
+${tongDong}
+──────────────────
+👤 ${kh}${sdt ? '\n📞 ' + sdt : ''}${dc ? '\n📍 ' + dc : ''}
+──────────────────
+✅ Hàng mới 100% | Bảo hành chính hãng TDL
+🏠 THÀNH ĐẠT LED | ☎ 0986.474.671 - 0919.931.213 | 🌐 thanhdatled.com`;
+
+  document.getElementById('zaloContent').textContent = text;
+
+  // Reset copy button
+  const btn = document.getElementById('btnCopyZalo');
+  btn.textContent = '📋 Copy Zalo';
+  btn.classList.remove('copied');
+}
+
+function copyZaloText() {
+  const text = document.getElementById('zaloContent').textContent;
+  if(!text || text.includes('Nhập thông tin')) { alert('Vui lòng tạo báo giá trước!'); return; }
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btnCopyZalo');
+    btn.textContent = '✅ Đã copy!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 Copy Zalo';
+      btn.classList.remove('copied');
+    }, 2500);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.getElementById('btnCopyZalo');
+    btn.textContent = '✅ Đã copy!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Copy Zalo'; btn.classList.remove('copied'); }, 2500);
+  });
+}
+
+function generateQuote(data) {
+  const t = calcTotals();
+  let rows = '';
+  products.forEach((p,i) => {
+    const dg = parseFloat(p.don_gia)||0, sl = parseFloat(p.so_luong)||0;
+    rows += `<tr>
+      <td class="td-center">${i+1}</td>
+      <td class="td-desc">${p.mo_ta.replace(/\n/g,'<br>')}</td>
+      <td class="td-center">${p.ghi_chu||''}</td>
+      <td class="td-right">${fmt(dg)} đ</td>
+      <td class="td-center">${sl}</td>
+      <td class="td-right">${fmt(dg*sl)} đ</td>
+    </tr>`;
+  });
+
+  let totalsHtml = `<div class="q-totals-row"><span class="q-totals-label">CỘNG TIỀN HÀNG:</span><span class="q-totals-value">${fmt(t.sub)} đ</span></div>`;
+  if(t.discPct>0) totalsHtml += `<div class="q-totals-row"><span class="q-totals-label">CHIẾT KHẤU (${t.discPct}%):</span><span class="q-totals-value" style="color:#dc2626">- ${fmt(t.discAmt)} đ</span></div>`;
+  if(t.vatPct>0) totalsHtml += `<div class="q-totals-row"><span class="q-totals-label">VAT (${t.vatPct}%):</span><span class="q-totals-value">${fmt(t.vat)} đ</span></div>`;
+  totalsHtml += `<div class="q-totals-row q-total-main"><span class="q-totals-label">TỔNG THANH TOÁN:</span><span class="q-totals-value">${fmt(t.total)} đ</span></div>`;
+
+  document.getElementById('quotePaper').innerHTML = `
+    <div class="q-company-header">
+      <div>
+        <div class="q-company-name">CÔNG TY TNHH TM & DV THÀNH ĐẠT LED</div>
+        <div class="q-company-info">
+          Mã số thuế: 0109594143<br>
+          Địa chỉ: Số 938 đường Quang Trung, Phường Yên Nghĩa, TP Hà Nội<br>
+          Hotline: 0986.474.671 &nbsp;|&nbsp; thanhdatled.com
+        </div>
+      </div>
+      <div class="q-logo-box"><img src="${LOGO_DATA}" alt="TDL" style="height:52px"></div>
+    </div>
+    <div class="q-title">BÁO GIÁ SẢN PHẨM</div>
+    <div class="q-meta">
+      <div class="q-meta-left">
+        <strong>Kính gửi:</strong> ${data.khachHang}<br>
+        ${data.sdt?`<strong>SĐT:</strong> ${data.sdt}<br>`:''}
+        ${data.diaChi?`<strong>Địa chỉ:</strong> ${data.diaChi}`:''}
+      </div>
+      <div class="q-meta-right">
+        <strong>Ngày:</strong> ${data.ngayKyStr}<br>
+        <strong>Số HĐ:</strong> ${data.soHopDong}
+      </div>
+    </div>
+    <div class="q-intro">THÀNH ĐẠT LED trân trọng gửi đến Quý khách bảng báo giá chi tiết như sau:</div>
+    <table class="q-table">
+      <thead>
+        <tr>
+          <th style="width:36px">STT</th>
+          <th>Mô tả sản phẩm</th>
+          <th style="width:80px">Ghi chú</th>
+          <th style="width:100px">Đơn giá</th>
+          <th style="width:60px">SL</th>
+          <th style="width:110px">Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="q-totals">${totalsHtml}</div>
+    <div class="q-bangchu">(Bằng chữ: ${capitalize(soToText(t.total))})</div>
+    <table class="q-footer-table">
+      <tr>
+        <td>
+          <div class="q-footer-title">Điều khoản & Chính sách</div>
+          <div class="q-footer-body">
+            • Báo giá có hiệu lực 15 ngày kể từ ngày gửi.<br>
+            • Hàng hóa mới 100%, chưa qua sử dụng.<br>
+            • Thanh toán: Đặt cọc 30%, thanh toán 70% trước giao hàng.<br>
+            • Giá ${t.vatPct>0?`đã bao gồm VAT ${t.vatPct}%`:'chưa bao gồm VAT'}.<br>
+            • Giao hàng: trong vòng ${data.tgGiaoHang} ngày làm việc sau đặt cọc.
+          </div>
+          <div style="text-align:center;font-weight:700;color:#555;font-size:11px;border-top:1px solid #ddd;padding-top:6px;margin-top:6px">
+            Xác nhận của khách hàng<br><br><br>____________________
+          </div>
+        </td>
+        <td>
+          <div class="q-footer-title">Thông tin thanh toán</div>
+          <div class="q-footer-body">
+            Công ty: <strong>CÔNG TY TNHH TM & DV THÀNH ĐẠT LED</strong><br>
+            STK: <strong>1020594263</strong><br>
+            Ngân hàng: <strong>Vietcombank CN Tây Hà Nội</strong>
+          </div>
+          <div class="q-sign" style="margin-top:28px">
+            Trân trọng cảm ơn Quý khách!<br><br>
+            ĐẠI DIỆN CÔNG TY<br><br>
+            <span style="font-style:italic;font-weight:400;color:#555">Nguyễn Văn Tuấn — Giám đốc</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+  `;
+}
+
+function generateXuatKho(data) {
+  const t = calcTotals();
+  const soPhieuXuat = document.getElementById('soPhieuXuat').value.trim() || ('PXK-' + data.soHopDong.replace(/\D/g,''));
+  const ngayXuat = fmtDate(document.getElementById('ngayXuatKho').value) || data.ngayKyStr;
+  const khoXuat = document.getElementById('khoXuat').value.trim() || 'Kho Hà Nội';
+  const diaDiemGiao = document.getElementById('diaDiemGiao').value.trim() || data.diaChi || '_______________';
+  const nguoiGiao = document.getElementById('nguoiGiao').value.trim() || '_______________';
+  const phuongTien = document.getElementById('phuongTien').value.trim() || '_______________';
+  const nguoiNhan = document.getElementById('nguoiNhan').value.trim() || data.daiDien;
+  const thuKho = document.getElementById('thuKho').value.trim() || '_______________';
+  const ghiChu = document.getElementById('ghiChuXuat').value.trim();
+
+  let rows = '';
+  products.forEach((p, i) => {
+    const dg = parseFloat(p.don_gia)||0, sl = parseFloat(p.so_luong)||0;
+    rows += `<tr>
+      <td class="xk-td-center">${i+1}</td>
+      <td>${p.mo_ta.replace(/\n/g,'<br>')}</td>
+      <td class="xk-td-center">${p.ghi_chu||''}</td>
+      <td class="xk-td-center">Bộ</td>
+      <td class="xk-td-center">${sl}</td>
+      <td class="xk-td-center">${sl}</td>
+      <td class="xk-td-center">0</td>
+      <td class="xk-td-right">${fmt(dg)} đ</td>
+      <td class="xk-td-right">${fmt(dg*sl)} đ</td>
+    </tr>`;
+  });
+
+  document.getElementById('xuatKhoPaper').innerHTML = `
+    <div class="xk-header">
+      <div>
+        <div class="xk-company-name">CÔNG TY TNHH TM & DV THÀNH ĐẠT LED</div>
+        <div class="xk-company-info">
+          MST: 0109594143 &nbsp;|&nbsp; Hotline: 0986.474.671<br>
+          938 Quang Trung, Yên Nghĩa, Hà Đông, Hà Nội
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="xk-nation">CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+        <div class="xk-slogan">Độc lập — Tự do — Hạnh phúc</div>
+        <div class="xk-divider">— ✦ —</div>
+      </div>
+    </div>
+
+    <div class="xk-title">PHIẾU XUẤT KHO</div>
+    <div class="xk-subtitle">Số: ${soPhieuXuat} &nbsp;|&nbsp; Ngày xuất: ${ngayXuat} &nbsp;|&nbsp; Căn cứ HĐ: ${data.soHopDong}</div>
+
+    <div class="xk-info-grid">
+      <div><span>Đơn vị xuất hàng: </span><strong>CÔNG TY TNHH TM & DV THÀNH ĐẠT LED</strong></div>
+      <div><span>Kho xuất: </span><strong>${khoXuat}</strong></div>
+      <div><span>Người nhận: </span><strong>${nguoiNhan}</strong></div>
+      <div><span>Địa điểm giao: </span><strong>${diaDiemGiao}</strong></div>
+      <div><span>Người giao hàng: </span><strong>${nguoiGiao}</strong></div>
+      <div><span>Phương tiện: </span><strong>${phuongTien}</strong></div>
+      <div><span>Đơn vị nhận: </span><strong>${data.khachHang}</strong></div>
+      <div><span>SĐT liên hệ: </span><strong>${data.sdt||'___________'}</strong></div>
+    </div>
+
+    <table class="xk-table">
+      <thead>
+        <tr>
+          <th style="width:32px">STT</th>
+          <th>Tên hàng hóa / Mô tả</th>
+          <th style="width:70px">Ghi chú</th>
+          <th style="width:40px">ĐVT</th>
+          <th style="width:50px">SL theo HĐ</th>
+          <th style="width:50px">SL xuất</th>
+          <th style="width:40px">SL còn</th>
+          <th style="width:90px">Đơn giá</th>
+          <th style="width:100px">Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    <div class="xk-totals-row">
+      <span class="xk-totals-label">TỔNG SỐ LƯỢNG XUẤT:</span>
+      <span class="xk-totals-value">${products.reduce((s,p)=>s+(parseFloat(p.so_luong)||0),0)} sản phẩm</span>
+    </div>
+    <div class="xk-totals-row" style="border-top:none;padding-top:2px">
+      <span class="xk-totals-label">TỔNG GIÁ TRỊ HÀNG XUẤT:</span>
+      <span class="xk-totals-value">${fmt(t.sub)} đ</span>
+    </div>
+    ${t.vatPct>0?`<div class="xk-totals-row" style="border-top:none;padding-top:2px"><span class="xk-totals-label">VAT (${t.vatPct}%):</span><span class="xk-totals-value">${fmt(t.vat)} đ</span></div>`:''}
+    <div class="xk-bangchu">(Bằng chữ: ${capitalize(soToText(t.sub))})</div>
+
+    ${ghiChu?`<div class="xk-note-box"><div class="xk-note-label">📝 Ghi chú:</div>${ghiChu}</div>`:''}
+    <div class="xk-note-box">
+      <div class="xk-note-label">📋 Điều kiện xuất kho:</div>
+      • Hàng hóa được kiểm tra trước khi xuất kho, đảm bảo đúng số lượng và chất lượng.<br>
+      • Sau khi nhận hàng, bên nhận chịu trách nhiệm bảo quản và sử dụng.<br>
+      • Phiếu này có giá trị làm chứng từ kế toán khi có đủ chữ ký.
+    </div>
+
+    <table class="xk-sign-table">
+      <tr>
+        <td>
+          <div class="xk-sign-title">Người lập phiếu</div>
+          <div class="xk-sign-sub">(Ký, họ tên)</div>
+          <div class="xk-sign-line">_______________</div>
+        </td>
+        <td>
+          <div class="xk-sign-title">Thủ kho</div>
+          <div class="xk-sign-sub">(Ký, họ tên)</div>
+          <div class="xk-sign-line">${thuKho}</div>
+        </td>
+        <td>
+          <div class="xk-sign-title">Người nhận hàng</div>
+          <div class="xk-sign-sub">(Ký, họ tên)</div>
+          <div class="xk-sign-line">${nguoiNhan}</div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="xk-footer">
+      <div class="xk-footer-info">
+        938 Quang Trung, Yên Nghĩa, Hà Đông, Hà Nội &nbsp;|&nbsp; MST: 0109594143<br>
+        <span class="xk-footer-hotline">Hotline: 0986.474.671</span>
+      </div>
+      <div style="font-size:20pt;font-weight:900;color:#E87722;font-family:Arial Black,Arial,sans-serif">TDL</div>
+    </div>
+  `;
+}
+
+function generateContract(data) {
+  const t = calcTotals();
+  let rows = '';
+  products.forEach((p,i) => {
+    const dg = parseFloat(p.don_gia)||0, sl = parseFloat(p.so_luong)||0;
+    rows += `<tr>
+      <td>${i+1}.0</td>
+      <td style="text-align:left">${p.mo_ta.replace(/\n/g,'<br>')}</td>
+      <td>${p.ghi_chu||''}</td>
+      <td>${fmt(dg)} đ</td>
+      <td>${sl}</td>
+      <td>${fmt(dg*sl)} đ</td>
+    </tr>`;
+  });
+
+  const vatRow = t.vatPct>0 ? `<div class="c-total-row"><span>VAT (${t.vatPct}%):</span><span>${fmt(t.vat)} đ</span></div>` : '';
+  const discRow = t.discPct>0 ? `<div class="c-total-row"><span>Chiết khấu (${t.discPct}%):</span><span style="color:#dc2626">- ${fmt(t.discAmt)} đ</span></div>` : '';
+
+  document.getElementById('contractPaper').innerHTML = `
+    <div class="c-header-nation">CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+    <div class="c-header-slogan">ĐỘC LẬP — TỰ DO — HẠNH PHÚC</div>
+    <div class="c-divider">— ✦ —</div>
+    <div style="text-align:center;margin-bottom:4px">
+      <img src="${LOGO_DATA}" alt="TDL" style="height:50px">
+    </div>
+    <div class="c-title">HỢP ĐỒNG MUA BÁN SỐ: ${data.soHopDong}</div>
+    <div class="c-subtitle">V/v: Cung cấp thiết bị điện chiếu sáng</div>
+
+    <div class="c-body" style="font-size:11px;color:#444;margin-bottom:10px">
+      <p><em>- Căn cứ Bộ luật dân sự số 91/2015/QH13 được Quốc hội nước CHXHCN Việt Nam thông qua ngày 24/11/2015, có hiệu lực từ 01/01/2017;</em></p>
+      <p><em>- Căn cứ Luật thương mại số 36/2005/QH11, có hiệu lực từ 01/01/2006;</em></p>
+      <p><em>- Căn cứ nhu cầu và khả năng của các Bên tham gia ký hợp đồng.</em></p>
+      <p>Hôm nay ngày ${data.ngayKyStr}, tại CÔNG TY TNHH TM & DV THÀNH ĐẠT LED, chúng tôi gồm:</p>
+    </div>
+
+    <div class="c-parties">
+      <div class="c-party-box">
+        <div class="c-party-title">BÊN MUA (BÊN A)</div>
+        <div class="c-party-info">
+          <strong>${data.khachHang}</strong><br>
+          ${data.mst?`Mã số thuế: <strong>${data.mst}</strong><br>`:''}
+          ${data.diaChi?`Địa chỉ: ${data.diaChi}<br>`:''}
+          ${data.sdt?`Điện thoại: <strong>${data.sdt}</strong><br>`:''}
+          Đại diện: <strong>${data.daiDien}</strong><br>
+          Chức vụ: ${data.chucVu}<br>
+          ${data.stk?`STK: <strong>${data.stk}</strong><br>`:''}
+          ${data.nganhang?`Ngân hàng: ${data.nganhang}`:''}
+        </div>
+      </div>
+      <div class="c-party-box">
+        <div class="c-party-title">BÊN BÁN (BÊN B)</div>
+        <div class="c-party-info">
+          <strong>CÔNG TY TNHH TM & DV THÀNH ĐẠT LED</strong><br>
+          Mã số thuế: <strong>0109594143</strong><br>
+          Địa chỉ: 938 Quang Trung, Yên Nghĩa, Hà Nội<br>
+          Hotline: <strong>0986.474.671</strong><br>
+          Đại diện: <strong>Nguyễn Văn Tuấn</strong><br>
+          Chức vụ: Giám đốc<br>
+          STK: <strong>1020594263</strong><br>
+          Ngân hàng: Vietcombank CN Tây Hà Nội
+        </div>
+      </div>
+    </div>
+    <div class="c-body" style="text-align:center;font-style:italic;margin-bottom:12px;font-size:11px">
+      (Bên A, Bên B gọi riêng là <strong>"Bên"</strong>, gọi chung là <strong>"Hai Bên"</strong> hoặc <strong>"Các Bên"</strong>)<br>
+      Sau khi thống nhất, hai Bên tiến hành ký kết hợp đồng với các điều khoản sau:
+    </div>
+
+    <div class="c-section">
+      <div class="c-section-title">ĐIỀU 1. HÀNG HÓA, SỐ LƯỢNG VÀ GIÁ TRỊ HỢP ĐỒNG</div>
+      <div class="c-body">
+        <p>1.1. Bên A đồng ý mua, Bên B đồng ý bán theo chi tiết sau:</p>
+      </div>
+      <table class="c-table">
+        <thead>
+          <tr>
+            <th style="width:36px">STT</th>
+            <th>Mô tả sản phẩm</th>
+            <th style="width:80px">Ghi chú</th>
+            <th style="width:90px">Đơn giá</th>
+            <th style="width:50px">SL</th>
+            <th style="width:100px">Thành tiền</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="c-totals">
+        <div class="c-total-row"><span>Tổng tiền hàng:</span><span>${fmt(t.sub)} đ</span></div>
+        ${discRow}${vatRow}
+        <div class="c-total-row"><span>TỔNG THANH TOÁN:</span><span>${fmt(t.total)} đ</span></div>
+      </div>
+      <div class="c-body">
+        <p><em>(Bằng chữ: ${capitalize(soToText(t.total))})</em></p>
+        <p class="indent">- Giá trên ${t.vatPct>0?`đã bao gồm thuế VAT ${t.vatPct}%`:'chưa bao gồm thuế VAT'}.</p>
+        <p class="indent">- Giá trên chưa bao gồm phí vận chuyển.</p>
+        <p class="indent">- Các linh kiện mới 100%, nguyên tem, đúng mẫu mã theo yêu cầu Bên A.</p>
+      </div>
+    </div>
+
+    <div class="c-section">
+      <div class="c-section-title">ĐIỀU 2. THỜI GIAN VÀ PHƯƠNG THỨC GIAO HÀNG</div>
+      <div class="c-body">
+        <p><strong>Thời gian giao hàng:</strong> Trong vòng <strong>${data.tgGiaoHang} ngày làm việc</strong> kể từ ngày Bên B nhận được khoản thanh toán Đợt 1 (tiền đặt cọc) của Bên A.</p>
+        <p><strong>Địa điểm giao hàng:</strong> Số 938 đường Quang Trung, Phường Yên Nghĩa, TP Hà Nội.</p>
+      </div>
+    </div>
+
+    <div class="c-section">
+      <div class="c-section-title">ĐIỀU 3. PHƯƠNG THỨC THANH TOÁN</div>
+      <div class="c-body">
+        <p><strong>3.1.</strong> Hình thức: Chuyển khoản qua tài khoản ngân hàng của Bên Bán.</p>
+        <p><strong>3.2.</strong> Tổng giá trị: <strong>${fmt(t.total)} đ</strong>. Chia làm 02 đợt:</p>
+        <p class="indent">• <strong>Đợt 1 (Tạm ứng 30%):</strong> Trong vòng 01 ngày kể từ ngày ký, Bên A thanh toán <strong>${fmt(t.deposit)} đ</strong> (${capitalize(soToText(t.deposit))}).</p>
+        <p class="indent">• <strong>Đợt 2 (Thanh toán nốt 70%):</strong> Trước khi giao hàng, Bên A thanh toán <strong>${fmt(t.remain)} đ</strong> (${capitalize(soToText(t.remain))}).</p>
+        <p><strong>3.3.</strong> Hồ sơ kèm hàng: Giấy bảo hành (01), Phiếu xuất kho (01).</p>
+      </div>
+    </div>
+
+    <div class="c-section">
+      <div class="c-section-title">ĐIỀU 4. BẢO HÀNH</div>
+      <div class="c-body">
+        <p>- Bảo hành sản phẩm trong vòng <strong>24 tháng</strong> (tại địa điểm Bên Bán) kể từ ngày ký biên bản nghiệm thu bàn giao.</p>
+        <p>- Tiến độ bảo hành: trong vòng 5 ngày sau khi Bên Bán nhận được hàng cần bảo hành.</p>
+        <p>- Nếu quá 05 ngày mà Bên Bán không thực hiện, Bên Mua có thể mời bên thứ ba sửa chữa, chi phí do Bên Bán chịu.</p>
+        <p>- Đổi hàng mới trong 24 tiếng nếu hàng hỏng hóc khi nhận.</p>
+        <p>- Bảo hành: cháy nổ, ngấm nước, nháy chip led, không sáng đèn. <em>Không bảo hành khi va đập, móp méo, vỡ sản phẩm.</em></p>
+      </div>
+    </div>
+
+    <div class="c-section">
+      <div class="c-section-title">ĐIỀU 5. TRÁCH NHIỆM CỦA CÁC BÊN</div>
+      <div class="c-body">
+        <p><strong>5.1. Bên Bán:</strong> Cung cấp đúng quy cách, chất lượng, số lượng; thực hiện bảo hành; nếu giao chậm quá 05 ngày (trừ bất khả kháng) bị phạt 0,4%/ngày của giá trị hàng chậm, tổng tối đa 8% giá trị HĐ.</p>
+        <p><strong>5.2. Bên Mua:</strong> Kết hợp giao nhận đúng thời gian, địa điểm; thanh toán theo Điều 3.</p>
+      </div>
+    </div>
+
+    <div class="c-section">
+      <div class="c-section-title">ĐIỀU 6. ĐIỀU KHOẢN CHUNG</div>
+      <div class="c-body">
+        <p>- Hai Bên chủ động thông báo tiến độ thực hiện. Nếu có vấn đề phát sinh, các bên phải kịp thời thông báo và bàn bạc giải quyết.</p>
+        <p>- Tranh chấp không tự giải quyết được sẽ chuyển đến Tòa Án có thẩm quyền TP Hà Nội. Án phí do bên thua kiện chịu.</p>
+        <p>- Hợp đồng có hiệu lực từ ngày ký, tự động thanh lý khi hai Bên hoàn thành nghĩa vụ.</p>
+        <p>- Hợp đồng lập thành 04 bản, mỗi bên giữ 02 bản, có giá trị pháp lý như nhau.</p>
+      </div>
+    </div>
+
+    <table class="c-sign-table">
+      <tr>
+        <td>
+          <div class="c-sign-title">Đại diện Bên Mua (A)</div>
+          <div class="c-sign-name">${data.khachHang}</div>
+          <div class="c-sign-line">${data.daiDien}</div>
+          <div class="c-note">${data.chucVu}</div>
+        </td>
+        <td>
+          <div class="c-sign-title">Đại diện Bên Bán (B)</div>
+          <div class="c-sign-name">CÔNG TY TNHH TM & DV THÀNH ĐẠT LED</div>
+          <div class="c-sign-line">Nguyễn Văn Tuấn</div>
+          <div class="c-note">Giám đốc</div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="c-footer-line">
+      <div class="c-footer-contact">
+        938 Quang Trung, Yên Nghĩa, Hà Nội &nbsp;|&nbsp; MST: 0109594143<br>
+        <span class="c-footer-hotline">Hotline: 0986.474.671</span>
+      </div>
+      <img src="${LOGO_DATA}" alt="TDL" style="height:36px">
+    </div>
+  `;
+}
+
+// Print
+function printDoc(targetId) {
+  // Xác định tab tương ứng với tài liệu cần in
+  const tabMap = {
+    'quotePaper':    'previewBaoGia',
+    'xuatKhoPaper':  'previewXuatKho',
+    'contractPaper': 'previewHopDong'
+  };
+  const paper = document.getElementById(targetId);
+  if (!paper || paper.innerHTML.includes('Nhập thông tin')) {
+    alert('Vui lòng tạo tài liệu trước!'); return;
+  }
+  // Chuyển sang đúng tab cần in (để .panel.active đúng với @media print)
+  switchTab(tabMap[targetId]);
+  // Gọi print — @media print sẽ ẩn mọi thứ chỉ giữ lại .panel.active
+  window.print();
+}
+
+// Export Word (.doc) — không cần thư viện ngoài, dùng MIME Word XML
+function exportWord(targetId, prefix) {
+  const paper = document.getElementById(targetId);
+  if (!paper || paper.innerHTML.includes('Nhập thông tin')) {
+    alert('Vui lòng tạo tài liệu trước!'); return;
+  }
+  const kh = (document.getElementById('khachHang').value.trim() || 'khach-hang')
+    .replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-]/g, '');
+  const ng = (document.getElementById('ngayKy').value || '').replace(/-/g, '');
+  const filename = `${prefix}_${kh}_${ng}.doc`;
+
+  // Inline-style all elements so Word renders correctly
+  const wordCSS = `
+    body { font-family: Arial, sans-serif; font-size: 12pt; color: #1a1a1a; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 10pt; }
+    th { background-color: #1D4ED8; color: #ffffff !important; padding: 6pt 5pt; font-weight: bold; text-align: center; font-size: 10pt; }
+    td { padding: 5pt; border: 1pt solid #d0d8e8; vertical-align: top; font-size: 10.5pt; }
+    tr:nth-child(even) td { background-color: #f0f5ff; }
+    .q-company-header { border-bottom: 2pt solid #E87722; padding-bottom: 10pt; margin-bottom: 12pt; display: block; }
+    .q-company-name { font-size: 13pt; font-weight: bold; color: #E87722; display: block; margin-bottom: 4pt; }
+    .q-company-info { font-size: 10pt; color: #555555; line-height: 1.8; display: block; }
+    .q-logo-box { display: none; }
+    .q-title { text-align: center; font-size: 15pt; font-weight: bold; color: #1D4ED8; text-transform: uppercase; margin: 12pt 0; display: block; letter-spacing: 1pt; }
+    .q-meta { font-size: 11pt; line-height: 1.8; margin-bottom: 10pt; display: block; }
+    .q-meta-right { text-align: right; color: #555; float: right; }
+    .q-intro { font-size: 11pt; font-style: italic; color: #444; text-align: center; margin-bottom: 10pt; display: block; }
+    .q-totals { margin-bottom: 10pt; }
+    .q-totals-row { display: flex; justify-content: flex-end; gap: 10pt; padding: 3pt 0; border-bottom: 1pt solid #e5e7eb; font-size: 11pt; }
+    .q-totals-row:last-child { border-bottom: none; }
+    .q-totals-label { color: #555; min-width: 160pt; text-align: right; }
+    .q-totals-value { font-weight: bold; min-width: 120pt; text-align: right; }
+    .q-total-main .q-totals-label,
+    .q-total-main .q-totals-value { color: #1D4ED8; font-size: 12pt; font-weight: bold; }
+    .q-bangchu { font-size: 10pt; font-style: italic; color: #555; text-align: right; margin-bottom: 14pt; display: block; }
+    .q-footer-table td { background: none; }
+    .q-footer-title { font-weight: bold; color: #1D4ED8; font-size: 10.5pt; margin-bottom: 4pt; text-transform: uppercase; display: block; }
+    .q-footer-body { color: #444; font-size: 10pt; line-height: 1.8; display: block; }
+    .q-sign { font-weight: bold; color: #1D4ED8; text-align: center; margin-top: 8pt; font-size: 11pt; }
+    .c-header-nation { text-align: center; font-size: 12pt; font-weight: bold; color: #1D4ED8; text-transform: uppercase; margin-bottom: 2pt; display: block; }
+    .c-header-slogan { text-align: center; font-size: 10.5pt; font-weight: bold; color: #555; margin-bottom: 6pt; display: block; }
+    .c-divider { text-align: center; font-size: 12pt; color: #E87722; font-weight: bold; margin-bottom: 6pt; display: block; }
+    .c-title { text-align: center; font-size: 14pt; font-weight: bold; color: #1D4ED8; text-transform: uppercase; letter-spacing: 1pt; margin: 6pt 0; display: block; }
+    .c-subtitle { text-align: center; font-size: 11pt; color: #555; font-style: italic; margin-bottom: 10pt; display: block; }
+    .c-parties { margin: 10pt 0; display: block; }
+    .c-party-box { border: 1pt solid #d0d8e8; padding: 8pt; background-color: #f8faff; margin-bottom: 6pt; display: block; }
+    .c-party-title { font-weight: bold; color: #1D4ED8; font-size: 11pt; text-transform: uppercase; border-bottom: 1pt solid #d0d8e8; margin-bottom: 4pt; padding-bottom: 4pt; display: block; }
+    .c-party-info { font-size: 10pt; line-height: 1.9; color: #333; display: block; }
+    .c-section { margin: 10pt 0; display: block; }
+    .c-section-title { font-weight: bold; font-size: 11.5pt; color: #1D4ED8; border-bottom: 1pt solid #e0e7ff; padding-bottom: 3pt; margin-bottom: 5pt; text-transform: uppercase; display: block; }
+    .c-body { font-size: 10.5pt; line-height: 1.9; color: #333; }
+    .c-body p { margin-bottom: 5pt; }
+    .c-body .indent { padding-left: 14pt; }
+    .c-table td:nth-child(2) { text-align: left; }
+    .c-totals { background-color: #f0f5ff; border: 1pt solid #d0d8e8; padding: 6pt 10pt; margin: 6pt 0; display: block; }
+    .c-total-row { display: flex; justify-content: space-between; padding: 3pt 0; font-size: 11pt; border-bottom: 1pt solid #d0d8e8; }
+    .c-total-row:last-child { font-weight: bold; color: #1D4ED8; font-size: 12pt; border-bottom: none; }
+    .c-sign-table { margin-top: 16pt; }
+    .c-sign-table td { width: 50%; text-align: center; padding: 8pt; vertical-align: top; border: 1pt solid #d0d8e8; }
+    .c-sign-title { font-weight: bold; color: #1D4ED8; font-size: 11pt; text-transform: uppercase; margin-bottom: 4pt; display: block; }
+    .c-sign-name { font-size: 10pt; color: #555; margin-bottom: 40pt; display: block; }
+    .c-sign-line { border-top: 1pt solid #aaa; width: 80%; margin: 0 auto; padding-top: 3pt; font-size: 10pt; font-weight: bold; display: block; }
+    .c-note { font-size: 10pt; font-style: italic; color: #666; text-align: center; display: block; }
+    .c-footer-line { margin-top: 14pt; padding-top: 8pt; border-top: 2pt solid #E87722; display: block; }
+    .c-footer-contact { font-size: 9.5pt; color: #555; line-height: 1.6; display: block; }
+    .c-footer-hotline { font-size: 11pt; font-weight: bold; color: #E87722; }
+    img { display: none; }
+    .tdl-logo-text { font-size: 22pt; font-weight: 900; color: #E87722; font-family: Arial Black, Arial, sans-serif; }
+  `;
+
+  // Clone and clean up HTML for Word
+  const clone = paper.cloneNode(true);
+  // Replace SVG logo images with text
+  clone.querySelectorAll('img[alt="TDL"]').forEach(img => {
+    const span = document.createElement('span');
+    span.className = 'tdl-logo-text';
+    span.textContent = 'TDL';
+    img.parentNode.replaceChild(span, img);
+  });
+  // Remove remaining images
+  clone.querySelectorAll('img').forEach(img => img.remove());
+
+  const innerHtml = clone.innerHTML;
+
+  const wordHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:w="urn:schemas-microsoft-com:office:word"
+    xmlns="http://www.w3.org/TR/REC-html40">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="ProgId" content="Word.Document">
+    <meta name="Generator" content="Microsoft Word 15">
+    <!--[if gte mso 9]>
+    <xml>
+      <w:WordDocument>
+        <w:View>Print</w:View>
+        <w:Zoom>100</w:Zoom>
+        <w:DoNotOptimizeForBrowser/>
+      </w:WordDocument>
+    </xml>
+    <![endif]-->
+    <style>
+      @page {
+        size: A4;
+        margin: 20mm 18mm 20mm 20mm;
+        mso-header-margin: 10mm;
+        mso-footer-margin: 10mm;
+        mso-paper-source: 0;
+      }
+      ${wordCSS}
+    </style>
+  </head>
+  <body>${innerHtml}</body>
+  </html>`;
+
+  const blob = new Blob(['\ufeff' + wordHtml], {
+    type: 'application/msword;charset=utf-8'
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Download HTML
+function downloadDoc(targetId, prefix) {
+  const paper = document.getElementById(targetId);
+  if(!paper||paper.innerHTML.includes('Nhập thông tin')) { alert('Vui lòng tạo tài liệu trước!'); return; }
+  const kh = (document.getElementById('khachHang').value.trim()||'khach-hang').replace(/\s+/g,'-').replace(/[^a-zA-Z0-9\-]/g,'');
+  const ng = (document.getElementById('ngayKy').value||'').replace(/-/g,'');
+  const filename = `${prefix}_${kh}_${ng}.html`;
+  const isPaper = targetId==='quotePaper';
+  const cls = isPaper?'quote-paper':'contract-paper';
+
+  const fullHtml = `<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${isPaper?'Báo Giá':'Hợp Đồng'} — Thành Đạt LED</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Be Vietnam Pro',Arial,sans-serif;background:#f4f6fb;padding:20px;font-size:13px}
+.${cls}{background:#fff;color:#1a1a1a;max-width:794px;margin:0 auto;padding:32px 36px 40px;box-shadow:0 4px 24px rgba(0,0,0,.12);border-radius:8px}
+.q-company-header,.c-header-nation,.c-header-slogan,.c-divider,.c-title,.c-subtitle,.c-parties,.c-party-box,.c-party-title,.c-party-info,.c-section,.c-section-title,.c-body,.c-body p,.c-body .indent,.c-table,.c-table th,.c-table td,.c-totals,.c-total-row,.c-sign-table,.c-sign-table td,.c-sign-title,.c-sign-name,.c-sign-line,.c-note,.c-footer-line,.c-footer-contact,.c-footer-hotline{all:revert}
+.q-company-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:12px;border-bottom:2.5px solid #E87722}
+.q-company-name{font-size:14px;font-weight:800;color:#E87722;margin-bottom:3px}
+.q-company-info{font-size:11px;color:#555;line-height:1.7}
+.q-logo-box img{height:52px}
+.q-title{text-align:center;font-size:16px;font-weight:800;color:#1D4ED8;letter-spacing:1px;margin:12px 0;text-transform:uppercase}
+.q-meta{display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:10px;font-size:12px;line-height:1.7}
+.q-meta-right{text-align:right;color:#555}
+.q-intro{font-size:12px;margin-bottom:10px;font-style:italic;color:#444;text-align:center}
+.q-table{width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:10px}
+.q-table th{background:#1D4ED8;color:#fff;padding:6px 5px;font-weight:700;text-align:center;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.q-table td{padding:5px;border:1px solid #d0d8e8;vertical-align:top}
+.q-table tr:nth-child(even) td{background:#f0f5ff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.td-center{text-align:center}.td-right{text-align:right}.td-desc{max-width:230px;line-height:1.5}
+.q-totals{margin-bottom:10px}
+.q-totals-row{display:flex;justify-content:flex-end;gap:16px;padding:4px 0;font-size:12px;border-bottom:1px solid #e5e7eb}
+.q-totals-row:last-child{border-bottom:none}
+.q-totals-label{color:#555;min-width:150px;text-align:right}
+.q-totals-value{font-weight:700;min-width:120px;text-align:right}
+.q-total-main .q-totals-label{color:#1D4ED8;font-weight:700;font-size:13px}
+.q-total-main .q-totals-value{color:#1D4ED8;font-size:14px}
+.q-bangchu{font-size:11px;font-style:italic;color:#555;text-align:right;margin-bottom:12px}
+.q-footer-table{width:100%;border-collapse:collapse;font-size:11px}
+.q-footer-table td{border:1px solid #d0d8e8;padding:8px 10px;vertical-align:top;width:50%}
+.q-footer-title{font-weight:800;color:#1D4ED8;font-size:11.5px;margin-bottom:4px;text-transform:uppercase}
+.q-footer-body{color:#444;line-height:1.8}
+.q-sign{font-weight:800;color:#1D4ED8;text-align:center;margin-top:8px;font-size:11.5px}
+.c-header-nation{text-align:center;font-size:12px;font-weight:800;color:#1D4ED8;margin-bottom:2px;text-transform:uppercase}
+.c-header-slogan{text-align:center;font-size:11.5px;font-weight:700;color:#555;letter-spacing:1px;margin-bottom:8px}
+.c-divider{text-align:center;font-size:12px;color:#E87722;margin-bottom:8px;font-weight:700}
+.c-title{text-align:center;font-size:15px;font-weight:800;color:#1D4ED8;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.c-subtitle{text-align:center;font-size:12px;color:#555;font-style:italic;margin-bottom:10px}
+.c-parties{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.c-party-box{border:1px solid #d0d8e8;border-radius:6px;padding:8px;background:#f8faff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.c-party-title{font-weight:800;color:#1D4ED8;font-size:11.5px;text-align:center;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid #d0d8e8;text-transform:uppercase}
+.c-party-info{font-size:11px;line-height:1.9;color:#333}
+.c-section{margin:10px 0}
+.c-section-title{font-weight:800;font-size:12px;color:#1D4ED8;margin-bottom:5px;border-bottom:1px solid #e0e7ff;padding-bottom:3px;text-transform:uppercase}
+.c-body{font-size:11.5px;line-height:1.9;color:#333}
+.c-body p{margin-bottom:5px}
+.c-body .indent{padding-left:14px}
+.c-table{width:100%;border-collapse:collapse;font-size:11px;margin:6px 0}
+.c-table th{background:#1D4ED8;color:#fff;padding:5px;font-weight:700;text-align:center;font-size:10.5px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.c-table td{padding:5px;border:1px solid #d0d8e8;vertical-align:top;text-align:center}
+.c-table td:nth-child(2){text-align:left}
+.c-table tr:nth-child(even) td{background:#f0f5ff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.c-totals{background:#f0f5ff;border:1px solid #d0d8e8;border-radius:4px;padding:6px 10px;margin:6px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.c-total-row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px;border-bottom:1px solid #d0d8e8}
+.c-total-row:last-child{border-bottom:none;font-weight:800;color:#1D4ED8;font-size:13px}
+.c-sign-table{width:100%;border-collapse:collapse;margin-top:16px}
+.c-sign-table td{width:50%;text-align:center;padding:8px;vertical-align:top;border:1px solid #d0d8e8}
+.c-sign-title{font-weight:800;color:#1D4ED8;font-size:11.5px;margin-bottom:4px;text-transform:uppercase}
+.c-sign-name{font-size:11px;color:#555;margin-bottom:44px}
+.c-sign-line{border-top:1px solid #aaa;width:80%;margin:0 auto;padding-top:3px;font-size:11px;color:#333;font-weight:700}
+.c-note{font-size:11px;font-style:italic;color:#666;margin-top:3px;text-align:center}
+.c-footer-line{margin-top:14px;padding-top:8px;border-top:2px solid #E87722;display:flex;justify-content:space-between;align-items:center}
+.c-footer-contact{font-size:10.5px;color:#555;line-height:1.6}
+.c-footer-hotline{font-size:12px;font-weight:800;color:#E87722}
+@media print{body{background:#fff;padding:0}.${cls}{box-shadow:none;border-radius:0;padding:10mm;max-width:100%}@page{size:A4;margin:0}}
+</style></head><body>
+<div class="${cls}">${paper.innerHTML}</div>
+</body></html>`;
+
+  const blob = new Blob([fullHtml], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>

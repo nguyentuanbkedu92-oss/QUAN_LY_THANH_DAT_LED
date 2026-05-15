@@ -10,14 +10,24 @@
         header { text-align: center; margin-bottom: 20px; }
         header h1 { font-size: 22px; color: #38bdf8; text-transform: uppercase; }
 
-        /* Lưới 4 cột cố định cho cả 2 hàng */
+        /* VÙNG 1: 4 CỘT CỐ ĐỊNH */
         .file-grid { 
             display: grid; 
             grid-template-columns: repeat(4, 1fr); 
             gap: 10px; 
             width: 100%; 
             max-width: 600px; 
-            margin-bottom: 25px; 
+            margin-bottom: 15px; 
+        }
+
+        /* VÙNG 2: NÚT TÍNH ĐÈN RIÊNG BIỆT (Để đảm bảo luôn hiện) */
+        .calc-area {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Giữ đúng tỉ lệ 4 cột */
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 25px;
         }
 
         .file-card { 
@@ -30,7 +40,6 @@
             color: #fff; 
             font-size: 10px; 
             font-weight: bold; 
-            transition: 0.2s;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -38,11 +47,8 @@
         .file-card:active { background: #334155; transform: scale(0.95); }
         .file-card span { display: block; font-size: 24px; margin-bottom: 5px; }
         
-        /* Màu riêng cho nút tính đèn để nổi bật */
-        .btn-calc { 
-            background: rgba(56, 189, 248, 0.1); 
-            border: 1px solid #38bdf8; 
-        }
+        /* Highlight nút tính đèn */
+        .btn-calc { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
 
         /* Lưới Copy Chính sách */
         .copy-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 600px; }
@@ -55,7 +61,7 @@
         .btn-copy { background: #38bdf8; color: #0f172a; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 12px; }
         .btn-copy:active { background: #22c55e; color: #fff; }
         
-        .toast { position: fixed; top: 20px; background: #22c55e; color: white; padding: 10px 25px; border-radius: 30px; display: none; z-index: 999; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .toast { position: fixed; top: 20px; background: #22c55e; color: white; padding: 10px 25px; border-radius: 30px; display: none; z-index: 999; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -69,7 +75,9 @@
         <a href="bao-hanh.html" target="_blank" class="file-card"><span>🛡️</span>BẢO HÀNH</a>
         <a href="tem-bac.html" target="_blank" class="file-card"><span>🏷️</span>TEM BẠC</a>
         <a href="tdl_bao_gia_hop_dong_xuat_kho_Zalo.html" target="_blank" class="file-card"><span>💼</span>BÁO GIÁ</a>
-        
+    </div>
+
+    <div class="calc-area">
         <a href="tinh-toan-anh-sang.html" target="_blank" class="file-card btn-calc"><span>🧮</span>TÍNH ĐÈN</a>
     </div>
 
@@ -101,7 +109,7 @@ Ngân hàng: Techcombank</pre>
         </div>
     </div>
 
-    <div id="toast" class="toast">Đã copy thành công! ✅</div>
+    <div id="toast" class="toast">Đã copy! ✅</div>
 
     <script>
         function copy(id) {

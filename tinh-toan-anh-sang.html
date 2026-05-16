@@ -15,6 +15,7 @@
             --accent-green: #22c55e;
             --accent-blue: #60a5fa;
             --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
             --text: #f1f5f9;
             --text-dim: #94a3b8;
             --text-muted: #64748b;
@@ -25,9 +26,7 @@
             --warn-bg: rgba(245,158,11,0.1);
             --warn-border: rgba(245,158,11,0.3);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: var(--bg);
@@ -37,9 +36,9 @@
             line-height: 1.5;
         }
 
-        /* ---- HEADER ---- */
+        /* HEADER */
         header {
-            max-width: 720px;
+            max-width: 900px;
             margin: 0 auto 28px auto;
             display: flex;
             align-items: center;
@@ -70,32 +69,33 @@
             white-space: nowrap;
         }
 
-        /* ---- TABS ---- */
-        .container { max-width: 720px; margin: 0 auto; }
+        /* TABS */
+        .container { max-width: 900px; margin: 0 auto; }
         .tabs {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
             margin-bottom: 24px;
         }
-        @media (max-width: 560px) {
-            .tabs { grid-template-columns: 1fr 1fr; }
-        }
+        @media (max-width: 700px) { .tabs { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 420px) { .tabs { grid-template-columns: repeat(2, 1fr); } }
         .tab-btn {
-            padding: 13px 16px;
+            padding: 11px 10px;
             border: 1px solid var(--border);
             background: var(--card);
             color: var(--text-dim);
             border-radius: 12px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.2s;
+            flex-direction: column;
         }
+        .tab-btn span { font-size: 18px; }
         .tab-btn:hover:not(.active) { border-color: #3d5470; color: var(--text); }
         .tab-btn.active {
             background: var(--primary);
@@ -103,24 +103,28 @@
             border-color: var(--primary);
             box-shadow: 0 4px 18px rgba(56,189,248,0.3);
         }
-        .tab-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-        /* ---- PANELS ---- */
+        /* PANELS */
         .panel { display: none; }
-        .panel.active { display: block; }
+        .panel.active { display: block; animation: fadeIn 0.25s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ---- LAYOUT GRID ---- */
+        /* LAYOUT */
         .two-col {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
             margin-bottom: 16px;
         }
-        @media (max-width: 560px) {
-            .two-col { grid-template-columns: 1fr; }
+        .three-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
         }
+        @media (max-width: 700px) { .two-col, .three-col { grid-template-columns: 1fr; } }
 
-        /* ---- CARD ---- */
+        /* CARD */
         .card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -140,16 +144,10 @@
         }
         .card-title svg { width: 14px; height: 14px; fill: none; stroke: var(--text-muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-        /* ---- FORM ---- */
+        /* FORM */
         .field { margin-bottom: 14px; }
         .field:last-child { margin-bottom: 0; }
-        .field label {
-            display: block;
-            font-size: 12px;
-            color: var(--text-dim);
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
+        .field label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; font-weight: 500; }
         .field select, .field input {
             width: 100%;
             padding: 10px 12px;
@@ -168,7 +166,7 @@
         .dim-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .dim-row input { width: 100%; }
 
-        /* ---- METRICS ---- */
+        /* METRICS */
         .metrics-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -187,8 +185,10 @@
         .metric.green .metric-value { color: var(--accent-green); }
         .metric.blue .metric-value { color: var(--accent-blue); }
         .metric.white .metric-value { color: var(--text); }
+        .metric.amber .metric-value { color: var(--accent-amber); }
+        .metric.red .metric-value { color: var(--accent-red); }
 
-        /* ---- DETAIL TABLE ---- */
+        /* DETAIL TABLE */
         .detail-table { width: 100%; border-collapse: collapse; }
         .detail-table tr { border-bottom: 1px solid var(--border); }
         .detail-table tr:last-child { border-bottom: none; }
@@ -197,13 +197,13 @@
         .detail-table .td-label svg { width: 14px; height: 14px; fill: none; stroke: var(--text-muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
         .detail-table .td-val { text-align: right; font-weight: 600; color: var(--text); }
 
-        /* ---- LUX BAR ---- */
+        /* LUX BAR */
         .lux-bar-wrap { margin-top: 14px; }
         .lux-bar-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
         .lux-bar-bg { height: 5px; background: var(--card2); border-radius: 99px; overflow: hidden; }
         .lux-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #22c55e, #38bdf8); transition: width 0.4s ease; }
 
-        /* ---- NOTE BOX ---- */
+        /* NOTE BOX */
         .note-box {
             background: var(--warn-bg);
             border: 1px solid var(--warn-border);
@@ -215,24 +215,109 @@
             gap: 10px;
             align-items: flex-start;
             line-height: 1.6;
+            margin-bottom: 16px;
         }
         .note-box svg { width: 16px; height: 16px; fill: none; stroke: #f59e0b; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 1px; }
-
-        /* ---- BACK LINK ---- */
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 32px;
-            color: var(--text-dim);
-            text-decoration: none;
+        .info-box {
+            background: var(--info-bg);
+            border: 1px solid var(--info-border);
+            border-radius: 12px;
+            padding: 14px 16px;
             font-size: 13px;
-            transition: color 0.2s;
+            color: var(--primary);
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            line-height: 1.6;
+            margin-bottom: 16px;
         }
-        .back-link:hover { color: var(--primary); }
+        .success-box {
+            background: var(--success-bg);
+            border: 1px solid var(--success-border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 13px;
+            color: #86efac;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
 
-        /* ---- FOOTER ---- */
+        /* PRINT BUTTON */
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+        .btn {
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-dim);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: var(--card2); color: var(--text); border-color: #3d5470; }
+        .btn.primary { background: var(--primary); color: #0f172a; border-color: var(--primary); }
+        .btn.primary:hover { background: #7dd3fc; }
+        .btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* COST TABLE */
+        .cost-section { margin-top: 20px; }
+        .cost-section h3 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+        .cost-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--card2); border-radius: 8px; margin-bottom: 6px; font-size: 13px; }
+        .cost-row .label { color: var(--text-dim); }
+        .cost-row .val { font-weight: 700; color: var(--text); }
+        .cost-row.total { background: rgba(56,189,248,0.1); border: 1px solid var(--info-border); }
+        .cost-row.total .val { color: var(--primary); font-size: 16px; }
+
+        /* COMPARISON TABLE */
+        .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .compare-table th { padding: 10px 12px; background: var(--card2); color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; text-align: left; border-bottom: 1px solid var(--border); }
+        .compare-table th:not(:first-child) { text-align: center; }
+        .compare-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .compare-table td:not(:first-child) { text-align: center; }
+        .compare-table tr:last-child td { border-bottom: none; }
+        .compare-table .best { color: var(--accent-green); font-weight: 700; }
+        .compare-table .label-col { color: var(--text); font-weight: 500; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .tag.green { background: rgba(34,197,94,0.15); color: var(--accent-green); }
+        .tag.blue { background: rgba(96,165,250,0.15); color: var(--accent-blue); }
+        .tag.amber { background: rgba(245,158,11,0.15); color: var(--accent-amber); }
+
+        /* ENERGY CALCULATOR */
+        .energy-result { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        @media (max-width: 600px) { .energy-result { grid-template-columns: 1fr 1fr; } }
+        .e-metric { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
+        .e-val { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+        .e-lbl { font-size: 11px; color: var(--text-muted); }
+
+        /* CHAT / Q&A */
+        .qa-list { display: flex; flex-direction: column; gap: 10px; }
+        .qa-item { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        .qa-q { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; color: var(--text); gap: 12px; user-select: none; }
+        .qa-q:hover { background: rgba(56,189,248,0.05); }
+        .qa-q .arrow { flex-shrink: 0; transition: transform 0.25s; }
+        .qa-item.open .arrow { transform: rotate(180deg); }
+        .qa-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.2s; font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+        .qa-item.open .qa-a { max-height: 500px; padding: 0 16px 16px 16px; }
+        .qa-a strong { color: var(--primary); }
+
+        /* SECTION TITLE */
+        .section-title { font-size: 13px; font-weight: 700; color: var(--text-dim); margin: 24px 0 12px 0; display: flex; align-items: center; gap: 8px; }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* SLIDER */
+        input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px; background: var(--border); outline: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--primary); cursor: pointer; }
+
+        /* FOOTER */
         footer {
-            max-width: 720px;
+            max-width: 900px;
             margin: 28px auto 0 auto;
             padding-top: 20px;
             border-top: 1px solid var(--border);
@@ -240,6 +325,27 @@
             font-size: 12px;
             color: var(--text-muted);
         }
+
+        /* PRINT */
+        @media print {
+            .tabs, .btn-row, .tab-btn { display: none !important; }
+            .panel { display: block !important; }
+            body { background: white; color: black; }
+            .card { border: 1px solid #ccc; }
+        }
+
+        /* TOOLTIP */
+        .tip { position: relative; display: inline-flex; align-items: center; cursor: help; }
+        .tip-icon { width: 14px; height: 14px; border: 1px solid var(--text-muted); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; color: var(--text-muted); margin-left: 4px; }
+        .tip:hover .tip-text { opacity: 1; pointer-events: auto; }
+        .tip-text { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: var(--text); width: 220px; line-height: 1.5; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 10; }
+
+        /* Progress ring */
+        .ring-wrap { display: flex; align-items: center; justify-content: center; gap: 16px; }
+        .ring-svg { transform: rotate(-90deg); }
+        .ring-bg { fill: none; stroke: var(--border); stroke-width: 6; }
+        .ring-fill { fill: none; stroke: var(--accent-green); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+        .ring-center { font-size: 18px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -252,31 +358,35 @@
         <h1>Thành Đạt LED — TDL</h1>
         <p>Hệ thống dự toán chiếu sáng kỹ thuật</p>
     </div>
-    <div class="badge">v3.0</div>
+    <div class="badge">v4.0</div>
 </header>
 
 <div class="container">
 
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('sport', this)">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
-            Sân thể thao
+            <span>🏆</span> Sân thể thao
         </button>
         <button class="tab-btn" onclick="switchTab('factory', this)">
-            <svg viewBox="0 0 24 24"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>
-            Nhà xưởng
+            <span>🏭</span> Nhà xưởng
         </button>
         <button class="tab-btn" onclick="switchTab('road', this)">
-            <svg viewBox="0 0 24 24"><path d="M3 17l3-10h12l3 10"/><path d="M9 17V7m6 10V7"/></svg>
-            Đường / Sân bãi
+            <span>🛣️</span> Đường / Sân bãi
+        </button>
+        <button class="tab-btn" onclick="switchTab('cost', this)">
+            <span>💰</span> Dự toán chi phí
+        </button>
+        <button class="tab-btn" onclick="switchTab('energy', this)">
+            <span>⚡</span> Điện năng & ROI
+        </button>
+        <button class="tab-btn" onclick="switchTab('faq', this)">
+            <span>❓</span> Hỏi đáp kỹ thuật
         </button>
     </div>
 
     <!-- ===== PANEL: SÂN THỂ THAO ===== -->
     <div id="panel-sport" class="panel active">
         <div class="two-col">
-
-            <!-- Nhập liệu -->
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -289,6 +399,8 @@
                         <option value="tennis">🎾 Sân Tennis</option>
                         <option value="volleyball">🏐 Sân Bóng chuyền</option>
                         <option value="football">⚽ Sân Bóng đá (7 người)</option>
+                        <option value="badminton">🏸 Sân Cầu lông</option>
+                        <option value="basketball">🏀 Sân Bóng rổ</option>
                     </select>
                 </div>
                 <div class="field">
@@ -298,9 +410,19 @@
                         <input type="number" id="s_w" value="10" min="1" placeholder="Rộng" oninput="calcSport()">
                     </div>
                 </div>
+                <div class="field">
+                    <label>Mục đích sử dụng</label>
+                    <select id="s_purpose" onchange="calcSport()">
+                        <option value="1">🏅 Phong trào / Luyện tập</option>
+                        <option value="1.3">🏆 Thi đấu nghiệp dư</option>
+                        <option value="1.6">📺 Thi đấu chuyên nghiệp / Phát sóng</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Giá điện (đồng/kWh)</label>
+                    <input type="number" id="s_price" value="3000" min="500" oninput="calcSport()">
+                </div>
             </div>
-
-            <!-- Kết quả -->
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
@@ -322,10 +444,10 @@
                         <div class="metric-value" id="r_total">—</div>
                         <div class="metric-unit">Watt</div>
                     </div>
-                    <div class="metric white">
-                        <div class="metric-label">Lumen yêu cầu</div>
-                        <div class="metric-value" id="r_lumen">—</div>
-                        <div class="metric-unit">klm</div>
+                    <div class="metric amber">
+                        <div class="metric-label">Chi phí/đêm (10h)</div>
+                        <div class="metric-value" id="r_cost_night">—</div>
+                        <div class="metric-unit">đồng</div>
                     </div>
                 </div>
                 <table class="detail-table">
@@ -345,6 +467,14 @@
                         <td class="td-label"><svg viewBox="0 0 24 24"><line x1="12" y1="22" x2="12" y2="2"/><path d="M17 7l-5-5-5 5"/></svg>Chiều cao cột đèn</td>
                         <td class="td-val" id="r_height">—</td>
                     </tr>
+                    <tr>
+                        <td class="td-label"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Lumen yêu cầu</td>
+                        <td class="td-val" id="r_lumen">— klm</td>
+                    </tr>
+                    <tr>
+                        <td class="td-label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Chi phí điện / tháng</td>
+                        <td class="td-val" id="r_cost_month">—</td>
+                    </tr>
                 </table>
                 <div class="lux-bar-wrap">
                     <div class="lux-bar-meta">
@@ -357,18 +487,74 @@
                 </div>
             </div>
         </div>
-
         <div class="note-box" id="r_note">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             <span id="r_note_text">Chọn loại sân để xem khuyến nghị kỹ thuật.</span>
+        </div>
+
+        <!-- So sánh đèn LED vs HPS -->
+        <div class="section-title">So sánh LED vs Đèn Cao Áp (HPS) cho sân thể thao</div>
+        <div class="card">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Tiêu chí</th>
+                        <th>Đèn LED</th>
+                        <th>Đèn Cao Áp HPS</th>
+                        <th>Đánh giá</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="label-col">Hiệu suất quang (lm/W)</td>
+                        <td class="best">130–160 lm/W</td>
+                        <td>80–100 lm/W</td>
+                        <td><span class="tag green">LED thắng</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label-col">Tuổi thọ</td>
+                        <td class="best">50.000 – 100.000 giờ</td>
+                        <td>10.000 – 20.000 giờ</td>
+                        <td><span class="tag green">LED thắng</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label-col">Thời gian khởi động</td>
+                        <td class="best">Tức thì (&lt;1s)</td>
+                        <td>3–10 phút</td>
+                        <td><span class="tag green">LED thắng</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label-col">Chỉ số hoàn màu (CRI)</td>
+                        <td class="best">≥ 80 Ra</td>
+                        <td>20–30 Ra</td>
+                        <td><span class="tag green">LED thắng</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label-col">Chi phí đầu tư ban đầu</td>
+                        <td>Cao hơn 1,5–2×</td>
+                        <td class="best">Thấp hơn</td>
+                        <td><span class="tag amber">HPS thắng</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label-col">Tiết kiệm điện năng</td>
+                        <td class="best">Tiết kiệm 40–60%</td>
+                        <td>Tốn điện hơn</td>
+                        <td><span class="tag green">LED thắng</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label-col">Hoàn vốn đầu tư</td>
+                        <td class="best">2–4 năm</td>
+                        <td>Không có ROI rõ</td>
+                        <td><span class="tag green">LED thắng</span></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <!-- ===== PANEL: NHÀ XƯỞNG ===== -->
     <div id="panel-factory" class="panel">
         <div class="two-col">
-
-            <!-- Nhập liệu -->
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -390,9 +576,19 @@
                         <option value="500">🧵 Gia công tỉ mỉ / Xưởng may — 500 Lux</option>
                     </select>
                 </div>
+                <div class="field">
+                    <label>Số ca làm việc / ngày</label>
+                    <select id="f_shift" onchange="calcFactory()">
+                        <option value="8">1 ca — 8 giờ/ngày</option>
+                        <option value="16">2 ca — 16 giờ/ngày</option>
+                        <option value="24">3 ca — 24 giờ/ngày</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Giá điện (đồng/kWh)</label>
+                    <input type="number" id="f_price" value="3500" min="500" oninput="calcFactory()">
+                </div>
             </div>
-
-            <!-- Kết quả -->
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
@@ -414,10 +610,10 @@
                         <div class="metric-value" id="rf_total">—</div>
                         <div class="metric-unit">Watt</div>
                     </div>
-                    <div class="metric white">
-                        <div class="metric-label">Khoảng cách lắp</div>
-                        <div class="metric-value" id="rf_dist">—</div>
-                        <div class="metric-unit">mét</div>
+                    <div class="metric amber">
+                        <div class="metric-label">Chi phí điện / tháng</div>
+                        <div class="metric-value" id="rf_cost_month">—</div>
+                        <div class="metric-unit">nghìn đồng</div>
                     </div>
                 </div>
                 <table class="detail-table">
@@ -437,21 +633,39 @@
                         <td class="td-label"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Lux/m² thực tế</td>
                         <td class="td-val" id="rf_actual">—</td>
                     </tr>
+                    <tr>
+                        <td class="td-label"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>Điện năng / tháng</td>
+                        <td class="td-val" id="rf_kwh_month">—</td>
+                    </tr>
                 </table>
             </div>
         </div>
-
         <div class="note-box" id="rf_note">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             <span id="rf_note_text">Nhập thông số nhà xưởng để xem tư vấn kỹ thuật.</span>
+        </div>
+
+        <!-- Tiêu chuẩn nhà xưởng -->
+        <div class="section-title">Tiêu chuẩn chiếu sáng nhà xưởng theo TCVN 7114</div>
+        <div class="card">
+            <table class="compare-table">
+                <thead>
+                    <tr><th>Loại không gian</th><th>Độ rọi (Lux)</th><th>CRI tối thiểu</th><th>CCT khuyến nghị</th><th>UGR tối đa</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="label-col">Kho bãi, lưu trữ</td><td>100 – 200</td><td>Ra ≥ 60</td><td>4000K</td><td>25</td></tr>
+                    <tr><td class="label-col">Sản xuất thô, nặng</td><td>200 – 300</td><td>Ra ≥ 60</td><td>4000K</td><td>22</td></tr>
+                    <tr><td class="label-col">Sản xuất cơ bản</td><td>300 – 500</td><td>Ra ≥ 80</td><td>4000K</td><td>22</td></tr>
+                    <tr><td class="label-col">Gia công tỉ mỉ, may mặc</td><td>500 – 750</td><td>Ra ≥ 80</td><td>5000K</td><td>19</td></tr>
+                    <tr><td class="label-col">Kiểm tra chất lượng, sơn màu</td><td>≥ 1000</td><td>Ra ≥ 90</td><td>5000K – 6000K</td><td>16</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <!-- ===== PANEL: ĐƯỜNG / SÂN BÃI ===== -->
     <div id="panel-road" class="panel">
         <div class="two-col">
-
-            <!-- Nhập liệu -->
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -479,9 +693,11 @@
                     <label>Khoảng cách giữa 2 cột đèn (m)</label>
                     <input type="number" id="rd_span" value="30" min="5" oninput="calcRoad()">
                 </div>
+                <div class="field">
+                    <label>Giá điện (đồng/kWh)</label>
+                    <input type="number" id="rd_price" value="2800" min="500" oninput="calcRoad()">
+                </div>
             </div>
-
-            <!-- Kết quả -->
             <div class="card">
                 <div class="card-title">
                     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
@@ -503,15 +719,15 @@
                         <div class="metric-value" id="rd_total">—</div>
                         <div class="metric-unit">Watt</div>
                     </div>
-                    <div class="metric white">
-                        <div class="metric-label">Điện năng / đêm</div>
-                        <div class="metric-value" id="rd_kwh">—</div>
-                        <div class="metric-unit">kWh (10h)</div>
+                    <div class="metric amber">
+                        <div class="metric-label">Chi phí điện / tháng</div>
+                        <div class="metric-value" id="rd_cost_month">—</div>
+                        <div class="metric-unit">nghìn đồng</div>
                     </div>
                 </div>
                 <table class="detail-table">
                     <tr>
-                        <td class="td-label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Độ rọi tiêu chuẩn</td>
+                        <td class="td-label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2"/></svg>Độ rọi tiêu chuẩn</td>
                         <td class="td-val" id="rd_lux_std">—</td>
                     </tr>
                     <tr>
@@ -527,49 +743,412 @@
                         <td class="td-val" id="rd_color">—</td>
                     </tr>
                     <tr>
-                        <td class="td-label"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Diện tích chiếu sáng</td>
+                        <td class="td-label"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Diện tích chiếu sáng</td>
                         <td class="td-val" id="rd_area">—</td>
+                    </tr>
+                    <tr>
+                        <td class="td-label"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Điện năng / đêm (10h)</td>
+                        <td class="td-val" id="rd_kwh">—</td>
                     </tr>
                 </table>
             </div>
         </div>
-
         <div class="note-box" id="rd_note">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             <span id="rd_note_text">Chọn loại khu vực để xem khuyến nghị kỹ thuật.</span>
+        </div>
+
+        <!-- Tiêu chuẩn đường -->
+        <div class="section-title">Tiêu chuẩn chiếu sáng đường theo TCVN 8935:2011</div>
+        <div class="card">
+            <table class="compare-table">
+                <thead><tr><th>Loại đường</th><th>Độ rọi trung bình</th><th>Độ đồng đều (Uo)</th><th>Cột đèn</th></tr></thead>
+                <tbody>
+                    <tr><td class="label-col">Đường cao tốc</td><td>≥ 30 Lux</td><td>≥ 0.4</td><td>10–14m</td></tr>
+                    <tr><td class="label-col">Đường quốc lộ, tỉnh lộ</td><td>20–30 Lux</td><td>≥ 0.35</td><td>8–12m</td></tr>
+                    <tr><td class="label-col">Đường nội thành, khu đô thị</td><td>15–20 Lux</td><td>≥ 0.35</td><td>7–10m</td></tr>
+                    <tr><td class="label-col">Đường khu dân cư, nội bộ</td><td>10–15 Lux</td><td>≥ 0.3</td><td>5–8m</td></tr>
+                    <tr><td class="label-col">Đường đi bộ, công viên</td><td>5–10 Lux</td><td>≥ 0.25</td><td>3–5m</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== PANEL: DỰ TOÁN CHI PHÍ ===== -->
+    <div id="panel-cost" class="panel">
+        <div class="info-box">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--primary);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Nhập thông tin để tính toán tổng chi phí đầu tư và thời gian hoàn vốn so với đèn cũ.</span>
+        </div>
+        <div class="two-col">
+            <div class="card">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    Thông số đầu vào
+                </div>
+                <div class="field">
+                    <label>Số lượng đèn LED cần lắp</label>
+                    <input type="number" id="c_qty" value="20" min="1" oninput="calcCost()">
+                </div>
+                <div class="field">
+                    <label>Công suất mỗi đèn LED (Watt)</label>
+                    <input type="number" id="c_wled" value="200" min="10" oninput="calcCost()">
+                </div>
+                <div class="field">
+                    <label>Đơn giá đèn LED (nghìn đồng/bộ)</label>
+                    <input type="number" id="c_price_led" value="1500" min="100" oninput="calcCost()">
+                </div>
+                <div class="field">
+                    <label>Chi phí lắp đặt (nghìn đồng/bộ)</label>
+                    <input type="number" id="c_install" value="200" min="0" oninput="calcCost()">
+                </div>
+                <div class class="field">
+                    <label>Công suất đèn cũ đang dùng (Watt/bộ)</label>
+                    <input type="number" id="c_wold" value="400" min="10" oninput="calcCost()">
+                </div>
+                <div class="field">
+                    <label>Số giờ sử dụng mỗi ngày (giờ)</label>
+                    <input type="number" id="c_hours" value="10" min="1" max="24" oninput="calcCost()">
+                </div>
+                <div class="field">
+                    <label>Giá điện (đồng/kWh)</label>
+                    <input type="number" id="c_elec" value="3000" min="500" oninput="calcCost()">
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                    Kết quả dự toán
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric green">
+                        <div class="metric-label">Tổng đầu tư</div>
+                        <div class="metric-value" id="c_total_inv">—</div>
+                        <div class="metric-unit">triệu đồng</div>
+                    </div>
+                    <div class="metric blue">
+                        <div class="metric-label">Tiết kiệm điện/tháng</div>
+                        <div class="metric-value" id="c_save_month">—</div>
+                        <div class="metric-unit">nghìn đồng</div>
+                    </div>
+                    <div class="metric amber">
+                        <div class="metric-label">Hoàn vốn sau</div>
+                        <div class="metric-value" id="c_roi_months">—</div>
+                        <div class="metric-unit">tháng</div>
+                    </div>
+                    <div class="metric white">
+                        <div class="metric-label">Tiết kiệm 5 năm</div>
+                        <div class="metric-value" id="c_save_5y">—</div>
+                        <div class="metric-unit">triệu đồng</div>
+                    </div>
+                </div>
+
+                <div class="cost-section">
+                    <h3>Chi tiết chi phí</h3>
+                    <div class="cost-row">
+                        <span class="label">Tiền đèn LED</span>
+                        <span class="val" id="cc_lamp">—</span>
+                    </div>
+                    <div class="cost-row">
+                        <span class="label">Chi phí lắp đặt</span>
+                        <span class="val" id="cc_install">—</span>
+                    </div>
+                    <div class="cost-row total">
+                        <span class="label">💰 Tổng đầu tư</span>
+                        <span class="val" id="cc_total">—</span>
+                    </div>
+                    <div class="cost-row" style="margin-top:12px">
+                        <span class="label">Điện cũ / tháng</span>
+                        <span class="val" id="cc_old_month">—</span>
+                    </div>
+                    <div class="cost-row">
+                        <span class="label">Điện LED / tháng</span>
+                        <span class="val" id="cc_new_month">—</span>
+                    </div>
+                    <div class="cost-row total">
+                        <span class="label">✅ Tiết kiệm / tháng</span>
+                        <span class="val" id="cc_save">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="cost_note" class="success-box" style="display:none">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#22c55e;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-top:1px"><polyline points="20 6 9 17 4 12"/></svg>
+            <span id="cost_note_text"></span>
+        </div>
+    </div>
+
+    <!-- ===== PANEL: ĐIỆN NĂNG & ROI ===== -->
+    <div id="panel-energy" class="panel">
+        <div class="info-box">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--primary);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-top:1px"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Công cụ tính điện năng tiêu thụ thực tế và so sánh chi phí vận hành hàng năm theo nhiều kịch bản.</span>
+        </div>
+        <div class="two-col">
+            <div class="card">
+                <div class="card-title">⚙️ &nbsp;Thông số hệ thống đèn</div>
+                <div class="field">
+                    <label>Tổng công suất lắp đặt (Watt)</label>
+                    <input type="number" id="en_watt" value="4000" min="100" oninput="calcEnergy()">
+                </div>
+                <div class="field">
+                    <label>Số giờ sử dụng mỗi ngày</label>
+                    <input type="number" id="en_hours" value="10" min="1" max="24" oninput="calcEnergy()">
+                    <div style="margin-top:8px">
+                        <input type="range" id="en_hours_range" min="1" max="24" value="10" oninput="document.getElementById('en_hours').value=this.value; calcEnergy()">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Số ngày hoạt động / tháng</label>
+                    <input type="number" id="en_days" value="26" min="1" max="31" oninput="calcEnergy()">
+                </div>
+                <div class="field">
+                    <label>Giá điện (đồng/kWh)</label>
+                    <input type="number" id="en_price" value="3000" min="500" oninput="calcEnergy()">
+                </div>
+                <div class="field">
+                    <label>Hệ số công suất (cos φ)</label>
+                    <select id="en_pf" onchange="calcEnergy()">
+                        <option value="0.95">0.95 — Đèn LED chất lượng cao</option>
+                        <option value="0.90">0.90 — Đèn LED phổ thông</option>
+                        <option value="0.85">0.85 — Đèn cũ / HPS</option>
+                        <option value="0.80">0.80 — Đèn huỳnh quang</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">📊 &nbsp;Kết quả điện năng</div>
+                <div class="energy-result" style="margin-bottom:16px">
+                    <div class="e-metric">
+                        <div class="e-val" id="en_kwh_day" style="color:var(--accent-green)">—</div>
+                        <div class="e-lbl">kWh / ngày</div>
+                    </div>
+                    <div class="e-metric">
+                        <div class="e-val" id="en_kwh_month" style="color:var(--accent-blue)">—</div>
+                        <div class="e-lbl">kWh / tháng</div>
+                    </div>
+                    <div class="e-metric">
+                        <div class="e-val" id="en_kwh_year" style="color:var(--accent-amber)">—</div>
+                        <div class="e-lbl">kWh / năm</div>
+                    </div>
+                    <div class="e-metric">
+                        <div class="e-val" id="en_cost_day" style="color:var(--text)">—</div>
+                        <div class="e-lbl">đồng / ngày</div>
+                    </div>
+                    <div class="e-metric">
+                        <div class="e-val" id="en_cost_month" style="color:var(--text)">—</div>
+                        <div class="e-lbl">nghìn đ / tháng</div>
+                    </div>
+                    <div class="e-metric">
+                        <div class="e-val" id="en_cost_year" style="color:var(--text)">—</div>
+                        <div class="e-lbl">triệu đ / năm</div>
+                    </div>
+                </div>
+
+                <div class="section-title" style="margin-top:0">Lượng CO₂ phát thải</div>
+                <div class="energy-result">
+                    <div class="e-metric">
+                        <div class="e-val" id="en_co2_month" style="color:#a78bfa">—</div>
+                        <div class="e-lbl">kg CO₂ / tháng</div>
+                    </div>
+                    <div class="e-metric">
+                        <div class="e-val" id="en_co2_year" style="color:#a78bfa">—</div>
+                        <div class="e-lbl">kg CO₂ / năm</div>
+                    </div>
+                    <div class="e-metric">
+                        <div class="e-val" id="en_trees" style="color:#4ade80">—</div>
+                        <div class="e-lbl">cây xanh tương đương</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- So sánh theo kịch bản -->
+        <div class="section-title">So sánh chi phí điện hàng năm theo loại đèn</div>
+        <div class="card">
+            <div id="scenario_compare">
+                <table class="compare-table">
+                    <thead><tr><th>Loại đèn</th><th>Công suất tương đương</th><th>kWh/năm</th><th>Chi phí/năm</th><th>So sánh</th></tr></thead>
+                    <tbody id="scenario_tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PANEL: HỎI ĐÁP KỸ THUẬT ===== -->
+    <div id="panel-faq" class="panel">
+        <div class="info-box">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--primary);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>Tổng hợp các câu hỏi kỹ thuật thường gặp về chiếu sáng LED công nghiệp và thể thao.</span>
+        </div>
+
+        <div class="qa-list">
+            <div class="qa-item">
+                <div class="qa-q" onclick="toggleQA(this)">
+                    <span>Lux, Lumen và Watt khác nhau như thế nào?</span>
+                    <svg class="arrow" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-a">
+                    <strong>Watt (W)</strong> là công suất tiêu thụ điện — không nói lên độ sáng.<br>
+                    <strong>Lumen (lm)</strong> là tổng lượng ánh sáng phát ra từ nguồn đèn — đo độ sáng của đèn.<br>
+                    <strong>Lux (lx)</strong> là mật độ ánh sáng trên bề mặt = Lumen / m² — đo độ sáng tại vị trí làm việc.<br><br>
+                    <strong>Ví dụ:</strong> Đèn 200W, hiệu suất 130 lm/W → phát ra 26.000 lm. Chiếu xuống sàn 50m² → 520 Lux.
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-q" onclick="toggleQA(this)">
+                    <span>CRI (chỉ số hoàn màu) là gì? Khi nào cần CRI cao?</span>
+                    <svg class="arrow" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-a">
+                    <strong>CRI (Color Rendering Index / Ra)</strong> đo khả năng tái hiện màu sắc trung thực của đèn, thang điểm 0–100.<br><br>
+                    • <strong>CRI ≥ 80:</strong> Sản xuất, kho bãi, thể thao phong trào<br>
+                    • <strong>CRI ≥ 90:</strong> Kiểm tra chất lượng sản phẩm, phòng trưng bày, xưởng sơn<br>
+                    • <strong>CRI ≥ 95:</strong> Ngành y tế, in ấn, phối màu vải<br><br>
+                    Đèn cao áp HPS có CRI chỉ 20–30, khiến màu sắc bị méo mó nghiêm trọng.
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-q" onclick="toggleQA(this)">
+                    <span>IP65, IP66, IP67 — chọn loại nào cho ngoài trời?</span>
+                    <svg class="arrow" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-a">
+                    Chỉ số IP gồm 2 chữ số: <strong>bụi</strong> (0–6) và <strong>nước</strong> (0–8).<br><br>
+                    • <strong>IP65:</strong> Chống bụi hoàn toàn + chống tia nước → Phù hợp mái che, sân thể thao có mái<br>
+                    • <strong>IP66:</strong> Chống bụi + chống nước áp lực mạnh → Sân ngoài trời, đường phố<br>
+                    • <strong>IP67:</strong> Ngâm nước 1m/30 phút → Khu vực ngập lụt, ven sông<br>
+                    • <strong>IP68:</strong> Ngâm nước sâu liên tục → Đèn dưới nước, hồ bơi<br><br>
+                    <strong>Khuyến nghị:</strong> Sân thể thao ngoài trời tối thiểu <strong>IP65</strong>; đường phố và khu công nghiệp nên dùng <strong>IP66</strong>.
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-q" onclick="toggleQA(this)">
+                    <span>CCT là gì? Nên chọn ánh sáng vàng hay trắng?</span>
+                    <svg class="arrow" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-a">
+                    <strong>CCT (Correlated Color Temperature)</strong> đo nhiệt độ màu ánh sáng, đơn vị Kelvin (K).<br><br>
+                    • <strong>2700K – 3000K (Vàng ấm):</strong> Công viên, nhà hàng, không gian thư giãn<br>
+                    • <strong>4000K (Trung tính):</strong> Văn phòng, sân thể thao phong trào, cửa hàng<br>
+                    • <strong>5000K – 6500K (Trắng sáng):</strong> Nhà máy, kho bãi, sân thể thao thi đấu, bãi đỗ xe<br><br>
+                    Ánh sáng trắng (5000–6500K) giúp tập trung, nhận diện vật thể rõ hơn nhưng kém thân thiện với mắt khi dùng lâu trong không gian sinh hoạt.
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-q" onclick="toggleQA(this)">
+                    <span>UGR là gì? Tại sao cần kiểm tra độ chói trong xưởng?</span>
+                    <svg class="arrow" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-a">
+                    <strong>UGR (Unified Glare Rating)</strong> là chỉ số đo độ chói gây khó chịu do ánh sáng trực tiếp từ đèn.<br><br>
+                    • UGR &lt; 16: Phòng vẽ kỹ thuật, phòng mổ<br>
+                    • UGR &lt; 19: Gia công tỉ mỉ, lắp ráp điện tử<br>
+                    • UGR &lt; 22: Sản xuất thông thường, văn phòng<br>
+                    • UGR &lt; 25: Kho bãi, hành lang<br><br>
+                    UGR cao làm công nhân mỏi mắt, giảm năng suất và tăng nguy cơ tai nạn. Đèn Highbay chất lượng thường ghi rõ UGR &lt;19 trên datasheet.
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-q" onclick="toggleQA(this)">
+                    <span>Hệ số bảo trì (MF) là gì và có ảnh hưởng gì đến thiết kế?</span>
+                    <svg class="arrow" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-a">
+                    <strong>Hệ số bảo trì (MF / Maintenance Factor)</strong> là tỉ lệ suy giảm quang thông theo thời gian do đèn lão hóa và bụi bám.<br><br>
+                    Công thức: <strong>Lumen yêu cầu = (Diện tích × Lux) / MF</strong><br><br>
+                    • Môi trường sạch (văn phòng, trong nhà): MF = 0.80<br>
+                    • Môi trường bình thường (xưởng sản xuất): MF = 0.75<br>
+                    • Môi trường bụi bẩn (xưởng xi măng, hóa chất): MF = 0.60<br><br>
+                    Thiếu tính MF sẽ khiến hệ thống thiếu sáng sau 2–3 năm sử dụng.
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-q" onclick="toggleQA(this)">
+                    <span>Tuổi thọ đèn LED thực tế là bao nhiêu? L70 là gì?</span>
+                    <svg class="arrow" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-a">
+                    Tuổi thọ LED được đo bằng <strong>L70</strong> — số giờ hoạt động đến khi quang thông còn 70% ban đầu.<br><br>
+                    • Đèn LED phổ thông: L70 = 30.000 – 50.000 giờ<br>
+                    • Đèn LED công nghiệp chất lượng cao: L70 = 50.000 – 100.000 giờ<br>
+                    • Đèn cao áp HPS: 10.000 – 20.000 giờ<br><br>
+                    Ví dụ: Dùng 10h/ngày → đèn LED 50.000h sẽ dùng được <strong>13–14 năm</strong> trước khi cần thay. Đèn HPS cần thay sau 3–5 năm.
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-q" onclick="toggleQA(this)">
+                    <span>Khi nào cần dùng đèn chống nổ (Explosion Proof)?</span>
+                    <svg class="arrow" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-a">
+                    Đèn chống nổ cần thiết trong môi trường có <strong>khí dễ cháy, bụi nổ, hoặc hóa chất</strong>:<br><br>
+                    • Kho xăng dầu, trạm bơm nhiên liệu<br>
+                    • Xưởng sơn, xưởng hóa chất<br>
+                    • Mỏ than, hầm lò<br>
+                    • Xưởng chế biến bột, ngũ cốc (bụi nổ)<br>
+                    • Nhà máy khí đốt, LPG<br><br>
+                    Đèn chống nổ được chứng nhận theo tiêu chuẩn <strong>ATEX (châu Âu)</strong> hoặc <strong>IECEx</strong>. Việt Nam yêu cầu theo QCVN 01/ĐKVN hoặc tương đương.
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-q" onclick="toggleQA(this)">
+                    <span>Dimmer và Smart Lighting có tiết kiệm điện không?</span>
+                    <svg class="arrow" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-a">
+                    Có — hệ thống chiếu sáng thông minh có thể tiết kiệm thêm <strong>20–40%</strong> điện năng so với đèn LED thông thường:<br><br>
+                    • <strong>Dimming (điều chỉnh độ sáng):</strong> Giảm 50% độ sáng → tiết kiệm ~40% điện<br>
+                    • <strong>Cảm biến chuyển động (PIR):</strong> Tự tắt khi không có người → kho bãi, hành lang<br>
+                    • <strong>Cảm biến ánh sáng tự nhiên (DALI):</strong> Tự động điều chỉnh theo ánh sáng ban ngày<br>
+                    • <strong>Lịch vận hành (Timer):</strong> Tắt theo giờ → đường phố, bãi đỗ xe<br><br>
+                    Với sân thể thao cho thuê theo giờ, dimmer + timer giúp hoàn vốn nhanh hơn 30–50%.
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="qa-q" onclick="toggleQA(this)">
+                    <span>Cần bao nhiêu đèn? Công thức tính nhanh số lượng đèn?</span>
+                    <svg class="arrow" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="qa-a">
+                    Công thức lumen phương pháp:<br><br>
+                    <strong>N = (E × A) / (Φ × MF × UF)</strong><br><br>
+                    Trong đó:<br>
+                    • N = Số bộ đèn<br>
+                    • E = Độ rọi yêu cầu (Lux)<br>
+                    • A = Diện tích chiếu sáng (m²)<br>
+                    • Φ = Quang thông mỗi bộ đèn (lm)<br>
+                    • MF = Hệ số bảo trì (0.6–0.8)<br>
+                    • UF = Hệ số sử dụng (0.5–0.8 tùy phòng)<br><br>
+                    <strong>Công thức đơn giản:</strong> N ≈ (E × A) / (W/bộ × 130 × 0.7)
+                </div>
+            </div>
         </div>
     </div>
 
 </div><!-- /container -->
 
-<a href="index.html" class="back-link">← Quay lại trang chủ</a>
-
 <footer>
-    © Thành Đạt LED — Hệ thống tư vấn chiếu sáng kỹ thuật v3.0
+    © Thành Đạt LED — Hệ thống tư vấn chiếu sáng kỹ thuật v4.0
 </footer>
 
 <script>
     const SPORT_DATA = {
-        pickleball: {
-            lux: 400, watt: 200, color: "4000K — Trung tính",
-            height: "5 – 6m", min: 4,
-            note: "Độ cao 5–6m giúp ánh sáng phủ đều mà không gây lóa khi người chơi nhìn bóng trên cao. Nên bố trí đèn dọc 2 biên sân, tránh lắp đầu sân."
-        },
-        tennis: {
-            lux: 500, watt: 400, color: "4000K — Trung tính",
-            height: "8 – 10m", min: 6,
-            note: "Bóng tennis bay nhanh — cột cao giúp góc chiếu rộng hơn, hạn chế bóng ma trên mặt sân. Tuyệt đối tránh bố trí đèn phía sau đường cuối sân."
-        },
-        volleyball: {
-            lux: 300, watt: 200, color: "6000K — Trắng sáng",
-            height: "6 – 7m", min: 2,
-            note: "Lắp đèn dọc 2 biên sân để tránh chói mắt khi đập bóng. Không bố trí đèn sau vạch cuối sân. Ánh sáng trắng 6000K tăng khả năng quan sát bóng."
-        },
-        football: {
-            lux: 250, watt: 400, color: "6000K — Trắng sáng",
-            height: "8 – 12m", min: 8,
-            note: "Cột càng cao thì độ đồng đều ánh sáng càng tốt và giảm chói cho thủ môn. Sân 7 người tối thiểu cần 8 cột đèn bố trí đều 2 biên."
-        }
+        pickleball: { lux: 400, watt: 200, color: "4000K — Trung tính", height: "5 – 6m", min: 4, note: "Độ cao 5–6m giúp ánh sáng phủ đều mà không gây lóa khi người chơi nhìn bóng trên cao. Nên bố trí đèn dọc 2 biên sân, tránh lắp đầu sân." },
+        tennis: { lux: 500, watt: 400, color: "4000K — Trung tính", height: "8 – 10m", min: 6, note: "Bóng tennis bay nhanh — cột cao giúp góc chiếu rộng hơn, hạn chế bóng ma trên mặt sân. Tuyệt đối tránh bố trí đèn phía sau đường cuối sân." },
+        volleyball: { lux: 300, watt: 200, color: "6000K — Trắng sáng", height: "6 – 7m", min: 2, note: "Lắp đèn dọc 2 biên sân để tránh chói mắt khi đập bóng. Không bố trí đèn sau vạch cuối sân. Ánh sáng trắng 6000K tăng khả năng quan sát bóng." },
+        football: { lux: 250, watt: 400, color: "6000K — Trắng sáng", height: "8 – 12m", min: 8, note: "Cột càng cao thì độ đồng đều ánh sáng càng tốt và giảm chói cho thủ môn. Sân 7 người tối thiểu cần 8 cột đèn bố trí đều 2 biên." },
+        badminton: { lux: 400, watt: 150, color: "4000K — Trung tính", height: "6 – 7m", min: 4, note: "Cầu lông yêu cầu ánh sáng đồng đều cao — tránh bóng tối tại lưới và cuối sân. Lắp đèn dọc biên, tuyệt đối không lắp dọc đường tâm sân." },
+        basketball: { lux: 500, watt: 400, color: "5000K — Trắng trung tính", height: "8 – 10m", min: 8, note: "Sân bóng rổ cần độ rọi cao 300–500 Lux. Bố trí đèn đều 4 góc và dọc 2 biên dài. Kiểm tra góc chiếu để tránh chói mắt khi ném rổ." }
     };
 
     const LUX_LEVELS = { 150: 'Thấp', 250: 'Vừa', 300: 'Trung bình', 400: 'Cao', 500: 'Rất cao' };
@@ -581,55 +1160,61 @@
         btn.classList.add('active');
     }
 
+    function fmtVND(n) {
+        if (n >= 1e9) return (n/1e9).toFixed(2) + ' tỷ';
+        if (n >= 1e6) return (n/1e6).toFixed(1) + ' tr';
+        if (n >= 1e3) return (n/1e3).toFixed(0) + ' nghìn';
+        return n.toFixed(0);
+    }
+
     function calcSport() {
         const type = document.getElementById('s_type').value;
         const l = parseFloat(document.getElementById('s_l').value) || 0;
         const w = parseFloat(document.getElementById('s_w').value) || 0;
+        const purpose = parseFloat(document.getElementById('s_purpose').value) || 1;
+        const price = parseFloat(document.getElementById('s_price').value) || 3000;
         const d = SPORT_DATA[type];
         const area = l * w;
         if (area <= 0) return;
 
-        const lumenNeeded = (area * d.lux) / 0.75;
+        const luxAdj = Math.round(d.lux * purpose);
+        const lumenNeeded = (area * luxAdj) / 0.75;
         const qtyRaw = Math.ceil(lumenNeeded / (d.watt * 130));
         const qty = Math.max(qtyRaw, d.min);
         const total = qty * d.watt;
         const klm = Math.round(lumenNeeded / 1000);
-        const pct = Math.min(100, Math.round((d.lux / 600) * 100));
+        const pct = Math.min(100, Math.round((luxAdj / 800) * 100));
         const lvl = LUX_LEVELS[d.lux] || d.lux + ' Lux';
+        const costNight = Math.round((total / 1000) * 10 * price);
+        const costMonth = Math.round(costNight * 26);
 
         document.getElementById('r_qty').textContent = qty;
         document.getElementById('r_watt').textContent = d.watt;
         document.getElementById('r_total').textContent = total.toLocaleString('vi-VN');
-        document.getElementById('r_lumen').textContent = klm;
+        document.getElementById('r_lumen').textContent = klm + ' klm';
         document.getElementById('r_area').textContent = area.toLocaleString('vi-VN') + ' m²';
-        document.getElementById('r_lux').textContent = d.lux + ' Lux';
+        document.getElementById('r_lux').textContent = luxAdj + ' Lux';
         document.getElementById('r_color').textContent = d.color;
         document.getElementById('r_height').textContent = d.height;
         document.getElementById('r_luxbar').style.width = pct + '%';
-        document.getElementById('r_lux_label').textContent = lvl + ' (' + d.lux + ' Lux)';
+        document.getElementById('r_lux_label').textContent = lvl + ' (' + luxAdj + ' Lux)';
         document.getElementById('r_note_text').textContent = d.note;
+        document.getElementById('r_cost_night').textContent = fmtVND(costNight);
+        document.getElementById('r_cost_month').textContent = (costMonth/1000).toFixed(0) + ' nghìn đ';
     }
 
     function calcFactory() {
         const h = parseFloat(document.getElementById('f_h').value) || 0;
         const area = parseFloat(document.getElementById('f_area').value) || 0;
         const lux = parseFloat(document.getElementById('f_job').value);
+        const shift = parseFloat(document.getElementById('f_shift').value) || 8;
+        const price = parseFloat(document.getElementById('f_price').value) || 3500;
         if (area <= 0 || h <= 0) return;
 
         let watt, typeName, noteText;
-        if (h < 6) {
-            watt = 100;
-            typeName = 'Highbay 100W (chao nông)';
-            noteText = 'Trần thấp dưới 6m: dùng đèn 100W chao nông để tăng góc tỏa, phủ đều diện tích sàn mà không cần lắp quá nhiều điểm.';
-        } else if (h <= 8) {
-            watt = 150;
-            typeName = 'Highbay 150W (chao sâu)';
-            noteText = 'Trần trung bình 6–8m: dùng đèn 150W chao sâu để ánh sáng rọi tập trung xuống mặt sàn hiệu quả, giảm hao hụt quang thông.';
-        } else {
-            watt = 200;
-            typeName = 'Highbay 200–250W chuyên dụng';
-            noteText = 'Trần cao trên 8m: bắt buộc dùng Highbay 200–250W chuyên dụng. Cần kiểm tra góc chiếu của chao đèn để đảm bảo độ rọi đủ tiêu chuẩn tại mặt sàn.';
-        }
+        if (h < 6) { watt = 100; typeName = 'Highbay 100W (chao nông)'; noteText = 'Trần thấp dưới 6m: dùng đèn 100W chao nông để tăng góc tỏa, phủ đều diện tích sàn mà không cần lắp quá nhiều điểm.'; }
+        else if (h <= 8) { watt = 150; typeName = 'Highbay 150W (chao sâu)'; noteText = 'Trần trung bình 6–8m: dùng đèn 150W chao sâu để ánh sáng rọi tập trung xuống mặt sàn hiệu quả, giảm hao hụt quang thông.'; }
+        else { watt = 200; typeName = 'Highbay 200–250W chuyên dụng'; noteText = 'Trần cao trên 8m: bắt buộc dùng Highbay 200–250W chuyên dụng. Cần kiểm tra góc chiếu của chao đèn để đảm bảo độ rọi đủ tiêu chuẩn tại mặt sàn.'; }
 
         const qty = Math.ceil((area * lux) / (watt * 130 * 0.7));
         const dist = qty > 0 ? Math.sqrt(area / qty) : 0;
@@ -637,6 +1222,8 @@
         const rows = cols > 0 ? Math.ceil(qty / cols) : 0;
         const actualLux = qty > 0 ? Math.round((qty * watt * 130 * 0.7) / area) : 0;
         const total = qty * watt;
+        const kwhMonth = (total / 1000) * shift * 26;
+        const costMonth = kwhMonth * price;
 
         document.getElementById('rf_qty').textContent = qty;
         document.getElementById('rf_watt').textContent = watt;
@@ -647,36 +1234,16 @@
         document.getElementById('rf_grid').textContent = rows + ' hàng × ' + cols + ' cột';
         document.getElementById('rf_actual').textContent = actualLux + ' Lux/m²';
         document.getElementById('rf_note_text').textContent = noteText;
+        document.getElementById('rf_cost_month').textContent = Math.round(costMonth/1000).toLocaleString('vi-VN');
+        document.getElementById('rf_kwh_month').textContent = kwhMonth.toFixed(0) + ' kWh';
     }
 
-    window.onload = () => { calcSport(); calcFactory(); calcRoad(); };
-
     const ROAD_DATA = {
-        road_local: {
-            lux: 15, watt: 100, color: "3000K — Vàng ấm",
-            poleH: "6 – 8m", layout: "Một bên / so le",
-            note: "Đường nội bộ dùng ánh sáng vàng 3000K tạo cảm giác ấm áp, an toàn. Bố trí cột một bên hoặc so le tùy chiều rộng đường. Khoảng cách cột tiêu chuẩn 25–35m."
-        },
-        road_main: {
-            lux: 30, watt: 150, color: "4000K — Trung tính",
-            poleH: "8 – 12m", layout: "Hai bên đối xứng",
-            note: "Đường chính và quốc lộ yêu cầu độ rọi 20–30 Lux theo TCVN 8935. Bố trí hai bên đối xứng, cột cao 10–12m để tăng vùng phủ sáng. Nên dùng đèn có IP65 trở lên."
-        },
-        parking: {
-            lux: 50, watt: 100, color: "4000K — Trung tính",
-            poleH: "4 – 6m", layout: "Lưới đều theo ô đỗ",
-            note: "Bãi đỗ xe cần tối thiểu 50 Lux để đảm bảo an toàn và giám sát camera. Lắp đèn theo lưới vuông ứng với ô đỗ, cột thấp 4–6m. Ưu tiên góc chiếu rộng 120°."
-        },
-        yard: {
-            lux: 20, watt: 200, color: "6000K — Trắng sáng",
-            poleH: "10 – 15m", layout: "Tập trung / mảng lớn",
-            note: "Sân công nghiệp và kho bãi dùng đèn pha 200W–400W lắp trên cột cao 10–15m. Ánh sáng trắng 6000K tăng khả năng quan sát hàng hóa và phương tiện. Cần tính hệ số UGR để tránh lóa."
-        },
-        park: {
-            lux: 10, watt: 40, color: "3000K — Vàng ấm",
-            poleH: "3 – 5m", layout: "Dọc lối đi / vỉa hè",
-            note: "Công viên và vỉa hè ưu tiên ánh sáng dịu vàng 3000K, cột thấp 3–5m tạo không gian thân thiện. Khoảng cách cột 15–20m. Nên dùng đèn trụ sân vườn hoặc đèn cột trang trí."
-        }
+        road_local: { lux: 15, watt: 100, color: "3000K — Vàng ấm", poleH: "6 – 8m", layout: "Một bên / so le", note: "Đường nội bộ dùng ánh sáng vàng 3000K tạo cảm giác ấm áp, an toàn. Bố trí cột một bên hoặc so le tùy chiều rộng đường. Khoảng cách cột tiêu chuẩn 25–35m." },
+        road_main: { lux: 30, watt: 150, color: "4000K — Trung tính", poleH: "8 – 12m", layout: "Hai bên đối xứng", note: "Đường chính và quốc lộ yêu cầu độ rọi 20–30 Lux theo TCVN 8935. Bố trí hai bên đối xứng, cột cao 10–12m để tăng vùng phủ sáng. Nên dùng đèn có IP65 trở lên." },
+        parking: { lux: 50, watt: 100, color: "4000K — Trung tính", poleH: "4 – 6m", layout: "Lưới đều theo ô đỗ", note: "Bãi đỗ xe cần tối thiểu 50 Lux để đảm bảo an toàn và giám sát camera. Lắp đèn theo lưới vuông ứng với ô đỗ, cột thấp 4–6m. Ưu tiên góc chiếu rộng 120°." },
+        yard: { lux: 20, watt: 200, color: "6000K — Trắng sáng", poleH: "10 – 15m", layout: "Tập trung / mảng lớn", note: "Sân công nghiệp và kho bãi dùng đèn pha 200W–400W lắp trên cột cao 10–15m. Ánh sáng trắng 6000K tăng khả năng quan sát hàng hóa và phương tiện. Cần tính hệ số UGR để tránh lóa." },
+        park: { lux: 10, watt: 40, color: "3000K — Vàng ấm", poleH: "3 – 5m", layout: "Dọc lối đi / vỉa hè", note: "Công viên và vỉa hè ưu tiên ánh sáng dịu vàng 3000K, cột thấp 3–5m tạo không gian thân thiện. Khoảng cách cột 15–20m. Nên dùng đèn trụ sân vườn hoặc đèn cột trang trí." }
     };
 
     function calcRoad() {
@@ -684,28 +1251,139 @@
         const len = parseFloat(document.getElementById('rd_len').value) || 0;
         const width = parseFloat(document.getElementById('rd_width').value) || 0;
         const span = parseFloat(document.getElementById('rd_span').value) || 30;
+        const price = parseFloat(document.getElementById('rd_price').value) || 2800;
         const d = ROAD_DATA[type];
         if (len <= 0 || width <= 0) return;
 
         const area = len * width;
-        // Số cột = chiều dài / khoảng cách, nhân 2 nếu bố trí 2 bên
         const isTwoSide = (type === 'road_main');
         const polesOneSide = Math.ceil(len / span) + 1;
         const poles = isTwoSide ? polesOneSide * 2 : polesOneSide;
         const totalWatt = poles * d.watt;
-        const kwh = ((totalWatt / 1000) * 10).toFixed(1); // 10 giờ/đêm
+        const kwh = ((totalWatt / 1000) * 10).toFixed(1);
+        const costMonth = Math.round((totalWatt / 1000) * 10 * 26 * price / 1000);
 
         document.getElementById('rd_poles').textContent = poles;
         document.getElementById('rd_watt').textContent = d.watt;
         document.getElementById('rd_total').textContent = totalWatt.toLocaleString('vi-VN');
-        document.getElementById('rd_kwh').textContent = kwh;
+        document.getElementById('rd_kwh').textContent = kwh + ' kWh';
         document.getElementById('rd_lux_std').textContent = d.lux + ' Lux';
         document.getElementById('rd_pole_h').textContent = d.poleH;
         document.getElementById('rd_layout').textContent = d.layout;
         document.getElementById('rd_color').textContent = d.color;
         document.getElementById('rd_area').textContent = area.toLocaleString('vi-VN') + ' m²';
         document.getElementById('rd_note_text').textContent = d.note;
+        document.getElementById('rd_cost_month').textContent = costMonth.toLocaleString('vi-VN');
     }
+
+    function calcCost() {
+        const qty = parseFloat(document.getElementById('c_qty').value) || 0;
+        const wLed = parseFloat(document.getElementById('c_wled').value) || 0;
+        const priceLed = parseFloat(document.getElementById('c_price_led').value) || 0;
+        const installCost = parseFloat(document.getElementById('c_install').value) || 0;
+        const wOld = parseFloat(document.getElementById('c_wold').value) || 0;
+        const hours = parseFloat(document.getElementById('c_hours').value) || 10;
+        const elec = parseFloat(document.getElementById('c_elec').value) || 3000;
+
+        const lampCost = qty * priceLed * 1000;
+        const totalInstall = qty * installCost * 1000;
+        const totalInv = lampCost + totalInstall;
+
+        const oldKwhMonth = (qty * wOld / 1000) * hours * 26;
+        const newKwhMonth = (qty * wLed / 1000) * hours * 26;
+        const oldCostMonth = oldKwhMonth * elec;
+        const newCostMonth = newKwhMonth * elec;
+        const saveMonth = oldCostMonth - newCostMonth;
+        const roiMonths = saveMonth > 0 ? Math.ceil(totalInv / saveMonth) : 999;
+        const save5y = saveMonth * 60 - totalInv;
+
+        document.getElementById('c_total_inv').textContent = (totalInv/1e6).toFixed(2);
+        document.getElementById('c_save_month').textContent = Math.round(saveMonth/1000).toLocaleString('vi-VN');
+        document.getElementById('c_roi_months').textContent = roiMonths < 999 ? roiMonths : '> 999';
+        document.getElementById('c_save_5y').textContent = (Math.max(0,save5y)/1e6).toFixed(1);
+
+        document.getElementById('cc_lamp').textContent = (lampCost/1e6).toFixed(2) + ' triệu đ';
+        document.getElementById('cc_install').textContent = (totalInstall/1e6).toFixed(2) + ' triệu đ';
+        document.getElementById('cc_total').textContent = (totalInv/1e6).toFixed(2) + ' triệu đ';
+        document.getElementById('cc_old_month').textContent = (oldCostMonth/1000).toFixed(0) + ' nghìn đ';
+        document.getElementById('cc_new_month').textContent = (newCostMonth/1000).toFixed(0) + ' nghìn đ';
+        document.getElementById('cc_save').textContent = (saveMonth/1000).toFixed(0) + ' nghìn đ';
+
+        const noteEl = document.getElementById('cost_note');
+        const noteText = document.getElementById('cost_note_text');
+        if (roiMonths < 999 && saveMonth > 0) {
+            noteEl.style.display = 'flex';
+            const years = Math.floor(roiMonths/12);
+            const months = roiMonths % 12;
+            noteText.textContent = `✅ Bạn sẽ hoàn vốn sau ${years > 0 ? years + ' năm ' : ''}${months > 0 ? months + ' tháng' : ''}. Trong 5 năm tiết kiệm được khoảng ${(Math.max(0,save5y)/1e6).toFixed(1)} triệu đồng tiền điện (sau khi trừ đầu tư).`;
+        } else {
+            noteEl.style.display = 'none';
+        }
+    }
+
+    function calcEnergy() {
+        const watt = parseFloat(document.getElementById('en_watt').value) || 0;
+        const hours = parseFloat(document.getElementById('en_hours').value) || 10;
+        const days = parseFloat(document.getElementById('en_days').value) || 26;
+        const price = parseFloat(document.getElementById('en_price').value) || 3000;
+        const pf = parseFloat(document.getElementById('en_pf').value) || 0.95;
+
+        // Sync slider
+        document.getElementById('en_hours_range').value = hours;
+
+        const kwhDay = (watt / 1000) * hours;
+        const kwhMonth = kwhDay * days;
+        const kwhYear = kwhDay * days * 12;
+        const costDay = kwhDay * price;
+        const costMonth = kwhMonth * price;
+        const costYear = kwhYear * price;
+        // CO2: 0.6 kg/kWh (Việt Nam lưới điện)
+        const co2Month = kwhMonth * 0.6;
+        const co2Year = kwhYear * 0.6;
+        const trees = Math.round(co2Year / 21); // 1 cây hấp thụ ~21kg CO2/năm
+
+        document.getElementById('en_kwh_day').textContent = kwhDay.toFixed(1);
+        document.getElementById('en_kwh_month').textContent = kwhMonth.toFixed(0);
+        document.getElementById('en_kwh_year').textContent = kwhYear.toFixed(0);
+        document.getElementById('en_cost_day').textContent = (costDay/1000).toFixed(0) + 'k';
+        document.getElementById('en_cost_month').textContent = (costMonth/1000).toFixed(0);
+        document.getElementById('en_cost_year').textContent = (costYear/1e6).toFixed(2);
+        document.getElementById('en_co2_month').textContent = co2Month.toFixed(0);
+        document.getElementById('en_co2_year').textContent = co2Year.toFixed(0);
+        document.getElementById('en_trees').textContent = trees;
+
+        // Scenario compare
+        const scenarios = [
+            { name: 'Đèn LED (hiện tại)', wMult: 1.0, color: 'var(--accent-green)' },
+            { name: 'Đèn Huỳnh quang T8', wMult: 1.8, color: 'var(--text-dim)' },
+            { name: 'Đèn Cao áp HPS', wMult: 2.0, color: 'var(--text-dim)' },
+            { name: 'Đèn Metal Halide', wMult: 1.7, color: 'var(--text-dim)' },
+        ];
+        const tbody = document.getElementById('scenario_tbody');
+        tbody.innerHTML = '';
+        scenarios.forEach((s, i) => {
+            const w2 = watt * s.wMult;
+            const kwh2 = (w2/1000) * hours * days * 12;
+            const cost2 = kwh2 * price;
+            const diff = i === 0 ? '—' : '+' + ((cost2 - costYear)/1e6).toFixed(1) + ' tr/năm';
+            tbody.innerHTML += `<tr>
+                <td class="label-col" style="color:${s.color}">${s.name}</td>
+                <td>${Math.round(w2).toLocaleString('vi-VN')} W</td>
+                <td>${kwh2.toFixed(0)} kWh</td>
+                <td>${(cost2/1e6).toFixed(2)} triệu đ</td>
+                <td style="color:${i===0?'var(--accent-green)':'var(--accent-red)'};font-weight:700">${diff}</td>
+            </tr>`;
+        });
+    }
+
+    function toggleQA(el) {
+        const item = el.closest('.qa-item');
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.qa-item').forEach(q => q.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+    }
+
+    window.onload = () => { calcSport(); calcFactory(); calcRoad(); calcCost(); calcEnergy(); };
 </script>
 
 </body>

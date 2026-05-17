@@ -1,7 +1,4 @@
-<iframe id="tdlChatBotFrame" 
-        src="https://quanly.thanhdatled.com/chatbot.html" 
-        style="display: none;">
-</iframe>
+<iframe id="tdlChatBotFrame" src="https://quanly.thanhdatled.com/chatbot.html"></iframe>
 
 <div id="tdlChatBtn" onclick="openTdlChat()">
     <div class="tdl-pulse-ring"></div>
@@ -12,21 +9,33 @@
 </div>
 
 <style>
-/* Cấu hình khung iFrame hiển thị trên Máy tính (PC / Laptop) */
+/* --- CẤU HÌNH TRÊN MÁY TÍNH (PC / LAPTOP) --- */
 #tdlChatBotFrame {
     position: fixed !important;
     bottom: 90px !important;
     right: 24px !important;
-    width: 380px !important;  /* Thu gọn chiều rộng chuẩn góc phải */
-    height: 560px !important; /* Chiều cao vừa vặn không che khuất màn hình */
+    width: 380px !important;   /* Kích thước gọn gàng trên PC */
+    height: 580px !important;  /* Không lo tràn màn hình */
     border: none !important;
     z-index: 999999 !important;
     border-radius: 16px !important;
     box-shadow: 0 12px 40px rgba(0,0,0,0.65) !important;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    
+    /* Mặc định ẩn bằng cách đẩy xuống và làm mờ thay vì dùng display: none */
+    transform: translateY(120%) scale(0.9);
+    opacity: 0;
+    pointer-events: none;
 }
 
-/* Giao diện nút bong bóng chat dạng dài sang trọng */
+/* Khối lệnh kích hoạt hiển thị khung chat khi bấm nút */
+#tdlChatBotFrame.tdl-show {
+    transform: translateY(0) scale(1) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Thiết kế nút bấm sang trọng */
 #tdlChatBtn {
     position: fixed !important;
     bottom: 24px !important;
@@ -48,21 +57,24 @@
 .tdl-btn-content {
     display: flex !important;
     align-items: center !important;
+    justify-content: center !important;
     gap: 8px !important;
     color: #07090f !important;
     font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
     font-weight: 700 !important;
     font-size: 13.5px !important;
+    width: 100% !important;
+    height: 100% !important;
 }
 
-.tdl-btn-icon { font-size: 16px !important; }
+.tdl-btn-icon { font-size: 16px !important; display: inline-block !important; }
 
 #tdlChatBtn:hover {
     transform: translateY(-3px) scale(1.03) !important;
     box-shadow: 0 8px 30px rgba(0, 229, 255, 0.5) !important;
 }
 
-/* Hiệu ứng sóng neon tỏa ra xung quanh nút kích thích khách tương tác */
+/* Vòng sóng lấp lánh thu hút khách */
 .tdl-pulse-ring {
     position: absolute !important;
     inset: 0 !important;
@@ -75,10 +87,10 @@
 
 @keyframes tdlRipple {
     0% { transform: scale(0.95); opacity: 0.8; }
-    100% { transform: scale(1.2, 1.35); opacity: 0; }
+    100% { transform: scale(1.18, 1.35); opacity: 0; }
 }
 
-/* ⚡ TỰ ĐỘNG ÉP TRÀN 100% KHI VÀO BẰNG ĐIỆN THOẠI (DÙNG CSS MEDIA CHUẨN ĐỘC LẬP) */
+/* --- ⚡ CẤU HÌNH ĐỘC LẬP TRÊN ĐIỆN THOẠI (TỰ ĐỘNG NHẬN DIỆN DI ĐỘNG) --- */
 @media (max-width: 768px) {
     #tdlChatBotFrame {
         width: 100% !important;
@@ -87,15 +99,18 @@
         right: 0 !important;
         border-radius: 0 !important;
     }
+    
     #tdlChatBtn {
         padding: 0 !important;
         width: 52px !important;
         height: 52px !important;
         border-radius: 50% !important;
+        bottom: 20px !important;
+        right: 20px !important;
     }
-    .tdl-btn-text { display: none !important; }
-    .tdl-btn-content { justify-content: center !important; }
-    .tdl-btn-icon { font-size: 20px !important; }
+    
+    .tdl-btn-text { display: none !important; } /* Ẩn chữ trên mobile cho gọn */
+    .tdl-btn-icon { font-size: 20px !important; text-align: center !important; margin: 0 !important; }
     .tdl-pulse-ring { border-radius: 50% !important; animation: tdlMobileRipple 2s cubic-bezier(0.24, 0, 0.38, 1) infinite !important; }
 }
 
@@ -112,15 +127,30 @@ function openTdlChat() {
     var content = btn.querySelector(".tdl-btn-content");
     var ring = btn.querySelector(".tdl-pulse-ring");
     
-    if (frame.style.display === "none" || frame.style.display === "") {
-        frame.style.display = "block";
-        content.innerHTML = '<span class="tdl-btn-icon">✕</span><span class="tdl-btn-text">Thu gọn</span>';
+    // Kiểm tra xem khung chát đang ẩn hay hiện thông qua class điều hướng
+    if (!frame.classList.contains("tdl-show")) {
+        frame.classList.add("tdl-show");
+        
+        // Cập nhật nút tắt gọn gàng, chuẩn tâm trên cả điện thoại và PC
+        if (window.innerWidth <= 768) {
+            content.innerHTML = '<span class="tdl-btn-icon" style="font-size:22px; line-height:1;">✕</span>';
+        } else {
+            content.innerHTML = '<span class="tdl-btn-icon">✕</span><span class="tdl-btn-text">Thu gọn</span>';
+        }
+        
         btn.style.background = "#1f2937";
         btn.style.boxShadow = "0 4px 15px rgba(0,0,0,0.3)";
         if(ring) ring.style.display = "none";
     } else {
-        frame.style.display = "none";
-        content.innerHTML = '<span class="tdl-btn-icon">⚡</span><span class="tdl-btn-text">Tư vấn LED sỉ</span>';
+        frame.classList.remove("tdl-show");
+        
+        // Trả về giao diện nút sấm sét ban đầu
+        if (window.innerWidth <= 768) {
+            content.innerHTML = '<span class="tdl-btn-icon">⚡</span>';
+        } else {
+            content.innerHTML = '<span class="tdl-btn-icon">⚡</span><span class="tdl-btn-text">Tư vấn LED sỉ</span>';
+        }
+        
         btn.style.background = "linear-gradient(135deg, #00e5ff, #3b82f6)";
         btn.style.boxShadow = "0 4px 20px rgba(0,229,255,0.35)";
         if(ring) ring.style.display = "block";

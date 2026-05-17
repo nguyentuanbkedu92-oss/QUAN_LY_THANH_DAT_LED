@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDL AI CHATBOT – Thành Đạt LED</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --surface: #111827;
+            --surface-card: #1f2937;
+            --surface-input: #111827;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-focus: rgba(0, 229, 255, 0.4);
+            --accent: #00e5ff;
+            --accent-gradient: linear-gradient(135deg, #00e5ff, #3b82f6);
+            --gold: #fbbf24;
+            --green: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: var(--text-main);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 229, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 229, 255, 0.015) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1050px;
+            height: 94vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--surface);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 14px; }
+
+        .logo-ring {
+            width: 44px; height: 44px;
+            border-radius: var(--radius-md);
+            background: rgba(0, 229, 255, 0.06);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 15px;
+            color: var(--accent);
+        }
+
+        .header-brand h1 { font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: -0.2px; }
+        .header-brand p { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+        .status-badge {
+            display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--green);
+            background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.15);
+            padding: 4px 12px; border-radius: 30px; font-weight: 500;
+        }
+
+        .status-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+
+        .header-links { display: flex; align-items: center; gap: 8px; }
+
+        .hlink {
+            font-size: 12px; color: var(--text-main); text-decoration: none; padding: 6px 14px;
+            border: 1px solid var(--border); border-radius: var(--radius-sm); transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.02); font-weight: 500;
+        }
+        .hlink:hover { color: var(--accent); border-color: rgba(0, 229, 255, 0.3); background: rgba(0, 229, 255, 0.04); }
+
+        .hlink.btn-lead-trigger { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3); color: var(--gold); font-weight: 600; }
+        .hlink.btn-lead-trigger:hover { background: var(--gold); color: #000; border-color: var(--gold); }
+
+        .body-wrap { display: flex; flex: 1; overflow: hidden; }
+
+        .sidebar {
+            width: 240px; flex-shrink: 0; border-right: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.3); display: flex; flex-direction: column; padding: 20px 14px; gap: 6px; overflow-y: auto;
+        }
+
+        .sidebar-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); padding: 4px 10px 8px; }
+
+        .cat-btn {
+            display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-md);
+            border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; text-align: left; width: 100%;
+        }
+        .cat-btn:hover { background: rgba(255, 255, 255, 0.03); color: var(--text-main); }
+        .cat-btn.active { background: rgba(0, 229, 255, 0.05); color: var(--accent); border-color: rgba(0, 229, 255, 0.15); font-weight: 600; }
+
+        .sidebar-divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+        .quick-chip {
+            display: block; padding: 9px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.01); color: var(--text-muted); font-size: 12.5px; cursor: pointer; transition: all 0.2s ease; text-align: left; width: 100%; margin-bottom: 2px;
+        }
+        .quick-chip:hover { background: var(--surface-card); color: var(--text-main); border-color: rgba(255, 255, 255, 0.15); }
+        .quick-chip.chip-lead-form { background: rgba(251, 191, 36, 0.05); border-color: rgba(251, 191, 36, 0.2); color: var(--gold); font-weight: 600; }
+        .quick-chip.chip-lead-form:hover { background: rgba(251, 191, 36, 0.12); border-color: var(--gold); color: #fff; }
+
+        .chat-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #0f172a; }
+
+        #chat { flex: 1; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; gap: 24px; scroll-behavior: smooth; }
+        #chat::-webkit-scrollbar { width: 5px; }
+        #chat::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+
+        .welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 60vh; text-align: center; }
+        .welcome h2 { font-size: 26px; font-weight: 700; color: var(--text-main); }
+        .welcome h2 span { color: var(--accent); }
+        .welcome p { font-size: 14.5px; color: var(--text-muted); max-width: 440px; line-height: 1.6; }
+
+        .suggest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; width: 100%; max-width: 500px; }
+        .suggest-card { background: var(--surface-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; cursor: pointer; text-align: left; }
+        .suggest-card:hover { border-color: rgba(0, 229, 255, 0.3); background: rgba(0, 229, 255, 0.02); }
+        .suggest-card .s-icon { font-size: 18px; margin-bottom: 6px; color: var(--accent); }
+        .suggest-card .s-title { font-size: 13.5px; font-weight: 600; color: var(--text-main); }
+
+        .msg { display: flex; gap: 14px; animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+        .msg.user { flex-direction: row-reverse; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; align-self: flex-start; margin-top: 4px; }
+        .ai-avatar { background: var(--accent-gradient); color: #07090f; }
+        .user-avatar { background: #374151; color: #f3f4f6; }
+
+        .bubble { max-width: 75%; padding: 14px 18px; border-radius: var(--radius-md); font-size: 14.5px; line-height: 1.6; }
+        .user .bubble { background: #2563eb; color: white; border-radius: 18px 18px 4px 18px; }
+        .ai .bubble { background: var(--surface-card); border: 1px solid var(--border); color: var(--text-main); border-radius: 18px 18px 18px 4px; }
+
+        .prod-card { background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); padding: 18px; margin-top: 14px; }
+        .prod-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 10px; }
+        .prod-name { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .prod-badge { font-size: 11px; background: rgba(16, 185, 129, 0.12); color: #34d399; padding: 3px 10px; border-radius: 30px; font-weight: 600; }
+        .prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .prod-stat { background: rgba(255, 255, 255, 0.02); border-radius: var(--radius-sm); padding: 10px 12px; border: 1px solid var(--border); }
+        .prod-stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .prod-stat-val { font-size: 13.5px; font-weight: 600; color: var(--text-main); margin-top: 3px; }
+        .prod-stat-val.price-val { color: var(--gold); font-size: 16px; font-weight: 700; }
+        .prod-link { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius-sm); background: var(--accent-gradient); color: #07090f; text-decoration: none; font-size: 13px; font-weight: 700; width: 100%; justify-content: center; }
+
+        .typing-dots { display: flex; gap: 5px; align-items: center; padding: 6px 0; }
+        .typing-dots span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-5px); opacity: 1; } }
+
+        .action-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+        .action-btn { font-size: 12px; padding: 6px 14px; border-radius: 30px; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.03); color: var(--text-muted); cursor: pointer; font-weight: 500; }
+        .action-btn:hover { color: var(--accent); border-color: rgba(0, 229, 255, 0.3); }
+
+        .hint-keywords-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 24px;
+            background: #0d1322;
+            border-top: 1px solid var(--border);
+            overflow-x: auto;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: 56px;   
+            box-sizing: border-box;
+        }
+        .hint-keywords-bar::-webkit-scrollbar { display: none; }
+        
+        .hint-label { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--accent); flex-shrink: 0; }
+        .hint-tag {
+            font-size: 12.5px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #bbc7db; padding: 6px 14px; border-radius: 30px; cursor: pointer; transition: all 0.2s ease;
+            display: inline-flex; align-items: center; height: 32px; 
+        }
+        .hint-tag:hover { color: #fff; border-color: rgba(0, 229, 255, 0.4); background: var(--surface-card); }
+
+        .input-wrap { padding: 14px 24px 18px; background: rgba(17, 24, 39, 0.8); flex-shrink: 0; border-top: 1px solid var(--border); }
+        .input-box { display: flex; align-items: center; gap: 12px; background: var(--surface-input); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-md); padding: 6px 8px 6px 16px; }
+        .input-box:focus-within { border-color: var(--accent); }
+        .input-box input { flex: 1; background: transparent; border: none; outline: none; color: var(--text-main); font-size: 14.5px; padding: 8px 0; }
+
+        .send-btn { width: 38px; height: 38px; border-radius: var(--radius-sm); border: none; background: var(--accent-gradient); color: #07090f; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; }
+        .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .input-hint { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 8px; }
+        .msg-meta { font-size: 10px; color: var(--text-muted); margin-top: 5px; padding: 0 2px; }
+        .msg.user .msg-meta { text-align: right; }
+
+        /* LAYER MODAL FORM POPUP */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(7, 9, 15, 0.8); backdrop-filter: blur(8px); z-index: 999; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .lead-modal { background: #1f2937; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 420px; border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-overlay.open .lead-modal { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .modal-header h3 { font-size: 18px; font-weight: 700; color: var(--gold); }
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+        .form-group input, .form-group textarea { width: 100%; background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm); padding: 10px 14px; color: #fff; font-family: inherit; font-size: 14px; outline: none; }
+        .form-submit-btn { width: 100%; padding: 12px; border-radius: var(--radius-sm); border: none; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 10px; }
+
+        @media (max-width: 768px) {
+            .app { height: 100vh; border-radius: 0; border: none; }
+            .body-wrap { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; flex-direction: row; overflow-x: auto; padding: 10px 16px; border-right: none; border-bottom: 1px solid var(--border); gap: 8px; white-space: nowrap; }
+            .sidebar-title, .sidebar-divider, .quick-chip { display: none; }
+            .cat-btn { width: auto; padding: 6px 14px; font-size: 12.5px; border-radius: 20px; }
+            #chat { padding: 20px 16px; gap: 20px; }
+            .bubble { max-width: 88%; }
+            .suggest-grid { grid-template-columns: 1fr; }
+            .hint-keywords-bar { padding: 0 16px; height: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <div class="header-left">
+            <div class="logo-ring">TDL</div>
+            <div class="header-brand">
+                <h1>TDL AI Chatbot</h1>
+                <p>Thành Đạt LED — Tư vấn & Báo giá tự động</p>
+            </div>
+        </div>
+        <div class="status-badge"><div class="status-dot"></div>Đồng bộ Sheets</div>
+        <div class="header-links">
+            <button class="hlink btn-lead-trigger" onclick="openLeadModal()">📋 Đăng ký nhận bảng giá</button>
+            <a href="https://zalo.me/0986474671" target="_blank" class="hlink" id="cfgZalo">📱 Zalo</a>
+            <a href="https://thanhdatled.com" target="_blank" class="hlink" id="cfgWeb">🌐 Trang chủ</a>
+        </div>
+    </div>
+
+    <div class="body-wrap">
+        <aside class="sidebar">
+            <div class="sidebar-title">Danh mục đèn</div>
+            <button class="cat-btn active" onclick="handleCatClick(this, 'tất cả sản phẩm')">💡 Tất cả danh mục</button>
+            <button class="cat-btn" onclick="handleCatClick(this, 'đèn pha')">🔦 Đèn pha LED</button>
+            <button class="cat-btn" onclick="handleCatClick(this, 'đèn nhà xưởng')">🏭 Đèn nhà xưởng</button>
+            <button class="cat-btn" onclick="handleCatClick(this, 'pickleball')">🏸 Đèn Pickleball</button>
+            <button class="cat-btn" onclick="handleCatClick(this, 'đèn đường')">🛣️ Đèn đường LED</button>
+
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-title">Hỗ trợ nhanh</div>
+            <button class="quick-chip chip-lead-form" onclick="openLeadModal()">✍️ Gửi yêu cầu báo giá gốc</button>
+            <button class="quick-chip" onclick="quickAsk('bảo hành')">🛡️ Chính sách bảo hành</button>
+            <button class="quick-chip" onclick="quickAsk('giao hàng')">🚚 Vận chuyển toàn quốc</button>
+            <button class="quick-chip" onclick="quickAsk('thanh toán')">💳 Phương thức thanh toán</button>
+            <button class="quick-chip" onclick="quickAsk('báo giá')">💰 Nhận báo giá sỉ</button>
+        </aside>
+
+        <div class="chat-main">
+            <div id="chat">
+                <div class="welcome" id="welcome">
+                    <div class="welcome-icon">⚡</div>
+                    <h2>Trợ lý thông minh <span>TDL AI</span></h2>
+                    <p>Hệ thống tự động đồng bộ thời gian thực với dữ liệu từ kho hàng Thành Đạt LED.</p>
+                    <div class="suggest-grid">
+                        <div class="suggest-card" onclick="quickAsk('đèn pha 200w')">
+                            <div class="s-icon">🔦</div>
+                            <div class="s-title">Đèn pha LED 200W</div>
+                        </div>
+                        <div class="suggest-card" onclick="quickAsk('chính sách bảo hành')">
+                            <div class="s-icon">🛡️</div>
+                            <div class="s-title">Chính sách linh kiện</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hint-keywords-bar">
+                <div class="hint-label">🔑 Gợi ý nhanh:</div>
+                <div class="hint-tag" onclick="quickAsk('chiết khấu đại lý')">🏷️ Chiết khấu đại lý</div>
+                <div class="hint-tag" onclick="quickAsk('đèn sân pickleball chống chói')">🏸 Đèn Pickleball chống chói</div>
+                <div class="hint-tag" onclick="quickAsk('tư vấn phần mềm Dialux')">📊 Mô phỏng Dialux</div>
+                <div class="hint-tag" onclick="quickAsk('đèn ufo nhà xưởng')">🏭 Đèn xưởng UFO</div>
+                <div class="hint-tag" onclick="quickAsk('linh kiện xuất xứ CO CQ')">📜 Xuất xứ CO/CQ</div>
+                <div class="hint-tag" onclick="quickAsk('tuổi thọ đèn led')">⏳ Tuổi thọ độ bền</div>
+            </div>
+
+            <div class="input-wrap">
+                <div class="input-box">
+                    <input type="text" id="question" placeholder="Nhập câu hỏi hoặc chọn từ khóa gợi ý phía trên..." autocomplete="off">
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+                </div>
+                <div class="input-hint">Dữ liệu nguồn kết nối trực tiếp qua Google API Web App</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="leadModalOverlay">
+    <div class="lead-modal">
+        <div class="modal-header">
+            <h3>📋 Yêu Cầu Báo Giá / Mẫu Đèn</h3>
+            <button class="modal-close" onclick="closeLeadModal()">✕</button>
+        </div>
+        <form id="leadForm" onsubmit="submitLeadForm(event)">
+            <div class="form-group">
+                <label>Họ và Tên <span style="color:var(--gold)">*</span></label>
+                <input type="text" id="formName" placeholder="Ví dụ: Nguyễn Văn A" required>
+            </div>
+            <div class="form-group">
+                <label>Số điện thoại <span style="color:var(--gold)">*</span></label>
+                <input type="tel" id="formPhone" placeholder="Ví dụ: 0986xxxxxx" pattern="[0-9]{9,11}" required>
+            </div>
+            <div class="form-group">
+                <label>Mã đèn quan tâm / Nhu cầu dự án</label>
+                <textarea id="formNote" rows="3" placeholder="Ví dụ: Cần báo giá đèn pha 200W sân Pickleball..."></textarea>
+            </div>
+            <button type="submit" class="form-submit-btn" id="formSubmitBtn">GỬI YÊU CẦU NGAY</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbyLIkmrpcl4N5L--bZUkeLVQlVuLsr1nURC3klPWhB7liuTkTETJZniqSS5Z_c8WmwX/exec";
+
+    let isLoading = false;
+    let db = { faq: [], products: [], config: { hotline: "0986474671" } };
+
+    function setLoading(state) {
+        isLoading = state;
+        const sendBtn = document.getElementById('sendBtn');
+        if (sendBtn) sendBtn.disabled = state;
+    }
+
+    function loadDatabase() {
+        fetch(API_URL)
+            .then(res => res.json())
+            .then(data => {
+                // Ép buộc ghi nhận dữ liệu sống đồng bộ từ Google Sheet
+                if (data && data.faq && data.faq.length > 0) {
+                    db.faq = data.faq;
+                    db.products = data.products;
+                    db.config = data.config;
+                    if(db.config && db.config.zalo) document.getElementById('cfgZalo').href = db.config.zalo;
+                    if(db.config && db.config.website) document.getElementById('cfgWeb').href = db.config.website;
+                }
+            })
+            .catch(err => console.error("Lỗi nạp cổng Sheets API:", err));
+    }
+    window.onload = loadDatabase;
+
+    function openLeadModal() { document.getElementById('leadModalOverlay').classList.add('open'); }
+    function closeLeadModal() { document.getElementById('leadModalOverlay').classList.remove('open'); document.getElementById('leadForm').reset(); }
+
+    async function submitLeadForm(event) {
+        event.preventDefault();
+        const submitBtn = document.getElementById('formSubmitBtn');
+        const name = document.getElementById('formName').value.trim();
+        const phone = document.getElementById('formPhone').value.trim();
+        const note = document.getElementById('formNote').value.trim();
+        
+        submitBtn.disabled = true;
+        submitBtn.innerText = "ĐANG GỬI DỮ LIỆU...";
+        
+        try {
+            await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" }, 
+                body: JSON.stringify({ name: name, phone: phone, note: note })
+            });
+        } catch(e) {}
+        
+        closeLeadModal();
+        alert("Gửi thông tin thành công! Thành Đạt LED sẽ liên hệ gửi báo giá cho anh/chị ngay.");
+        const welcomeSection = document.getElementById('welcome'); if (welcomeSection) welcomeSection.remove();
+        addAIMsg("Cảm ơn anh/chị **" + name + "** đã gửi yêu cầu. Hệ thống đã đồng bộ số điện thoại **" + phone + "** lên nhà máy. Chúng tôi sẽ xử lý dữ liệu và liên hệ lại ngay ạ!", [], ["Quay lại trang chủ"]);
+        submitBtn.disabled = false;
+        submitBtn.innerText = "GỬI YÊU CẦU NGAY";
+        loadDatabase();
+    }
+
+    function getTime() { return new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); }
+
+    function cleanStr(str) {
+        if (!str) return "";
+        return str.toString().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ").trim();
+    }
+
+    function normalizeStr(str) {
+        if (!str) return "";
+        return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ").trim();
+    }
+
+    function formatMarkdown(text) {
+        if (!text) return "";
+        let html = text.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        html = html.replace(/\*\*(.*?)\*\"/g, '<strong style="color:var(--accent); font-weight:700;">$1</strong>');
+        html = html.replace(/\n/g, '<br>');
+        return html;
+    }
+
+    function addUserMsg(text) {
+        const welcomeSection = document.getElementById('welcome'); if (welcomeSection) welcomeSection.remove();
+        const chat = document.getElementById('chat');
+        const div = document.createElement('div'); div.className = 'msg user';
+        div.innerHTML = `<div><div class="bubble">${formatMarkdown(text)}</div><div class="msg-meta">${getTime()}</div></div><div class="avatar user-avatar">U</div>`;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function addTyping() {
+        const chat = document.getElementById('chat');
+        const div = document.createElement('div'); div.className = 'msg ai'; div.id = 'typing-msg';
+        div.innerHTML = `<div class="avatar ai-avatar">AI</div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+        chat.appendChild(div); chat.scrollTop = chat.scrollHeight;
+    }
+
+    function removeTyping() { const typingElement = document.getElementById('typing-msg'); if (typingElement) typingElement.remove(); }
+
+    function renderProductCard(row) {
+        const sku = row[0] || "TDL-LED";
+        const name = row[1] || "Sản phẩm Đèn LED";
+        const cat = row[2] || "Thiết bị chiếu sáng";
+        const watt = row[3] ? row[3] + "W" : "---";
+        const price = isNaN(row[4]) ? row[4] : Number(row[4]).toLocaleString('vi-VN') + " VNĐ";
+        const chip = row[5] || "Chính hãng";
+        const driver = row[6] || "Tiêu chuẩn";
+        const warranty = row[7] || "2 - 3 năm";
+        const landing = row[9] || "https://thanhdatled.com";
+
+        return `
+            <div class="prod-card">
+                <div class="prod-header">
+                    <div>
+                        <div class="prod-name">${name}</div>
+                        <div class="prod-sku">Mã hiệu: ${sku} • Danh mục: ${cat}</div>
+                    </div>
+                    <div class="prod-badge">Nhà Máy</div>
+                </div>
+                <div class="prod-grid">
+                    <div class="prod-stat"><div class="prod-stat-label">💰 Báo giá đại lý</div><div class="prod-stat-val price-val">${price}</div></div>
+                    <div class="prod-stat"><div class="prod-stat-label">⚡ Công suất máy</div><div class="prod-stat-val">${watt}</div></div>
+                    <div class="prod-stat"><div class="prod-stat-label">🔮 Chip nguồn LED</div><div class="prod-stat-val">${chip}</div></div>
+                    <div class="prod-stat"><div class="prod-stat-label">🔌 Driver điều khiển</div><div class="prod-stat-val">${driver}</div></div>
+                    <div class="prod-stat" style="grid-column: span 2;">
+                        <div class="prod-stat-label">🛡️ Cam kết bảo hành nhà sản xuất</div>
+                        <div class="prod-stat-val" style="color: var(--green);">Bảo hành chính hãng ${warranty} (Lỗi đổi mới linh kiện 100%)</div>
+                    </div>
+                </div>
+                <a href="${landing}" target="_blank" class="prod-link">🌐 Xem thông số chi tiết & Đặt mua</a>
+            </div>
+        `;
+    }
+
+    function addAIMsg(text, matchedProducts = [], suggestions = []) {
+        const chat = document.getElementById('chat');
+        const div = document.createElement('div'); div.className = 'msg ai';
+
+        let prodsHtml = "";
+        matchedProducts.forEach(p => { prodsHtml += renderProductCard(p); });
+
+        let actionsHtml = "";
+        if (suggestions.length > 0) {
+            actionsHtml = `<div class="action-row">${suggestions.map(s => `<button class="action-btn" onclick="quickAsk('${s}')">${s}</button>`).join('')}</div>`;
+        }
+
+        div.innerHTML = `
+            <div class="avatar ai-avatar">AI</div>
+            <div style="flex: 1;">
+                <div class="bubble">
+                    <div><p>${formatMarkdown(text)}</p></div>
+                    ${prodsHtml}
+                    ${actionsHtml}
+                </div>
+                <div class="msg-meta">${getTime()} • TDL AI Assistant</div>
+            </div>
+        `;
+        chat.appendChild(div); chat.scrollTop = chat.scrollHeight;
+    }
+
+    function generateDynamicSuggestions(query, isProduct) {
+        if (isProduct) return ["Chính sách bảo hành", "Phương thức vận chuyển", "Nhận báo giá sỉ đại lý"];
+        let norm = normalizeStr(query);
+        if (norm.includes("bao hanh") || norm.includes("giao hang") || norm.includes("thanh toan")) {
+            return ["Đèn pha LED 200W", "Đèn nhà xưởng HighBay", "Liên hệ nhân viên kỹ thuật"];
+        }
+        return ["Đèn pha 200W chống chói", "Thời hạn bảo hành đèn", "Xem bảng giá tổng hợp"];
+    }
+
+    async function sendMessage() {
+        if (isLoading) return;
+
+        const input = document.getElementById('question');
+        const userText = input.value.trim();
+        if (!userText) return;
+
+        input.value = '';
+        setLoading(true);
+        addUserMsg(userText);
+        addTyping();
+
+        setTimeout(() => {
+            try {
+                let textClean = cleanStr(userText);     
+                let textNorm = normalizeStr(userText);   
+
+                let replyText = "";
+                let matchedProds = [];
+                let isProdFound = false;
+
+                // 1. KIỂM TRA ĐỐI CHIẾU TAB PRODUCTS
+                if (db.products && db.products.length > 1) {
+                    for (let i = 1; i < db.products.length; i++) {
+                        let row = db.products[i];
+                        if (!row || !row[1]) continue;
+                        
+                        let prodNameClean = cleanStr(row[1]);
+                        let prodNameNorm = normalizeStr(row[1]);
+                        let catClean = cleanStr(row[2] || "");
+                        let keywordRow = normalizeStr(row[8] || "");
+
+                        let matchKeyword = keywordRow.split(",").some(k => k.trim() && textNorm.includes(normalizeStr(k)));
+
+                        if (textClean.includes(prodNameClean) || textNorm.includes(prodNameNorm) || textClean.includes(catClean) || matchKeyword) {
+                            matchedProds.push(row);
+                            isProdFound = true;
+                        }
+                    }
+                }
+
+                // 2. KIỂM TRA ĐỐI CHIẾU TAB FAQ
+                let matchedFaq = null;
+                if (db.faq && db.faq.length > 1) {
+                    for (let i = 1; i < db.faq.length; i++) {
+                        let row = db.faq[i];
+                        if (!row || !row[0]) continue;
+                        
+                        let keyClean = cleanStr(row[0]);
+                        let keyNorm = normalizeStr(row[0]);
+                        let synonymsStr = row[1] || "";
+                        
+                        // Kiểm tra bao hàm hai chiều để quét trúng từ khóa
+                        if (textClean === keyClean || textClean.includes(keyClean) || keyClean.includes(textClean) || textNorm.includes(keyNorm)) {
+                            matchedFaq = row;
+                            break;
+                        }
+                        
+                        let synonymsArray = synonymsStr.split(",");
+                        let isSynonymMatched = synonymsArray.some(s => {
+                            let sClean = cleanStr(s);
+                            let sNorm = normalizeStr(s);
+                            return sClean.trim() && (textClean.includes(sClean) || sClean.includes(textClean) || textNorm.includes(sNorm));
+                        });
+
+                        if (isSynonymMatched) {
+                            matchedFaq = row;
+                            break;
+                        }
+                    }
+                }
+
+                // 3. ĐỔ DỮ LIỆU ĐẦU RA
+                if (matchedFaq) {
+                    replyText = matchedFaq[2]; 
+                } else if (isProdFound) {
+                    replyText = `Dạ, TDL AI đã truy vấn hệ thống dữ liệu kho và tìm thấy dòng thiết bị phù hợp với nhu cầu của anh/chị bên dưới ạ:`;
+                } else {
+                    let hotline = (db.config && db.config.hotline) ? db.config.hotline : "0986474671";
+                    replyText = `Dạ, hệ thống chưa tìm ra từ khóa đèn khớp hoàn toàn với mô tả của bạn. Anh/chị có thể lựa chọn nhanh ở danh mục điều hướng hoặc trao đổi trực tiếp qua Hotline/Zalo kỹ thuật: **${hotline}** để nhận chiết khấu thương mại tốt nhất ạ!`;
+                }
+
+                let quickSugs = generateDynamicSuggestions(userText, isProdFound);
+                removeTyping();
+                addAIMsg(replyText, matchedProds, quickSugs);
+            } catch (err) {
+                console.error("Lỗi xử lý luồng:", err);
+                removeTyping();
+                addAIMsg("Dạ, hệ thống đang bận đồng bộ dữ liệu từ trang tính. Bạn vui lòng thử lại ngay nhé!", [], ["Quay lại"]);
+            } finally {
+                setLoading(false);
+            }
+        }, 450);
+    }
+
+    function quickAsk(text) {
+        document.getElementById('question').value = text;
+        sendMessage();
+    }
+
+    function handleCatClick(btn, queryText) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        quickAsk(queryText);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const inputElement = document.getElementById('question');
+        if (inputElement) {
+            inputElement.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) { 
+                    e.preventDefault(); 
+                    sendMessage(); 
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

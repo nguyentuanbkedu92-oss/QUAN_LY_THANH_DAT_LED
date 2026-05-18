@@ -3,469 +3,435 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TDL AI Chatbot v3</title>
-
-    <!-- Font async - không chặn render -->
+    <title>TDL AI Chatbot v4</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"></noscript>
-
-    <!-- DOMPurify XSS protection -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
     <style>
     /* ===== RESET ===== */
-    html, body {
-        margin: 0; padding: 0; width: 100%; height: 100%;
-        overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif;
-        background: #fff;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; font-family:'Be Vietnam Pro',sans-serif; background:#fff; }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
     /* ===== LAYOUT ===== */
-    #tdl-widget { position: relative; width: 100%; height: 100%; }
-    #tdl-bubble-btn, .tdl-tooltip { display: none !important; }
-
-    #tdl-panel {
-        position: absolute; inset: 0;
-        display: flex; flex-direction: column;
-        overflow: hidden; background: #fff;
-    }
+    #tdl-widget { position:relative; width:100%; height:100%; }
+    #tdl-bubble-btn, .tdl-tooltip { display:none !important; }
+    #tdl-panel { position:absolute; inset:0; display:flex; flex-direction:column; overflow:hidden; background:#fff; }
 
     /* ===== HEADER ===== */
-    .tdl-header {
-        background: linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%);
-        padding: 14px 16px; display: flex; align-items: center;
-        gap: 11px; flex-shrink: 0;
-    }
-    .tdl-header-avatar {
-        width: 42px; height: 42px; border-radius: 50%;
-        background: rgba(255,255,255,0.18); border: 2px solid rgba(255,255,255,0.4);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 12px; font-weight: 700; color: #fff; position: relative; flex-shrink: 0;
-    }
-    .tdl-avatar-dot {
-        position: absolute; bottom: 1px; right: 1px;
-        width: 11px; height: 11px; background: #4ade80;
-        border-radius: 50%; border: 2px solid #0369a1;
-    }
-    .tdl-header-info { flex: 1; min-width: 0; }
-    .tdl-header-name { font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; }
-    .tdl-header-sub {
-        font-size: 11.5px; color: rgba(255,255,255,0.8); margin-top: 2px;
-        display: flex; align-items: center; gap: 5px;
-    }
-    .tdl-header-sub::before {
-        content: ''; width: 6px; height: 6px; border-radius: 50%;
-        background: #4ade80; flex-shrink: 0;
-    }
-    .tdl-header-actions { display: flex; gap: 6px; }
-    .tdl-header-btn {
-        width: 32px; height: 32px; border-radius: 50%;
-        background: rgba(255,255,255,0.15); border: none;
-        cursor: pointer; color: #fff; display: flex;
-        align-items: center; justify-content: center;
-        transition: background 0.2s; flex-shrink: 0;
-        text-decoration: none;
-    }
-    .tdl-header-btn:hover { background: rgba(255,255,255,0.28); }
+    .tdl-header { background:linear-gradient(135deg,#0369a1 0%,#0ea5e9 100%); padding:14px 16px; display:flex; align-items:center; gap:11px; flex-shrink:0; }
+    .tdl-header-avatar { width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,0.18); border:2px solid rgba(255,255,255,0.4); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; position:relative; flex-shrink:0; }
+    .tdl-avatar-dot { position:absolute; bottom:1px; right:1px; width:11px; height:11px; background:#4ade80; border-radius:50%; border:2px solid #0369a1; }
+    .tdl-header-info { flex:1; min-width:0; }
+    .tdl-header-name { font-size:14px; font-weight:700; color:#fff; line-height:1.2; }
+    .tdl-header-sub { font-size:11.5px; color:rgba(255,255,255,0.8); margin-top:2px; display:flex; align-items:center; gap:5px; }
+    .tdl-header-sub::before { content:''; width:6px; height:6px; border-radius:50%; background:#4ade80; flex-shrink:0; }
+    .tdl-header-actions { display:flex; gap:6px; }
+    .tdl-header-btn { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; cursor:pointer; color:#fff; display:flex; align-items:center; justify-content:center; transition:background 0.2s; flex-shrink:0; text-decoration:none; }
+    .tdl-header-btn:hover { background:rgba(255,255,255,0.28); }
 
-    /* ===== CATEGORY BAR ===== */
+    /* ===== CATEGORY GRID 4 CỘT ===== */
     .tdl-cats {
-        display: flex; gap: 6px; padding: 10px 12px;
-        border-bottom: 1px solid #f0f4f8; overflow-x: auto;
-        flex-shrink: 0; scrollbar-width: none;
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:6px;
+        padding:10px 12px;
+        border-bottom:1px solid #f0f4f8;
+        flex-shrink:0;
     }
-    .tdl-cats::-webkit-scrollbar { display: none; }
     .tdl-cat {
-        white-space: nowrap; font-size: 12px; font-weight: 600;
-        padding: 5px 12px; border-radius: 20px; border: 1.5px solid #e2e8f0;
-        background: #f8fafc; color: #64748b; cursor: pointer;
-        transition: all 0.18s; flex-shrink: 0;
+        font-size:11.5px; font-weight:600; padding:7px 4px; border-radius:10px;
+        border:1.5px solid #e2e8f0; background:#f8fafc; color:#64748b;
+        cursor:pointer; transition:all 0.18s; text-align:center; line-height:1.3;
+        display:flex; flex-direction:column; align-items:center; gap:3px;
     }
-    .tdl-cat:hover:not(:disabled), .tdl-cat.active {
-        background: #eff6ff; border-color: #93c5fd; color: #1d4ed8;
-    }
-    .tdl-cat:disabled { opacity: 0.55; cursor: not-allowed; }
+    .tdl-cat .cat-icon { font-size:16px; line-height:1; }
+    .tdl-cat .cat-label { font-size:10.5px; font-weight:600; }
+    .tdl-cat:hover:not(:disabled), .tdl-cat.active { background:#eff6ff; border-color:#93c5fd; color:#1d4ed8; }
+    .tdl-cat:disabled { opacity:0.55; cursor:not-allowed; }
 
     /* ===== CHAT AREA ===== */
-    #tdl-chat {
-        flex: 1; overflow-y: auto; padding: 14px 14px 6px;
-        display: flex; flex-direction: column; gap: 12px;
-        scroll-behavior: smooth; background: #f8fafc;
-    }
-    #tdl-chat::-webkit-scrollbar { width: 4px; }
-    #tdl-chat::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    #tdl-chat { flex:1; overflow-y:auto; padding:14px 14px 6px; display:flex; flex-direction:column; gap:12px; scroll-behavior:smooth; background:#f8fafc; }
+    #tdl-chat::-webkit-scrollbar { width:4px; }
+    #tdl-chat::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:4px; }
 
     /* Welcome */
-    .tdl-welcome { text-align: center; padding: 15px 8px 5px; }
-    .tdl-welcome-icon {
-        width: 52px; height: 52px; background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-        border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        font-size: 22px; margin: 0 auto 12px;
-    }
-    .tdl-welcome h3 { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
-    .tdl-welcome p { font-size: 13px; color: #64748b; line-height: 1.5; }
+    .tdl-welcome { text-align:center; padding:15px 8px 5px; }
+    .tdl-welcome-icon { width:52px; height:52px; background:linear-gradient(135deg,#dbeafe,#bfdbfe); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 auto 12px; }
+    .tdl-welcome h3 { font-size:15px; font-weight:700; color:#0f172a; margin-bottom:6px; }
+    .tdl-welcome p { font-size:13px; color:#64748b; line-height:1.5; }
 
     /* Messages */
-    .tdl-msg { display: flex; gap: 8px; align-items: flex-end; animation: tdlFadeIn 0.22s ease; }
-    .tdl-msg.user { flex-direction: row-reverse; }
-    @keyframes tdlFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .tdl-msg { display:flex; gap:8px; align-items:flex-end; animation:tdlFadeIn 0.22s ease; }
+    .tdl-msg.user { flex-direction:row-reverse; }
+    @keyframes tdlFadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
-    .tdl-msg-avatar {
-        width: 28px; height: 28px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 10px; font-weight: 700; flex-shrink: 0;
-    }
-    .tdl-msg.ai  .tdl-msg-avatar { background: linear-gradient(135deg, #0ea5e9, #0369a1); color: #fff; }
-    .tdl-msg.user .tdl-msg-avatar { background: #334155; color: #e2e8f0; }
+    .tdl-msg-avatar { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; }
+    .tdl-msg.ai  .tdl-msg-avatar { background:linear-gradient(135deg,#0ea5e9,#0369a1); color:#fff; }
+    .tdl-msg.user .tdl-msg-avatar { background:#334155; color:#e2e8f0; }
 
-    .tdl-bubble {
-        max-width: 80%; padding: 10px 13px; font-size: 13.5px;
-        line-height: 1.55; word-break: break-word;
-    }
-    .tdl-msg.ai .tdl-bubble {
-        background: #fff; color: #1e293b; border: 1px solid #e8f0fe;
-        border-radius: 4px 16px 16px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-    .tdl-msg.user .tdl-bubble {
-        background: linear-gradient(135deg, #0ea5e9, #0369a1);
-        color: #fff; border-radius: 16px 16px 4px 16px;
-    }
-    .tdl-msg-time { font-size: 10px; color: #94a3b8; margin-top: 3px; padding: 0 4px; }
-    .tdl-msg.user .tdl-msg-time { text-align: right; }
+    .tdl-bubble { max-width:82%; padding:10px 13px; font-size:13.5px; line-height:1.55; word-break:break-word; }
+    .tdl-msg.ai  .tdl-bubble { background:#fff; color:#1e293b; border:1px solid #e8f0fe; border-radius:4px 16px 16px 16px; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+    .tdl-msg.user .tdl-bubble { background:linear-gradient(135deg,#0ea5e9,#0369a1); color:#fff; border-radius:16px 16px 4px 16px; }
+    .tdl-msg-time { font-size:10px; color:#94a3b8; margin-top:3px; padding:0 4px; }
+    .tdl-msg.user .tdl-msg-time { text-align:right; }
 
-    /* Typing dots */
-    .tdl-typing { display: flex; gap: 4px; align-items: center; padding: 4px 2px; }
-    .tdl-typing span {
-        width: 5px; height: 5px; background: #94a3b8; border-radius: 50%;
-        animation: tdlBounce 1.2s infinite;
-    }
-    .tdl-typing span:nth-child(2) { animation-delay: 0.15s; }
-    .tdl-typing span:nth-child(3) { animation-delay: 0.30s; }
-    @keyframes tdlBounce { 0%,60%,100% { transform: none; opacity: 0.4; } 30% { transform: translateY(-5px); opacity: 1; } }
+    /* Typing */
+    .tdl-typing { display:flex; gap:4px; align-items:center; padding:4px 2px; }
+    .tdl-typing span { width:5px; height:5px; background:#94a3b8; border-radius:50%; animation:tdlBounce 1.2s infinite; }
+    .tdl-typing span:nth-child(2) { animation-delay:0.15s; }
+    .tdl-typing span:nth-child(3) { animation-delay:0.30s; }
+    @keyframes tdlBounce { 0%,60%,100%{transform:none;opacity:0.4}30%{transform:translateY(-5px);opacity:1} }
 
-    /* Quick reply chips inside bubble */
-    .tdl-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f0f4f8; }
+    /* ===== GỢI Ý TIẾP THEO (CONTEXTUAL SUGGESTIONS) ===== */
+    .tdl-suggest-row {
+        display:flex; flex-wrap:wrap; gap:6px;
+        margin-top:10px; padding-top:10px;
+        border-top:1px solid #edf2f7;
+    }
+    .tdl-suggest-label {
+        width:100%; font-size:10.5px; color:#94a3b8; font-weight:600;
+        text-transform:uppercase; letter-spacing:0.4px; margin-bottom:2px;
+    }
     .tdl-chip {
-        font-size: 11.5px; padding: 5px 11px; border-radius: 20px;
-        border: 1.5px solid #dbeafe; background: #eff6ff; color: #1d4ed8;
-        cursor: pointer; font-weight: 500; transition: all 0.18s;
+        font-size:12px; padding:6px 13px; border-radius:20px;
+        border:1.5px solid #dbeafe; background:#eff6ff; color:#1d4ed8;
+        cursor:pointer; font-weight:500; transition:all 0.18s;
+        display:flex; align-items:center; gap:4px;
     }
-    .tdl-chip:hover:not(:disabled) { background: #dbeafe; border-color: #93c5fd; }
-    .tdl-chip:disabled { opacity: 0.55; cursor: not-allowed; }
+    .tdl-chip:hover:not(:disabled) { background:#dbeafe; border-color:#93c5fd; transform:translateY(-1px); box-shadow:0 2px 8px rgba(59,130,246,0.12); }
+    .tdl-chip:disabled { opacity:0.55; cursor:not-allowed; }
 
     /* Product card */
-    .tdl-prod {
-        background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
-        padding: 12px; margin-top: 10px; font-size: 12.5px;
-    }
-    .tdl-prod-name { font-weight: 700; color: #0f172a; font-size: 13px; margin-bottom: 4px; }
-    .tdl-prod-sku { color: #94a3b8; font-size: 11px; margin-bottom: 8px; }
-    .tdl-prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-    .tdl-prod-stat { background: #fff; border-radius: 8px; padding: 7px 9px; border: 1px solid #f0f4f8; }
-    .tdl-prod-stat-lbl { font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
-    .tdl-prod-stat-val { font-size: 12.5px; font-weight: 700; color: #0f172a; margin-top: 2px; }
-    .tdl-prod-stat-val.price { color: #d97706; font-size: 14px; }
-    .tdl-prod-link {
-        display: flex; align-items: center; justify-content: center; gap: 6px;
-        padding: 9px; border-radius: 8px;
-        background: linear-gradient(135deg, #0ea5e9, #0369a1);
-        color: #fff; text-decoration: none; font-size: 12.5px; font-weight: 700;
-        transition: opacity 0.2s;
-    }
-    .tdl-prod-link:hover { opacity: 0.88; }
+    .tdl-prod { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-top:10px; font-size:12.5px; }
+    .tdl-prod-name { font-weight:700; color:#0f172a; font-size:13px; margin-bottom:4px; }
+    .tdl-prod-sku { color:#94a3b8; font-size:11px; margin-bottom:8px; }
+    .tdl-prod-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; }
+    .tdl-prod-stat { background:#fff; border-radius:8px; padding:7px 9px; border:1px solid #f0f4f8; }
+    .tdl-prod-stat-lbl { font-size:10px; color:#94a3b8; font-weight:600; text-transform:uppercase; }
+    .tdl-prod-stat-val { font-size:12.5px; font-weight:700; color:#0f172a; margin-top:2px; }
+    .tdl-prod-stat-val.price { color:#d97706; font-size:14px; }
+    .tdl-prod-link { display:flex; align-items:center; justify-content:center; gap:6px; padding:9px; border-radius:8px; background:linear-gradient(135deg,#0ea5e9,#0369a1); color:#fff; text-decoration:none; font-size:12.5px; font-weight:700; transition:opacity 0.2s; }
+    .tdl-prod-link:hover { opacity:0.88; }
 
     /* ===== FLOATING QUICK REPLIES ===== */
-    .tdl-floating {
-        display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
-        padding: 10px 14px; background: #f8fafc;
-        border-top: 1px solid rgba(226,232,240,0.6); flex-shrink: 0;
-    }
-    .tdl-float-btn {
-        display: flex; align-items: center; gap: 6px; background: #fff;
-        border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 24px;
-        font-size: 13px; font-weight: 600; color: #1e293b; cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.2s; white-space: nowrap;
-    }
-    .tdl-float-btn:hover:not(:disabled) {
-        background: #eff6ff; border-color: #3b82f6; color: #2563eb; transform: translateY(-1px);
-    }
-    .tdl-float-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-    .tdl-float-arrow { font-size: 11px; color: #94a3b8; }
+    .tdl-floating { display:flex; flex-direction:column; align-items:flex-end; gap:8px; padding:10px 14px; background:#f8fafc; border-top:1px solid rgba(226,232,240,0.6); flex-shrink:0; }
+    .tdl-float-btn { display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #e2e8f0; padding:8px 16px; border-radius:24px; font-size:13px; font-weight:600; color:#1e293b; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.04); transition:all 0.2s; white-space:nowrap; }
+    .tdl-float-btn:hover:not(:disabled) { background:#eff6ff; border-color:#3b82f6; color:#2563eb; transform:translateY(-1px); }
+    .tdl-float-btn:disabled { opacity:0.55; cursor:not-allowed; }
+    .tdl-float-arrow { font-size:11px; color:#94a3b8; }
 
-    /* ===== HINT TAGS ===== */
+    /* ===== HINT GRID 4 CỘT ===== */
     .tdl-hints {
-        display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto;
-        flex-shrink: 0; border-top: 1px solid #f0f4f8; background: #fff; scrollbar-width: none;
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:6px;
+        padding:8px 12px;
+        flex-shrink:0;
+        border-top:1px solid #f0f4f8;
+        background:#fff;
     }
-    .tdl-hints::-webkit-scrollbar { display: none; }
     .tdl-hint {
-        white-space: nowrap; font-size: 11.5px; padding: 4px 11px; border-radius: 20px;
-        border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b;
-        cursor: pointer; transition: all 0.18s; font-weight: 500; flex-shrink: 0;
+        font-size:11px; padding:7px 4px; border-radius:10px;
+        border:1px solid #e2e8f0; background:#f8fafc; color:#64748b;
+        cursor:pointer; transition:all 0.18s; font-weight:600;
+        text-align:center; display:flex; flex-direction:column;
+        align-items:center; gap:3px; line-height:1.3;
     }
-    .tdl-hint:hover:not(:disabled) { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
-    .tdl-hint:disabled { opacity: 0.55; cursor: not-allowed; }
+    .tdl-hint .hint-icon { font-size:15px; line-height:1; }
+    .tdl-hint .hint-label { font-size:10px; font-weight:600; }
+    .tdl-hint:hover:not(:disabled) { background:#eff6ff; border-color:#93c5fd; color:#1d4ed8; }
+    .tdl-hint:disabled { opacity:0.55; cursor:not-allowed; }
 
     /* ===== INPUT AREA ===== */
-    .tdl-input-area {
-        padding: 10px 12px 12px; background: #fff;
-        border-top: 1px solid #f0f4f8; flex-shrink: 0;
-    }
-    .tdl-input-row {
-        display: flex; align-items: center; gap: 8px;
-        background: #f1f5f9; border-radius: 24px; padding: 6px 6px 6px 14px;
-        border: 1.5px solid transparent; transition: border-color 0.2s;
-    }
-    .tdl-input-row:focus-within { border-color: #93c5fd; background: #fff; }
-    .tdl-input-row input {
-        flex: 1; background: transparent; border: none; outline: none;
-        font-size: 13.5px; color: #0f172a;
-        font-family: 'Be Vietnam Pro', sans-serif; padding: 4px 0;
-    }
-    .tdl-input-row input::placeholder { color: #94a3b8; }
-    .tdl-send-btn {
-        width: 34px; height: 34px; border-radius: 50%;
-        background: linear-gradient(135deg, #0ea5e9, #0369a1);
-        border: none; cursor: pointer; display: flex;
-        align-items: center; justify-content: center; color: #fff;
-        flex-shrink: 0; transition: opacity 0.2s;
-    }
-    .tdl-send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .tdl-input-area { padding:10px 12px 12px; background:#fff; border-top:1px solid #f0f4f8; flex-shrink:0; }
+    .tdl-input-row { display:flex; align-items:center; gap:8px; background:#f1f5f9; border-radius:24px; padding:6px 6px 6px 14px; border:1.5px solid transparent; transition:border-color 0.2s; }
+    .tdl-input-row:focus-within { border-color:#93c5fd; background:#fff; }
+    .tdl-input-row input { flex:1; background:transparent; border:none; outline:none; font-size:13.5px; color:#0f172a; font-family:'Be Vietnam Pro',sans-serif; padding:4px 0; }
+    .tdl-input-row input::placeholder { color:#94a3b8; }
+    .tdl-send-btn { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#0ea5e9,#0369a1); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; transition:opacity 0.2s; }
+    .tdl-send-btn:disabled { opacity:0.35; cursor:not-allowed; }
+
+    /* ===== FOOTER: Báo giá TRÁI, hint phải ===== */
     .tdl-input-footer {
-        display: flex; align-items: center; justify-content: space-between;
-        margin-top: 7px; padding: 0 4px;
+        display:flex; align-items:center; justify-content:space-between;
+        margin-top:7px; padding:0 4px;
     }
-    .tdl-input-hint { font-size: 10.5px; color: #cbd5e1; }
+    /* Nút báo giá bên TRÁI – nổi bật hơn */
     .tdl-quote-btn {
-        font-size: 11.5px; font-weight: 600; color: #0369a1;
-        background: none; border: none; cursor: pointer;
-        text-decoration: underline; text-underline-offset: 2px;
-        font-family: 'Be Vietnam Pro', sans-serif;
+        display:flex; align-items:center; gap:5px;
+        font-size:12px; font-weight:700; color:#fff;
+        background:linear-gradient(135deg,#0ea5e9,#0369a1);
+        border:none; border-radius:20px; padding:6px 14px;
+        cursor:pointer; font-family:'Be Vietnam Pro',sans-serif;
+        transition:opacity 0.2s; flex-shrink:0;
     }
+    .tdl-quote-btn:hover { opacity:0.88; }
+    .tdl-input-hint { font-size:10.5px; color:#cbd5e1; text-align:right; }
 
-    /* ===== TOAST NOTIFICATION ===== */
-    .tdl-toast {
-        position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
-        background: #1e293b; color: #fff; padding: 8px 18px;
-        border-radius: 99px; font-size: 13px; font-weight: 500;
-        z-index: 999999; pointer-events: none; white-space: nowrap;
-        animation: tdlToastIn 0.2s ease;
-    }
-    @keyframes tdlToastIn { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%) none; } }
+    /* ===== TOAST ===== */
+    .tdl-toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#1e293b; color:#fff; padding:8px 18px; border-radius:99px; font-size:13px; font-weight:500; z-index:999999; pointer-events:none; white-space:nowrap; animation:tdlToastIn 0.2s ease; }
+    @keyframes tdlToastIn { from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%)} }
 
-    /* ===== MODAL LEAD FORM ===== */
-    .tdl-overlay {
-        position: fixed; inset: 0; background: rgba(15,23,42,0.72);
-        backdrop-filter: blur(4px); z-index: 1000000;
-        display: flex; align-items: center; justify-content: center;
-        padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s;
-    }
-    .tdl-overlay.open { opacity: 1; pointer-events: all; }
-    .tdl-modal {
-        background: #fff; border-radius: 20px; padding: 24px; width: 100%; max-width: 380px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.18); transform: scale(0.94); transition: transform 0.25s;
-    }
-    .tdl-overlay.open .tdl-modal { transform: scale(1); }
-    .tdl-modal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-    .tdl-modal-hdr h3 { font-size: 16px; font-weight: 700; color: #0f172a; }
-    .tdl-modal-close {
-        width: 30px; height: 30px; border-radius: 50%; background: #f1f5f9;
-        border: none; cursor: pointer; display: flex; align-items: center;
-        justify-content: center; color: #64748b; font-size: 16px; transition: background 0.2s;
-    }
-    .tdl-modal-close:hover { background: #e2e8f0; }
-    .tdl-form-group { margin-bottom: 13px; }
-    .tdl-form-group label {
-        display: block; font-size: 12px; font-weight: 600; color: #374151;
-        margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px;
-    }
-    .tdl-form-group input,
-    .tdl-form-group textarea {
-        width: 100%; background: #f8fafc; border: 1.5px solid #e2e8f0;
-        border-radius: 10px; padding: 10px 12px; font-size: 13.5px;
-        font-family: 'Be Vietnam Pro', sans-serif; color: #0f172a; outline: none;
-        transition: border-color 0.2s; resize: none;
-    }
-    .tdl-form-group input:focus,
-    .tdl-form-group textarea:focus { border-color: #93c5fd; background: #fff; }
-    .tdl-form-submit {
-        width: 100%; padding: 12px; border-radius: 10px; border: none;
-        background: linear-gradient(135deg, #0ea5e9, #0369a1); color: #fff;
-        font-size: 14px; font-weight: 700; font-family: 'Be Vietnam Pro', sans-serif;
-        cursor: pointer; margin-top: 4px; transition: opacity 0.2s;
-    }
-    .tdl-form-submit:hover:not(:disabled) { opacity: 0.9; }
-    .tdl-form-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+    /* ===== MODAL ===== */
+    .tdl-overlay { position:fixed; inset:0; background:rgba(15,23,42,0.72); backdrop-filter:blur(4px); z-index:1000000; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+    .tdl-overlay.open { opacity:1; pointer-events:all; }
+    .tdl-modal { background:#fff; border-radius:20px; padding:24px; width:100%; max-width:380px; box-shadow:0 20px 50px rgba(0,0,0,0.18); transform:scale(0.94); transition:transform 0.25s; }
+    .tdl-overlay.open .tdl-modal { transform:scale(1); }
+    .tdl-modal-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+    .tdl-modal-hdr h3 { font-size:16px; font-weight:700; color:#0f172a; }
+    .tdl-modal-close { width:30px; height:30px; border-radius:50%; background:#f1f5f9; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#64748b; font-size:16px; transition:background 0.2s; }
+    .tdl-modal-close:hover { background:#e2e8f0; }
+    .tdl-form-group { margin-bottom:13px; }
+    .tdl-form-group label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.4px; }
+    .tdl-form-group input, .tdl-form-group textarea { width:100%; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:10px; padding:10px 12px; font-size:13.5px; font-family:'Be Vietnam Pro',sans-serif; color:#0f172a; outline:none; transition:border-color 0.2s; resize:none; }
+    .tdl-form-group input:focus, .tdl-form-group textarea:focus { border-color:#93c5fd; background:#fff; }
+    .tdl-form-submit { width:100%; padding:12px; border-radius:10px; border:none; background:linear-gradient(135deg,#0ea5e9,#0369a1); color:#fff; font-size:14px; font-weight:700; font-family:'Be Vietnam Pro',sans-serif; cursor:pointer; margin-top:4px; transition:opacity 0.2s; }
+    .tdl-form-submit:hover:not(:disabled) { opacity:0.9; }
+    .tdl-form-submit:disabled { opacity:0.45; cursor:not-allowed; }
     </style>
 </head>
 <body>
 
 <div id="tdl-widget">
-    <div id="tdl-panel">
+  <div id="tdl-panel">
 
-        <!-- HEADER -->
-        <div class="tdl-header">
-            <div class="tdl-header-avatar" aria-hidden="true">
-                TDL
-                <div class="tdl-avatar-dot"></div>
-            </div>
-            <div class="tdl-header-info">
-                <div class="tdl-header-name">TDL AI – Nhân Viên Tư Vấn</div>
-                <div class="tdl-header-sub">Trực tuyến 24/7 · Phản hồi ngay</div>
-            </div>
-            <div class="tdl-header-actions">
-                <a href="https://zalo.me/0986474671" target="_blank" rel="noopener noreferrer"
-                   class="tdl-header-btn" aria-label="Liên hệ Zalo tư vấn kỹ thuật" id="cfgZaloBtn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
-                        <path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10zm4.5 13.5h-9v-1.5l5.5-5.5H7.5V7h9v1.5L11 14h5.5v1.5z"/>
-                    </svg>
-                </a>
-                <button class="tdl-header-btn" onclick="tdlOpenModal()" aria-label="Mở form nhận báo giá">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15" aria-hidden="true">
-                        <path d="M9 12h6M9 16h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- CATEGORY BAR -->
-        <nav class="tdl-cats" aria-label="Danh mục sản phẩm">
-            <button class="tdl-cat active" onclick="tdlCat(this,'tất cả sản phẩm')" aria-label="Xem tất cả">🏠 Tất cả</button>
-            <button class="tdl-cat" onclick="tdlCat(this,'đèn pha')" aria-label="Đèn pha LED">🔦 Đèn pha</button>
-            <button class="tdl-cat" onclick="tdlCat(this,'đèn nhà xưởng')" aria-label="Đèn nhà xưởng">🏭 Nhà xưởng</button>
-            <button class="tdl-cat" onclick="tdlCat(this,'pickleball')" aria-label="Đèn sân Pickleball">🏸 Pickleball</button>
-            <button class="tdl-cat" onclick="tdlCat(this,'đèn đường')" aria-label="Đèn đường LED">🛣️ Đèn đường</button>
-        </nav>
-
-        <!-- CHAT -->
-        <main id="tdl-chat" role="log" aria-live="polite" aria-label="Cuộc trò chuyện">
-            <div class="tdl-welcome" id="tdlWelcome">
-                <div class="tdl-welcome-icon" aria-hidden="true">💡</div>
-                <h3>Xin chào! Tôi là TDL AI – trợ lý tư vấn 24/7</h3>
-                <p>Em có thể hỗ trợ gì cho dự án chiếu sáng của anh/chị ạ?</p>
-            </div>
-        </main>
-
-        <!-- FLOATING QUICK REPLIES -->
-        <div class="tdl-floating" id="tdlFloating" aria-label="Gợi ý câu hỏi nhanh">
-            <button class="tdl-float-btn" onclick="tdlQuick('chiết khấu đại lý')">
-                <span>🏷️ Chính sách chiết khấu đại lý TDL</span>
-                <span class="tdl-float-arrow" aria-hidden="true">➔</span>
-            </button>
-            <button class="tdl-float-btn" onclick="tdlQuick('linh kiện xuất xứ CO CQ')">
-                <span>📜 Giấy tờ xuất xứ linh kiện CO/CQ</span>
-                <span class="tdl-float-arrow" aria-hidden="true">➔</span>
-            </button>
-            <button class="tdl-float-btn" onclick="tdlQuick('pickleball')">
-                <span>🏸 Tư vấn đèn sân Pickleball chống chói</span>
-                <span class="tdl-float-arrow" aria-hidden="true">➔</span>
-            </button>
-            <button class="tdl-float-btn" onclick="tdlQuick('phương thức thanh toán')">
-                <span>💳 Phương thức thanh toán linh hoạt</span>
-                <span class="tdl-float-arrow" aria-hidden="true">➔</span>
-            </button>
-        </div>
-
-        <!-- HINT TAGS -->
-        <div class="tdl-hints" aria-label="Từ khóa gợi ý">
-            <button class="tdl-hint" onclick="tdlQuick('chiết khấu đại lý')">🏷️ Chiết khấu ĐL</button>
-            <button class="tdl-hint" onclick="tdlQuick('linh kiện xuất xứ CO CQ')">📜 CO/CQ</button>
-            <button class="tdl-hint" onclick="tdlQuick('tuổi thọ đèn led')">⏳ Tuổi thọ</button>
-            <button class="tdl-hint" onclick="tdlQuick('chính sách bảo hành')">🛡️ Bảo hành</button>
-            <button class="tdl-hint" onclick="tdlQuick('phương thức vận chuyển')">🚚 Vận chuyển</button>
-        </div>
-
-        <!-- INPUT -->
-        <div class="tdl-input-area">
-            <div class="tdl-input-row">
-                <input type="text" id="tdlQ"
-                    placeholder="Hỏi về đèn LED, báo giá, bảo hành..."
-                    autocomplete="off" autocorrect="off" spellcheck="false"
-                    aria-label="Nhập câu hỏi của bạn" maxlength="500">
-                <button class="tdl-send-btn" id="tdlSendBtn" onclick="tdlSend()" aria-label="Gửi tin nhắn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="tdl-input-footer">
-                <span class="tdl-input-hint">Kho Thành Đạt LED – Dữ liệu đồng bộ thực tế</span>
-                <button class="tdl-quote-btn" onclick="tdlOpenModal()" aria-label="Nhận báo giá">📋 Nhận báo giá</button>
-            </div>
-        </div>
-
-    </div><!-- #tdl-panel -->
-</div><!-- #tdl-widget -->
-
-<!-- LEAD FORM MODAL -->
-<div class="tdl-overlay" id="tdlOverlay" role="dialog" aria-modal="true" aria-labelledby="tdlModalTitle">
-    <div class="tdl-modal">
-        <div class="tdl-modal-hdr">
-            <h3 id="tdlModalTitle">📋 Yêu Cầu Báo Giá / Mẫu Đèn</h3>
-            <button class="tdl-modal-close" onclick="tdlCloseModal()" aria-label="Đóng form">✕</button>
-        </div>
-        <form id="tdlForm" onsubmit="tdlSubmit(event)" novalidate>
-            <div class="tdl-form-group">
-                <label for="tdlName">Họ và Tên <span style="color:#f59e0b" aria-hidden="true">*</span></label>
-                <input type="text" id="tdlName" placeholder="Ví dụ: Nguyễn Văn A" required autocomplete="name">
-            </div>
-            <div class="tdl-form-group">
-                <label for="tdlPhone">Số điện thoại <span style="color:#f59e0b" aria-hidden="true">*</span></label>
-                <input type="tel" id="tdlPhone" placeholder="Ví dụ: 0986xxxxxx" pattern="[0-9]{9,11}" required autocomplete="tel">
-            </div>
-            <div class="tdl-form-group">
-                <label for="tdlNote">Nhu cầu dự án / Mã đèn quan tâm</label>
-                <textarea id="tdlNote" rows="3" placeholder="Ví dụ: Cần báo giá đèn pha 200W sân Pickleball..." maxlength="1000"></textarea>
-            </div>
-            <button type="submit" class="tdl-form-submit" id="tdlSubmitBtn">GỬI YÊU CẦU NGAY</button>
-        </form>
+    <!-- HEADER -->
+    <div class="tdl-header">
+      <div class="tdl-header-avatar" aria-hidden="true">TDL<div class="tdl-avatar-dot"></div></div>
+      <div class="tdl-header-info">
+        <div class="tdl-header-name">TDL AI – Nhân Viên Tư Vấn</div>
+        <div class="tdl-header-sub">Trực tuyến 24/7 · Phản hồi ngay</div>
+      </div>
+      <div class="tdl-header-actions">
+        <a href="https://zalo.me/0986474671" target="_blank" rel="noopener noreferrer"
+           class="tdl-header-btn" aria-label="Liên hệ Zalo" id="cfgZaloBtn">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10zm4.5 13.5h-9v-1.5l5.5-5.5H7.5V7h9v1.5L11 14h5.5v1.5z"/>
+          </svg>
+        </a>
+        <button class="tdl-header-btn" onclick="tdlOpenModal()" aria-label="Nhận báo giá">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15" aria-hidden="true">
+            <path d="M9 12h6M9 16h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+          </svg>
+        </button>
+      </div>
     </div>
+
+    <!-- CATEGORY GRID 4 CỘT (bỏ Tất cả) -->
+    <nav class="tdl-cats" aria-label="Danh mục sản phẩm">
+      <button class="tdl-cat" onclick="tdlCat(this,'đèn pha')">
+        <span class="cat-icon">🔦</span><span class="cat-label">Đèn pha</span>
+      </button>
+      <button class="tdl-cat" onclick="tdlCat(this,'đèn nhà xưởng')">
+        <span class="cat-icon">🏭</span><span class="cat-label">Nhà xưởng</span>
+      </button>
+      <button class="tdl-cat" onclick="tdlCat(this,'pickleball')">
+        <span class="cat-icon">🏸</span><span class="cat-label">Pickleball</span>
+      </button>
+      <button class="tdl-cat" onclick="tdlCat(this,'đèn đường')">
+        <span class="cat-icon">🛣️</span><span class="cat-label">Đèn đường</span>
+      </button>
+    </nav>
+
+    <!-- CHAT -->
+    <main id="tdl-chat" role="log" aria-live="polite" aria-label="Cuộc trò chuyện">
+      <div class="tdl-welcome" id="tdlWelcome">
+        <div class="tdl-welcome-icon" aria-hidden="true">💡</div>
+        <h3>Xin chào! Tôi là TDL AI – trợ lý tư vấn 24/7</h3>
+        <p>Em có thể hỗ trợ gì cho dự án chiếu sáng của anh/chị ạ?</p>
+      </div>
+    </main>
+
+    <!-- FLOATING QUICK REPLIES (ẩn sau tin nhắn đầu) -->
+    <div class="tdl-floating" id="tdlFloating" aria-label="Gợi ý câu hỏi nhanh">
+      <button class="tdl-float-btn" onclick="tdlQuick('chiết khấu đại lý')">
+        <span>🏷️ Chính sách chiết khấu đại lý TDL</span>
+        <span class="tdl-float-arrow" aria-hidden="true">➔</span>
+      </button>
+      <button class="tdl-float-btn" onclick="tdlQuick('linh kiện xuất xứ CO CQ')">
+        <span>📜 Giấy tờ xuất xứ linh kiện CO/CQ</span>
+        <span class="tdl-float-arrow" aria-hidden="true">➔</span>
+      </button>
+      <button class="tdl-float-btn" onclick="tdlQuick('pickleball')">
+        <span>🏸 Tư vấn đèn sân Pickleball chống chói</span>
+        <span class="tdl-float-arrow" aria-hidden="true">➔</span>
+      </button>
+      <button class="tdl-float-btn" onclick="tdlQuick('phương thức thanh toán')">
+        <span>💳 Phương thức thanh toán linh hoạt</span>
+        <span class="tdl-float-arrow" aria-hidden="true">➔</span>
+      </button>
+    </div>
+
+    <!-- HINT GRID 4 CỘT -->
+    <div class="tdl-hints" aria-label="Chủ đề gợi ý">
+      <button class="tdl-hint" onclick="tdlQuick('chiết khấu đại lý')">
+        <span class="hint-icon">🏷️</span><span class="hint-label">Chiết khấu</span>
+      </button>
+      <button class="tdl-hint" onclick="tdlQuick('linh kiện xuất xứ CO CQ')">
+        <span class="hint-icon">📜</span><span class="hint-label">CO/CQ</span>
+      </button>
+      <button class="tdl-hint" onclick="tdlQuick('tuổi thọ đèn led')">
+        <span class="hint-icon">⏳</span><span class="hint-label">Tuổi thọ</span>
+      </button>
+      <button class="tdl-hint" onclick="tdlQuick('chính sách bảo hành')">
+        <span class="hint-icon">🛡️</span><span class="hint-label">Bảo hành</span>
+      </button>
+      <button class="tdl-hint" onclick="tdlQuick('phương thức vận chuyển')">
+        <span class="hint-icon">🚚</span><span class="hint-label">Vận chuyển</span>
+      </button>
+      <button class="tdl-hint" onclick="tdlQuick('phương thức thanh toán')">
+        <span class="hint-icon">💳</span><span class="hint-label">Thanh toán</span>
+      </button>
+      <button class="tdl-hint" onclick="tdlQuick('đèn pha')">
+        <span class="hint-icon">🔦</span><span class="hint-label">Đèn pha</span>
+      </button>
+      <button class="tdl-hint" onclick="tdlQuick('đèn nhà xưởng')">
+        <span class="hint-icon">🏭</span><span class="hint-label">Nhà xưởng</span>
+      </button>
+    </div>
+
+    <!-- INPUT: Báo giá TRÁI, hint phải -->
+    <div class="tdl-input-area">
+      <div class="tdl-input-row">
+        <input type="text" id="tdlQ"
+          placeholder="Hỏi về đèn LED, báo giá, bảo hành..."
+          autocomplete="off" autocorrect="off" spellcheck="false"
+          aria-label="Nhập câu hỏi của bạn" maxlength="500">
+        <button class="tdl-send-btn" id="tdlSendBtn" onclick="tdlSend()" aria-label="Gửi tin nhắn">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="tdl-input-footer">
+        <!-- BÁO GIÁ BÊN TRÁI -->
+        <button class="tdl-quote-btn" onclick="tdlOpenModal()" aria-label="Nhận báo giá">
+          📋 Nhận báo giá
+        </button>
+        <span class="tdl-input-hint">Kho Thành Đạt LED – Realtime</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL LEAD FORM -->
+<div class="tdl-overlay" id="tdlOverlay" role="dialog" aria-modal="true" aria-labelledby="tdlModalTitle">
+  <div class="tdl-modal">
+    <div class="tdl-modal-hdr">
+      <h3 id="tdlModalTitle">📋 Yêu Cầu Báo Giá / Mẫu Đèn</h3>
+      <button class="tdl-modal-close" onclick="tdlCloseModal()" aria-label="Đóng">✕</button>
+    </div>
+    <form id="tdlForm" onsubmit="tdlSubmit(event)" novalidate>
+      <div class="tdl-form-group">
+        <label for="tdlName">Họ và Tên <span style="color:#f59e0b" aria-hidden="true">*</span></label>
+        <input type="text" id="tdlName" placeholder="Ví dụ: Nguyễn Văn A" required autocomplete="name">
+      </div>
+      <div class="tdl-form-group">
+        <label for="tdlPhone">Số điện thoại <span style="color:#f59e0b" aria-hidden="true">*</span></label>
+        <input type="tel" id="tdlPhone" placeholder="Ví dụ: 0986xxxxxx" pattern="[0-9]{9,11}" required autocomplete="tel">
+      </div>
+      <div class="tdl-form-group">
+        <label for="tdlNote">Nhu cầu dự án / Mã đèn quan tâm</label>
+        <textarea id="tdlNote" rows="3" placeholder="Ví dụ: Cần báo giá đèn pha 200W sân Pickleball..." maxlength="1000"></textarea>
+      </div>
+      <button type="submit" class="tdl-form-submit" id="tdlSubmitBtn">GỬI YÊU CẦU NGAY</button>
+    </form>
+  </div>
 </div>
 
 <script>
 (function () {
     'use strict';
 
-    // ─── CONFIG ────────────────────────────────────────────────
-    var API_URL = 'https://script.google.com/macros/s/AKfycbyLIkmrpcl4N5L--bZUkeLVQlVuLsr1nURC3klPWhB7liuTkTETJZniqSS5Z_c8WmwX/exec';
-    var MSG_COOLDOWN  = 2000;   // ms giữa 2 tin nhắn
-    var FORM_COOLDOWN = 15000;  // ms giữa 2 lần submit form
-    var MAX_HISTORY   = 20;     // số tin lưu sessionStorage
+    var API_URL       = 'https://script.google.com/macros/s/AKfycbyLIkmrpcl4N5L--bZUkeLVQlVuLsr1nURC3klPWhB7liuTkTETJZniqSS5Z_c8WmwX/exec';
+    var MSG_COOLDOWN  = 2000;
+    var FORM_COOLDOWN = 15000;
+    var MAX_HISTORY   = 20;
 
-    // ─── STATE ─────────────────────────────────────────────────
-    var isLoading        = false;
-    var lastMsgTime      = 0;
-    var lastSubmitTime   = 0;
-    var chatHistory      = [];  // { role, text } cho log
+    var isLoading      = false;
+    var lastMsgTime    = 0;
+    var lastSubmitTime = 0;
+    var chatHistory    = [];
 
-    // ─── FALLBACK DATABASE (luôn sẵn sàng ngay khi tải trang) ──
+    /* ─── CONTEXTUAL NEXT-QUESTION MAP ─────────────────────────
+       Mỗi topic → mảng gợi ý câu tiếp theo phù hợp nhất
+    ────────────────────────────────────────────────────────── */
+    var NEXT_Q = {
+        'thanh_toan': [
+            { icon:'🛡️', text:'Chính sách bảo hành đèn' },
+            { icon:'🚚', text:'Phương thức vận chuyển' },
+            { icon:'📋', text:'Nhận báo giá dự án', action:'modal' }
+        ],
+        'pickleball': [
+            { icon:'💡', text:'Đèn pha LED 200W chi tiết' },
+            { icon:'📜', text:'CO/CQ đèn sân thể thao' },
+            { icon:'📋', text:'Nhận báo giá sân Pickleball', action:'modal' }
+        ],
+        'chiet_khau': [
+            { icon:'📜', text:'Giấy tờ CO/CQ xuất xứ' },
+            { icon:'🚚', text:'Chính sách vận chuyển sỉ' },
+            { icon:'📋', text:'Đăng ký đại lý chính thức', action:'modal' }
+        ],
+        'co_cq': [
+            { icon:'🏷️', text:'Chính sách chiết khấu đại lý' },
+            { icon:'⏳', text:'Tuổi thọ đèn LED bao lâu?' },
+            { icon:'📋', text:'Xin hồ sơ kỹ thuật CO/CQ', action:'modal' }
+        ],
+        'bao_hanh': [
+            { icon:'🏷️', text:'Chiết khấu đại lý TDL' },
+            { icon:'📜', text:'Chứng chỉ CO/CQ linh kiện' },
+            { icon:'📋', text:'Nhận báo giá có bảo hành', action:'modal' }
+        ],
+        'tuoi_tho': [
+            { icon:'🛡️', text:'Chính sách bảo hành đổi mới' },
+            { icon:'🔦', text:'Xem đèn pha LED 200W' },
+            { icon:'🏭', text:'Đèn nhà xưởng UFO 150W' }
+        ],
+        'van_chuyen': [
+            { icon:'💳', text:'Phương thức thanh toán' },
+            { icon:'🏷️', text:'Chiết khấu khi mua sỉ' },
+            { icon:'📋', text:'Báo giá + phí vận chuyển', action:'modal' }
+        ],
+        'product': [
+            { icon:'🏷️', text:'Chiết khấu đại lý sản phẩm này' },
+            { icon:'🛡️', text:'Chính sách bảo hành' },
+            { icon:'📋', text:'Đặt hàng / Nhận báo giá', action:'modal' }
+        ],
+        'default': [
+            { icon:'🔦', text:'Đèn pha LED 200W' },
+            { icon:'🏭', text:'Đèn nhà xưởng UFO' },
+            { icon:'📋', text:'Nhận báo giá ngay', action:'modal' }
+        ]
+    };
+
+    /* ─── FALLBACK DATABASE ─────────────────────────────────── */
     var db = {
         faq: [
             null,
-            ['chiết khấu đại lý', 'chính sách sỉ,chiet khau,dai ly', '**Chính sách chiết khấu đại lý Thành Đạt LED:**\n\n• Chiết khấu từ **30% – 45%** tùy giá trị đơn hàng.\n• Đơn từ 50 triệu: chiết khấu 35%, trên 200 triệu: 45%.\n• Hỗ trợ ký hợp đồng đại lý chính thức kèm CO/CQ đầy đủ.'],
-            ['linh kiện xuất xứ CO CQ', 'giấy tờ,chung chi,co cq,co/cq,chứng chỉ', 'Toàn bộ sản phẩm Thành Đạt LED sử dụng:\n\n• **Chip LED**: Bridgelux, Cree – chứng chỉ RoHS, CE.\n• **Driver**: Philips, Done, Meanwell – **CO/CQ đầy đủ** phục vụ nghiệm thu công trình.\n• Hồ sơ kỹ thuật gửi qua email/Zalo ngay khi yêu cầu.'],
-            ['tuổi thọ đèn led', 'tuoi tho,bao lau,ben khong,ben', 'Đèn LED Thành Đạt sử dụng chip và driver chính hãng đạt tuổi thọ **50.000 giờ** hoạt động liên tục – tương đương hơn 11 năm nếu dùng 12h/ngày. Tiết kiệm tối đa chi phí bảo trì.'],
-            ['chính sách bảo hành', 'bao hanh,loi thi sao,hong,doi', '**Bảo hành Thành Đạt LED:**\n\n• Đổi mới trong **30 ngày** nếu lỗi nhà sản xuất.\n• Bảo hành chính hãng **2 – 5 năm** tùy dòng sản phẩm.\n• Hỗ trợ kỹ thuật 24/7 qua Zalo/Hotline.'],
-            ['phương thức vận chuyển', 'van chuyen,giao hang,ship,phi ship', '**Vận chuyển Thành Đạt LED:**\n\n• **Nội thành HN/HCM**: giao trong 2 – 4 giờ, hỗ trợ COD.\n• **Toàn quốc**: giao qua đối tác vận chuyển uy tín (3 – 5 ngày), phí thoả thuận theo khối lượng.\n• **Đơn dự án lớn**: xe riêng, đóng gói kiện cứng bảo vệ đèn an toàn.']
+            ['chiết khấu đại lý','chính sách sỉ,chiet khau,dai ly','**Chính sách chiết khấu đại lý Thành Đạt LED:**\n\n• Chiết khấu từ **30% – 45%** tùy giá trị đơn hàng.\n• Đơn từ 50 triệu: chiết khấu 35%, trên 200 triệu: 45%.\n• Hỗ trợ ký hợp đồng đại lý chính thức kèm CO/CQ đầy đủ.','chiet_khau'],
+            ['linh kiện xuất xứ CO CQ','giấy tờ,chung chi,co cq,co/cq,chứng chỉ','Toàn bộ sản phẩm Thành Đạt LED sử dụng:\n\n• **Chip LED**: Bridgelux, Cree – chứng chỉ RoHS, CE.\n• **Driver**: Philips, Done, Meanwell – **CO/CQ đầy đủ** phục vụ nghiệm thu công trình.\n• Hồ sơ kỹ thuật gửi qua email/Zalo ngay khi yêu cầu.','co_cq'],
+            ['tuổi thọ đèn led','tuoi tho,bao lau,ben khong,ben','Đèn LED Thành Đạt sử dụng chip và driver chính hãng đạt tuổi thọ **50.000 giờ** hoạt động liên tục – tương đương hơn 11 năm nếu dùng 12h/ngày. Tiết kiệm tối đa chi phí bảo trì.','tuoi_tho'],
+            ['chính sách bảo hành','bao hanh,loi thi sao,hong,doi','**Bảo hành Thành Đạt LED:**\n\n• Đổi mới trong **30 ngày** nếu lỗi nhà sản xuất.\n• Bảo hành chính hãng **2 – 5 năm** tùy dòng sản phẩm.\n• Hỗ trợ kỹ thuật 24/7 qua Zalo/Hotline.','bao_hanh'],
+            ['phương thức vận chuyển','van chuyen,giao hang,ship,phi ship','**Vận chuyển Thành Đạt LED:**\n\n• **Nội thành HN/HCM**: giao trong 2 – 4 giờ, hỗ trợ COD.\n• **Toàn quốc**: giao qua đối tác vận chuyển uy tín (3 – 5 ngày), phí thoả thuận theo khối lượng.\n• **Đơn dự án lớn**: xe riêng, đóng gói kiện cứng bảo vệ đèn an toàn.','van_chuyen']
         ],
         products: [
             null,
-            ['TDL-P200', 'Đèn Pha LED 200W Module Chống Chói', 'đèn pha', '200', 'Liên hệ giá sỉ', 'Bridgelux', 'Philips/Done', '3 – 5 năm', 'pha 200w,den pha,200w,sân thể thao', 'https://thanhdatled.com'],
-            ['TDL-P300', 'Đèn Pha LED 300W Module Sân Pickleball', 'đèn pha', '300', 'Liên hệ giá sỉ', 'Bridgelux', 'Meanwell', '3 – 5 năm', 'pha 300w,pickleball,300w,san bong', 'https://thanhdatled.com'],
-            ['TDL-UFO150', 'Đèn LED Nhà Xưởng UFO HighBay 150W', 'đèn nhà xưởng', '150', 'Liên hệ giá sỉ', 'Bridgelux', 'Done', '2 – 3 năm', 'highbay,ufo,nha xuong,xuong san xuat', 'https://thanhdatled.com'],
-            ['TDL-ST100', 'Đèn Đường LED Solar 100W Năng Lượng Mặt Trời', 'đèn đường', '100', 'Liên hệ giá sỉ', 'Cree', 'Tích hợp', '2 – 3 năm', 'den duong,solar,nang luong mat troi,street light', 'https://thanhdatled.com']
+            ['TDL-P200','Đèn Pha LED 200W Module Chống Chói','đèn pha','200','Liên hệ giá sỉ','Bridgelux','Philips/Done','3 – 5 năm','pha 200w,den pha,200w,san the thao','https://thanhdatled.com'],
+            ['TDL-P300','Đèn Pha LED 300W Module Sân Pickleball','đèn pha','300','Liên hệ giá sỉ','Bridgelux','Meanwell','3 – 5 năm','pha 300w,pickleball,300w,san bong','https://thanhdatled.com'],
+            ['TDL-UFO150','Đèn LED Nhà Xưởng UFO HighBay 150W','đèn nhà xưởng','150','Liên hệ giá sỉ','Bridgelux','Done','2 – 3 năm','highbay,ufo,nha xuong,xuong san xuat','https://thanhdatled.com'],
+            ['TDL-ST100','Đèn Đường LED Solar 100W','đèn đường','100','Liên hệ giá sỉ','Cree','Tích hợp','2 – 3 năm','den duong,solar,nang luong mat troi,street light','https://thanhdatled.com']
         ],
-        config: { hotline: '0986474671', zalo: 'https://zalo.me/0986474671' }
+        config: { hotline:'0986474671', zalo:'https://zalo.me/0986474671' }
     };
 
-    // ─── BACKGROUND SYNC từ Google Sheets ─────────────────────
+    /* ─── BACKGROUND SYNC ───────────────────────────────────── */
     function syncFromSheet() {
         fetch(API_URL)
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
+            .then(function(r){ return r.json(); })
+            .then(function(data){
                 if (data && data.faq && data.faq.length > 1) {
                     db.faq      = data.faq;
                     db.products = data.products;
@@ -474,111 +440,85 @@
                     if (zBtn && db.config.zalo) zBtn.href = db.config.zalo;
                 }
             })
-            .catch(function () {
-                // fallback yên lặng – dữ liệu cứng vẫn hoạt động
-            });
+            .catch(function(){});
     }
     syncFromSheet();
 
-    // ─── SESSION HISTORY (sessionStorage) ─────────────────────
+    /* ─── SESSION STORAGE ───────────────────────────────────── */
     function saveHistory() {
-        try {
-            var slice = chatHistory.slice(-MAX_HISTORY);
-            sessionStorage.setItem('tdl_chat', JSON.stringify(slice));
-        } catch (_) {}
+        try { sessionStorage.setItem('tdl_chat', JSON.stringify(chatHistory.slice(-MAX_HISTORY))); } catch(_){}
     }
-
     function loadHistory() {
         try {
             var raw = sessionStorage.getItem('tdl_chat');
             if (!raw) return;
             var items = JSON.parse(raw);
             if (!Array.isArray(items) || !items.length) return;
-            document.getElementById('tdlWelcome').remove();
-            document.getElementById('tdlFloating').remove();
-            items.forEach(function (m) {
+            var w = document.getElementById('tdlWelcome');
+            var f = document.getElementById('tdlFloating');
+            if (w) w.remove();
+            if (f) f.remove();
+            items.forEach(function(m){
                 if (m.role === 'user') _renderUserBubble(m.text);
                 else _renderAIBubble(m.text, [], []);
             });
-        } catch (_) {}
+        } catch(_){}
     }
 
-    // ─── SANITIZE ──────────────────────────────────────────────
-    function sanitize(str) {
-        if (!str) return '';
-        if (typeof DOMPurify !== 'undefined') return DOMPurify.sanitize(String(str));
-        // Fallback nếu DOMPurify chưa load
-        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    /* ─── SANITIZE & FORMAT ─────────────────────────────────── */
+    function sanitize(s) {
+        if (!s) return '';
+        if (typeof DOMPurify !== 'undefined') return DOMPurify.sanitize(String(s));
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
-
     function markdown(text) {
         var s = sanitize(text);
-        s = s.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#0369a1">$1</strong>');
-        s = s.replace(/•/g, '<span style="color:#0369a1">•</span>');
-        s = s.replace(/\n/g, '<br>');
+        s = s.replace(/\*\*(.*?)\*\*/g,'<strong style="color:#0369a1">$1</strong>');
+        s = s.replace(/•/g,'<span style="color:#0ea5e9">•</span>');
+        s = s.replace(/\n/g,'<br>');
         return s;
     }
 
-    // ─── UTILITIES ─────────────────────────────────────────────
-    function getTime() {
-        return new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function clean(s) {
-        return String(s || '').toLowerCase()
-            .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, '').replace(/\s+/g, ' ').trim();
-    }
-
-    function norm(s) {
-        return clean(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    }
-
+    /* ─── UTILS ─────────────────────────────────────────────── */
+    function getTime() { return new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}); }
+    function clean(s) { return String(s||'').toLowerCase().replace(/[.,\/#!$%^&*;:{}=\-_`~()]/g,'').replace(/\s+/g,' ').trim(); }
+    function norm(s)  { return clean(s).normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
     function showToast(msg) {
-        var existing = document.querySelector('.tdl-toast');
-        if (existing) existing.remove();
+        var ex = document.querySelector('.tdl-toast');
+        if (ex) ex.remove();
         var t = document.createElement('div');
-        t.className = 'tdl-toast';
-        t.textContent = msg;
+        t.className = 'tdl-toast'; t.textContent = msg;
         document.body.appendChild(t);
-        setTimeout(function () { if (t.parentNode) t.remove(); }, 2200);
+        setTimeout(function(){ if(t.parentNode) t.remove(); }, 2400);
     }
-
     function setLoading(state) {
         isLoading = state;
         var btn = document.getElementById('tdlSendBtn');
         if (btn) btn.disabled = state;
-        document.querySelectorAll('.tdl-float-btn, .tdl-hint, .tdl-cat, .tdl-chip').forEach(function (el) {
-            el.disabled = state;
-        });
+        document.querySelectorAll('.tdl-float-btn,.tdl-hint,.tdl-cat,.tdl-chip').forEach(function(el){ el.disabled = state; });
     }
 
-    // ─── RENDER HELPERS ────────────────────────────────────────
-    function scrollChat() {
-        var c = document.getElementById('tdl-chat');
-        if (c) c.scrollTop = c.scrollHeight;
-    }
+    /* ─── RENDER ────────────────────────────────────────────── */
+    function scrollChat() { var c = document.getElementById('tdl-chat'); if(c) c.scrollTop = c.scrollHeight; }
 
     function _renderUserBubble(text) {
         var chat = document.getElementById('tdl-chat');
         var div  = document.createElement('div');
         div.className = 'tdl-msg user';
         div.innerHTML =
-            '<div>' +
-              '<div class="tdl-bubble">' + markdown(text) + '</div>' +
-              '<div class="tdl-msg-time">' + getTime() + '</div>' +
-            '</div>' +
+            '<div><div class="tdl-bubble">'+markdown(text)+'</div>' +
+            '<div class="tdl-msg-time">'+getTime()+'</div></div>' +
             '<div class="tdl-msg-avatar" aria-hidden="true">U</div>';
-        chat.appendChild(div);
-        scrollChat();
+        chat.appendChild(div); scrollChat();
     }
 
     function addUserMsg(text) {
-        var welcome  = document.getElementById('tdlWelcome');
-        var floating = document.getElementById('tdlFloating');
-        if (welcome)  welcome.remove();
-        if (floating) floating.remove();
+        var w = document.getElementById('tdlWelcome');
+        var f = document.getElementById('tdlFloating');
+        if (w) w.remove();
+        if (f) f.remove();
         _renderUserBubble(text);
-        chatHistory.push({ role: 'user', text: text });
+        chatHistory.push({role:'user', text:text});
         saveHistory();
     }
 
@@ -589,280 +529,242 @@
         div.innerHTML =
             '<div class="tdl-msg-avatar" aria-hidden="true">AI</div>' +
             '<div class="tdl-bubble"><div class="tdl-typing" aria-label="Đang nhập">' +
-              '<span></span><span></span><span></span>' +
-            '</div></div>';
-        chat.appendChild(div);
-        scrollChat();
+            '<span></span><span></span><span></span></div></div>';
+        chat.appendChild(div); scrollChat();
     }
-
-    function removeTyping() {
-        var el = document.getElementById('tdlTyping');
-        if (el) el.remove();
-    }
+    function removeTyping() { var el=document.getElementById('tdlTyping'); if(el) el.remove(); }
 
     function renderProductCard(row) {
-        var sku      = sanitize(row[0] || 'TDL-LED');
-        var name     = sanitize(row[1] || 'Sản phẩm Đèn LED');
-        var cat      = sanitize(row[2] || 'Chiếu sáng');
-        var watt     = row[3] ? sanitize(row[3]) + 'W' : '---';
-        var price    = isNaN(row[4]) ? sanitize(row[4]) : Number(row[4]).toLocaleString('vi-VN') + ' VNĐ';
-        var chip     = sanitize(row[5] || 'Chính hãng');
-        var warranty = sanitize(row[7] || '2 – 3 năm');
-        var url      = sanitize(row[9] || 'https://thanhdatled.com');
-        return '<div class="tdl-prod">' +
-            '<div class="tdl-prod-name">' + name + '</div>' +
-            '<div class="tdl-prod-sku">Mã: ' + sku + ' · ' + cat + '</div>' +
-            '<div class="tdl-prod-grid">' +
-              '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">💰 Giá đại lý</div><div class="tdl-prod-stat-val price">' + price + '</div></div>' +
-              '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">⚡ Công suất</div><div class="tdl-prod-stat-val">' + watt + '</div></div>' +
-              '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">🔮 Chip LED</div><div class="tdl-prod-stat-val">' + chip + '</div></div>' +
-              '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">🛡️ Bảo hành</div><div class="tdl-prod-stat-val">' + warranty + '</div></div>' +
-            '</div>' +
-            '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="tdl-prod-link">🌐 Xem chi tiết & Đặt mua</a>' +
+        var sku  = sanitize(row[0]||'TDL-LED');
+        var name = sanitize(row[1]||'Sản phẩm Đèn LED');
+        var cat  = sanitize(row[2]||'Chiếu sáng');
+        var watt = row[3] ? sanitize(row[3])+'W' : '---';
+        var price= isNaN(row[4]) ? sanitize(row[4]) : Number(row[4]).toLocaleString('vi-VN')+' VNĐ';
+        var chip = sanitize(row[5]||'Chính hãng');
+        var war  = sanitize(row[7]||'2 – 3 năm');
+        var url  = sanitize(row[9]||'https://thanhdatled.com');
+        return '<div class="tdl-prod">'+
+            '<div class="tdl-prod-name">'+name+'</div>'+
+            '<div class="tdl-prod-sku">Mã: '+sku+' · '+cat+'</div>'+
+            '<div class="tdl-prod-grid">'+
+              '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">💰 Giá đại lý</div><div class="tdl-prod-stat-val price">'+price+'</div></div>'+
+              '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">⚡ Công suất</div><div class="tdl-prod-stat-val">'+watt+'</div></div>'+
+              '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">🔮 Chip LED</div><div class="tdl-prod-stat-val">'+chip+'</div></div>'+
+              '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">🛡️ Bảo hành</div><div class="tdl-prod-stat-val">'+war+'</div></div>'+
+            '</div>'+
+            '<a href="'+url+'" target="_blank" rel="noopener noreferrer" class="tdl-prod-link">🌐 Xem chi tiết & Đặt mua</a>'+
         '</div>';
     }
 
-    function _renderAIBubble(text, products, chips) {
+    /* Render gợi ý câu tiếp theo thông minh */
+    function renderNextQ(topicKey) {
+        var list = NEXT_Q[topicKey] || NEXT_Q['default'];
+        var html = '<div class="tdl-suggest-row">' +
+                   '<div class="tdl-suggest-label">💬 Bạn có thể hỏi tiếp</div>';
+        list.forEach(function(item){
+            if (item.action === 'modal') {
+                html += '<button class="tdl-chip" onclick="tdlOpenModal()">' +
+                        item.icon + ' ' + sanitize(item.text) + '</button>';
+            } else {
+                var safeT = sanitize(item.text).replace(/'/g,"\\'");
+                html += '<button class="tdl-chip" onclick="tdlQuick(\''+safeT+'\')">' +
+                        item.icon + ' ' + sanitize(item.text) + '</button>';
+            }
+        });
+        html += '</div>';
+        return html;
+    }
+
+    function _renderAIBubble(text, products, topicKey) {
         var chat = document.getElementById('tdl-chat');
         var div  = document.createElement('div');
         div.className = 'tdl-msg ai';
-
-        var prodsHtml = (products || []).map(renderProductCard).join('');
-
-        var chipsHtml = '';
-        if (chips && chips.length) {
-            chipsHtml = '<div class="tdl-chips">' +
-                chips.map(function (s) {
-                    var safe = sanitize(s);
-                    return '<button class="tdl-chip" onclick="tdlQuick(\'' + safe.replace(/'/g, "\\'") + '\')">' + safe + '</button>';
-                }).join('') +
-            '</div>';
-        }
-
+        var prodsHtml = (products||[]).map(renderProductCard).join('');
+        var nextHtml  = topicKey ? renderNextQ(topicKey) : '';
         div.innerHTML =
             '<div class="tdl-msg-avatar" aria-hidden="true">AI</div>' +
             '<div style="flex:1;min-width:0">' +
               '<div class="tdl-bubble">' +
-                '<div>' + markdown(text) + '</div>' +
-                prodsHtml + chipsHtml +
+                '<div>'+markdown(text)+'</div>' +
+                prodsHtml + nextHtml +
               '</div>' +
-              '<div class="tdl-msg-time">' + getTime() + ' · TDL AI</div>' +
+              '<div class="tdl-msg-time">'+getTime()+' · TDL AI</div>' +
             '</div>';
-        chat.appendChild(div);
-        scrollChat();
+        chat.appendChild(div); scrollChat();
     }
 
-    function addAIMsg(text, products, chips) {
-        _renderAIBubble(text, products, chips);
-        chatHistory.push({ role: 'ai', text: text });
+    function addAIMsg(text, products, topicKey) {
+        _renderAIBubble(text, products, topicKey);
+        chatHistory.push({role:'ai', text:text});
         saveHistory();
     }
 
-    // ─── MATCHING ENGINE ───────────────────────────────────────
-    function matchFAQ(tClean, tNorm) {
+    /* ─── MATCHING ──────────────────────────────────────────── */
+    function matchFAQ(tC, tN) {
         if (!db.faq || db.faq.length < 2) return null;
-        for (var i = 1; i < db.faq.length; i++) {
-            var row = db.faq[i];
-            if (!row || !row[0]) continue;
+        for (var i=1; i<db.faq.length; i++) {
+            var row = db.faq[i]; if (!row||!row[0]) continue;
             var kC = clean(row[0]), kN = norm(row[0]);
-            if (tClean.includes(kC) || kC.includes(tClean) || tNorm.includes(kN)) return row;
-            var syns = String(row[1] || '').split(',');
-            for (var j = 0; j < syns.length; j++) {
-                var sC = clean(syns[j]), sN = norm(syns[j]);
-                if (sC && (tClean.includes(sC) || sC.includes(tClean) || tNorm.includes(sN))) return row;
+            if (tC.includes(kC)||kC.includes(tC)||tN.includes(kN)) return row;
+            var syns = String(row[1]||'').split(',');
+            for (var j=0; j<syns.length; j++) {
+                var sC=clean(syns[j]),sN=norm(syns[j]);
+                if (sC&&(tC.includes(sC)||sC.includes(tC)||tN.includes(sN))) return row;
             }
         }
         return null;
     }
-
-    function matchProducts(tClean, tNorm) {
-        var found = [];
-        if (!db.products || db.products.length < 2) return found;
-        for (var i = 1; i < db.products.length; i++) {
-            var row = db.products[i];
-            if (!row || !row[1]) continue;
-            var pN = norm(row[1]), pC = clean(row[2] || '');
-            var kwds = String(row[8] || '').split(',');
-            var kwHit = kwds.some(function (k) {
-                var kk = norm(k);
-                return kk && (tNorm === kk || tNorm.includes(kk));
+    function matchProducts(tC, tN) {
+        var found=[];
+        if (!db.products||db.products.length<2) return found;
+        for (var i=1; i<db.products.length; i++) {
+            var row=db.products[i]; if (!row||!row[1]) continue;
+            var pN=norm(row[1]), pC=clean(row[2]||'');
+            var kwHit=String(row[8]||'').split(',').some(function(k){
+                var kk=norm(k); return kk&&(tN===kk||tN.includes(kk));
             });
-            if (tNorm.includes(pN) || tClean === pC || kwHit) found.push(row);
+            if (tN.includes(pN)||tC===pC||kwHit) found.push(row);
         }
         return found;
     }
 
-    // ─── SEND MESSAGE ──────────────────────────────────────────
-    window.tdlSend = function () {
+    /* ─── SEND ──────────────────────────────────────────────── */
+    window.tdlSend = function() {
         if (isLoading) return;
-
         var now = Date.now();
-        if (now - lastMsgTime < MSG_COOLDOWN) {
-            showToast('⏳ Vui lòng đợi giây lát trước khi gửi tiếp!');
-            return;
-        }
+        if (now - lastMsgTime < MSG_COOLDOWN) { showToast('⏳ Vui lòng đợi giây lát!'); return; }
         lastMsgTime = now;
 
         var input    = document.getElementById('tdlQ');
         var userText = input.value.trim();
         if (!userText) return;
-
         input.value = '';
         setLoading(true);
         addUserMsg(userText);
         addTyping();
 
-        // Dùng setTimeout nhỏ để browser vẽ typing indicator trước
-        setTimeout(function () {
+        setTimeout(function(){
             try {
-                var tC = clean(userText);
-                var tN = norm(userText);
-                var replyText = '';
-                var products  = [];
-                var chips     = [];
+                var tC = clean(userText), tN = norm(userText);
+                var replyText='', products=[], topicKey='default';
 
-                // 1. Phương thức thanh toán (hard-coded vì thường thiếu trong sheet)
-                if (tN.includes('thanh toan') || tN.includes('phuong thuc thanh toan')) {
-                    replyText =
-                        '**Phương thức thanh toán linh hoạt:**\n\n' +
-                        '• **Đơn lẻ / COD:** Kiểm tra hàng, thanh toán trực tiếp cho shipper.\n\n' +
-                        '• **Dự án / số lượng lớn:** Tạm ứng 30–50% khi đặt sản xuất, thanh toán phần còn lại khi nhận đủ hàng / nghiệm thu sân.';
-                    chips = ['Chính sách bảo hành', 'Phương thức vận chuyển', 'Nhận báo giá sỉ'];
+                if (tN.includes('thanh toan')||tN.includes('phuong thuc thanh toan')) {
+                    topicKey  = 'thanh_toan';
+                    replyText = '**Phương thức thanh toán linh hoạt:**\n\n' +
+                                '• **Đơn lẻ / COD:** Kiểm tra hàng, thanh toán trực tiếp cho shipper.\n\n' +
+                                '• **Dự án / số lượng lớn:** Tạm ứng 30–50% khi đặt sản xuất, thanh toán phần còn lại khi nhận đủ hàng / nghiệm thu sân.';
                 }
-                // 2. Pickleball
-                else if (tN.includes('pickleball') || tN.includes('san pickleball') || tN.includes('chong choi')) {
-                    replyText =
-                        '**Đèn LED chuyên dụng cho Sân Pickleball:**\n\n' +
-                        '• Dòng **Đèn pha module chống chói** 200W–300W – góc chiếu rộng, triệt tiêu lóa mắt khi nhìn bóng.\n\n' +
-                        '• Chip Bridgelux, Driver Meanwell, **CO/CQ đầy đủ** nghiệm thu.\n\n' +
-                        'Nhấn **[Nhận báo giá]** hoặc nhắn Zalo để nhận hồ sơ kỹ thuật miễn phí!';
-                    products = matchProducts(tC, tN);
-                    chips    = ['Xem đèn pha 200W', 'CO/CQ pickleball', 'Nhận báo giá sỉ'];
+                else if (tN.includes('pickleball')||tN.includes('san pickleball')||tN.includes('chong choi')) {
+                    topicKey  = 'pickleball';
+                    replyText = '**Đèn LED chuyên dụng cho Sân Pickleball:**\n\n' +
+                                '• Dòng **Đèn pha module chống chói** 200W–300W – góc chiếu rộng, triệt tiêu lóa mắt khi nhìn bóng.\n\n' +
+                                '• Chip Bridgelux, Driver Meanwell, **CO/CQ đầy đủ** nghiệm thu.\n\n' +
+                                'Nhấn **[Nhận báo giá]** hoặc nhắn Zalo để nhận hồ sơ kỹ thuật miễn phí!';
+                    products  = matchProducts(tC, tN);
                 }
-                // 3. FAQ
                 else {
                     var faqRow = matchFAQ(tC, tN);
                     if (faqRow) {
                         replyText = faqRow[2];
-                        chips = ['Đèn pha LED 200W', 'Bảo hành đổi mới', 'Liên hệ kỹ thuật'];
+                        topicKey  = faqRow[3] || 'default';
                     } else {
-                        // 4. Sản phẩm
                         products = matchProducts(tC, tN);
                         if (products.length) {
+                            topicKey  = 'product';
                             replyText = 'TDL AI đã tìm thấy sản phẩm phù hợp bên dưới ạ:';
-                            chips = ['Chính sách bảo hành', 'Phương thức vận chuyển', 'Nhận báo giá sỉ'];
                         } else {
-                            var hl = (db.config && db.config.hotline) ? db.config.hotline : '0986474671';
-                            replyText =
-                                'Dạ, em chưa tìm thấy thông tin khớp trong hệ thống. ' +
-                                'Anh/chị vui lòng liên hệ trực tiếp Hotline/Zalo **' + hl + '** ' +
-                                'để được tư vấn báo giá chiết khấu tốt nhất ạ!';
-                            chips = ['Đèn pha LED 200W', 'Đèn nhà xưởng UFO', 'Liên hệ kỹ thuật'];
+                            topicKey  = 'default';
+                            var hl = (db.config&&db.config.hotline)?db.config.hotline:'0986474671';
+                            replyText = 'Dạ, em chưa tìm thấy thông tin khớp trong hệ thống. ' +
+                                        'Anh/chị vui lòng liên hệ trực tiếp Hotline/Zalo **'+hl+'** ' +
+                                        'để được tư vấn báo giá chiết khấu tốt nhất ạ!';
                         }
                     }
                 }
 
                 removeTyping();
-                addAIMsg(replyText, products, chips);
-            } catch (err) {
+                addAIMsg(replyText, products, topicKey);
+            } catch(err) {
                 console.error('TDL Engine Error:', err);
                 removeTyping();
-                addAIMsg('Hệ thống đang xử lý. Vui lòng thử lại!', [], []);
+                addAIMsg('Hệ thống đang xử lý. Vui lòng thử lại!', [], null);
             } finally {
                 setLoading(false);
             }
         }, 120);
     };
 
-    window.tdlQuick = function (text) {
+    window.tdlQuick = function(text) {
         if (isLoading) return;
         var inp = document.getElementById('tdlQ');
-        if (inp) { inp.value = text; tdlSend(); }
+        if (inp) { inp.value=text; tdlSend(); }
     };
 
-    window.tdlCat = function (el, query) {
+    window.tdlCat = function(el, query) {
         if (isLoading) return;
-        document.querySelectorAll('.tdl-cat').forEach(function (b) { b.classList.remove('active'); });
+        document.querySelectorAll('.tdl-cat').forEach(function(b){ b.classList.remove('active'); });
         el.classList.add('active');
         tdlQuick(query);
     };
 
-    // ─── MODAL ─────────────────────────────────────────────────
-    window.tdlOpenModal  = function () { document.getElementById('tdlOverlay').classList.add('open'); };
-    window.tdlCloseModal = function () {
+    /* ─── MODAL ─────────────────────────────────────────────── */
+    window.tdlOpenModal  = function() { document.getElementById('tdlOverlay').classList.add('open'); };
+    window.tdlCloseModal = function() {
         document.getElementById('tdlOverlay').classList.remove('open');
         document.getElementById('tdlForm').reset();
     };
 
-    window.tdlSubmit = async function (e) {
+    window.tdlSubmit = async function(e) {
         e.preventDefault();
-
         var now = Date.now();
-        if (now - lastSubmitTime < FORM_COOLDOWN) {
-            showToast('⏳ Vui lòng đợi ' + Math.ceil((FORM_COOLDOWN - (now - lastSubmitTime)) / 1000) + 's trước khi gửi lại!');
+        if (now-lastSubmitTime < FORM_COOLDOWN) {
+            showToast('⏳ Vui lòng đợi '+Math.ceil((FORM_COOLDOWN-(now-lastSubmitTime))/1000)+'s trước khi gửi lại!');
             return;
         }
-
         var name  = document.getElementById('tdlName').value.trim();
         var phone = document.getElementById('tdlPhone').value.trim();
         var note  = document.getElementById('tdlNote').value.trim();
-
-        // Validation cơ bản
-        if (!name)                           { showToast('Vui lòng nhập họ tên!'); return; }
-        if (!/^[0-9]{9,11}$/.test(phone))    { showToast('Số điện thoại không hợp lệ!'); return; }
+        if (!name)                        { showToast('Vui lòng nhập họ tên!'); return; }
+        if (!/^[0-9]{9,11}$/.test(phone)) { showToast('Số điện thoại không hợp lệ!'); return; }
 
         var btn = document.getElementById('tdlSubmitBtn');
-        btn.disabled    = true;
-        btn.textContent = 'ĐANG GỬI...';
+        btn.disabled=true; btn.textContent='ĐANG GỬI...';
 
         try {
             var res = await fetch(API_URL, {
-                method:  'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body:    JSON.stringify({ name: name, phone: phone, note: note })
+                method:'POST', headers:{'Content-Type':'text/plain'},
+                body: JSON.stringify({name:name,phone:phone,note:note})
             });
-
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-
-            lastSubmitTime = Date.now();  // chỉ set khi thành công
+            if (!res.ok) throw new Error('HTTP '+res.status);
+            lastSubmitTime = Date.now();
             tdlCloseModal();
             showToast('✅ Gửi thành công! Chúng tôi sẽ liên hệ sớm.');
             addAIMsg(
-                'Cảm ơn **' + sanitize(name) + '** đã gửi thông tin! ' +
-                'Chúng tôi sẽ gọi lại số **' + sanitize(phone) + '** trong thời gian sớm nhất ạ.',
-                [], ['Xem thêm sản phẩm', 'Chiết khấu đại lý']
+                'Cảm ơn **'+sanitize(name)+'** đã gửi thông tin! ' +
+                'Chúng tôi sẽ gọi lại số **'+sanitize(phone)+'** trong thời gian sớm nhất ạ.',
+                [], 'chiet_khau'
             );
-        } catch (_) {
-            // lastSubmitTime KHÔNG cập nhật → user thử lại ngay được
+        } catch(_) {
             showToast('❌ Gửi thất bại. Vui lòng thử lại hoặc nhắn Zalo!');
         } finally {
-            btn.disabled    = false;
-            btn.textContent = 'GỬI YÊU CẦU NGAY';
+            btn.disabled=false; btn.textContent='GỬI YÊU CẦU NGAY';
         }
     };
 
-    // ─── KEYBOARD ──────────────────────────────────────────────
+    /* ─── KEYBOARD & EVENTS ─────────────────────────────────── */
     function initKeyboard() {
         var inp = document.getElementById('tdlQ');
         if (!inp) return;
-        inp.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); tdlSend(); }
+        inp.addEventListener('keydown', function(e){
+            if (e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); tdlSend(); }
         });
     }
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') tdlCloseModal(); });
+    document.getElementById('tdlOverlay').addEventListener('click', function(e){ if(e.target===this) tdlCloseModal(); });
 
-    // ─── ESC đóng modal ────────────────────────────────────────
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') tdlCloseModal();
-    });
-
-    // Click ngoài modal để đóng
-    document.getElementById('tdlOverlay').addEventListener('click', function (e) {
-        if (e.target === this) tdlCloseModal();
-    });
-
-    // ─── INIT ──────────────────────────────────────────────────
+    /* ─── INIT ──────────────────────────────────────────────── */
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () { initKeyboard(); loadHistory(); });
+        document.addEventListener('DOMContentLoaded', function(){ initKeyboard(); loadHistory(); });
     } else {
         initKeyboard(); loadHistory();
     }

@@ -264,44 +264,40 @@
     var tdlLastSubmitTime = 0; 
     var tdlLastMessageTime = 0; 
 
-    // === 1. BỘ DỮ LIỆU CỨNG BACKUP TRỰC TIẾP TRÊN HTML (GIÚP CHẠY LẬP TỨC 0ms) ===
+    // === 1. BỘ DỮ LIỆU CỨNG BACKUP AN TOÀN ĐÃ CHUẨN HÓA KHÔNG CÓ KÝ TỰ XUNG ĐỘT ===
     var tdlDb = {
         faq: [
-            [], // Bỏ qua row tiêu đề hệ thống
+            [], 
             ["chiết khấu đại lý", "chính sách sỉ, chiet khau, đại lý", "Dạ bên em chính sách **chiết khấu đại lý từ 30% - 45%** tùy theo giá trị đơn hàng sỉ của dự án chiếu sáng ạ."],
             ["linh kiện xuất xứ CO CQ", "giấy tờ, chung chi, co cq, co/cq", "Dạ toàn bộ sản phẩm của Thành Đạt LED đều sử dụng linh kiện nguồn Driver (Philips, Done, Meanwell) và Chip LED (Bridgelux, Cree) có **đầy đủ chứng chỉ xuất xứ CO/CQ** phục vụ nghiệm thu công trình ạ."],
             ["tuổi thọ đèn led", "tuoi tho, được bao lâu, ben khong", "Dạ đèn sử dụng chip LED linh kiện chính hãng cho tuổi thọ hoạt động đạt **50.000 giờ liên tục**, giúp tiết kiệm tối đa chi phí bảo trì sản xuất ạ."],
             ["chính sách bảo hành", "bao hanh, loi thi sao", "Dạ toàn bộ đèn kho em xuất xưởng được **bảo hành chính hãng đổi mới từ 2 - 5 năm** tùy cấu hình linh kiện yêu cầu ạ."]
         ],
         products: [
-            [], // Bỏ qua row tiêu đề hệ thống
+            [], 
             ["TDL-P200", "Đèn pha LED 200W Module Sân Thể Thao", "đèn pha", "200", "Liên hệ nhận giá sỉ", "Bridgelux", "Done/Philips", "2 - 5 năm", "pha 200w, den pha", "https://thanhdatled.com"],
             ["TDL-UFO150", "Đèn LED Nhà Xưởng UFO 150W Cao Cấp", "đèn nhà xưởng", "150", "Liên hệ nhận giá sỉ", "Bridgelux", "Done/Philips", "2 - 3 năm", "highbay, ufo, nha xuong", "https://thanhdatled.com"]
         ],
         config: { hotline: "0986474671", zalo: "https://zalo.me/0986474671" }
     };
 
-    // === 2. ĐỒNG BỘ NGẦM (BACKGROUND SYNC) TỪ GOOGLE SHEET NẾU CÓ MẠNG ===
+    // === 2. ĐỒNG BỘ NGẦM (BACKGROUND SYNC) TỪ GOOGLE SHEET ===
     function tdlBackgroundSync() {
         fetch(TDL_API_URL)
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 if (data && data.faq && data.faq.length > 1) {
-                    // Nếu Google Sheet hoạt động tốt, cập nhật đè dữ liệu mới nhất vào bộ nhớ
                     tdlDb.faq = data.faq;
                     tdlDb.products = data.products;
                     tdlDb.config = data.config;
                     var zaloBtn = document.getElementById('cfgZaloBtn');
                     if (tdlDb.config && tdlDb.config.zalo && zaloBtn) zaloBtn.href = tdlDb.config.zalo;
-                    console.log("TDL DB Live Background Sync thành công!");
                 }
             })
             .catch(function(err) {
-                // Lỗi Sheets? Không sao cả, bot vẫn chạy bằng bộ dữ liệu cứng ở trên bình thường
                 console.warn("TDL Live Sync gián đoạn, đang duy trì chế độ Local Backup:", err);
             });
     }
-    // Kích hoạt hàm đồng bộ ngầm sau khi load trang xong
     tdlBackgroundSync();
 
     function tdlGetTime() {
@@ -318,7 +314,6 @@
         return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g," ").trim();
     }
 
-    // Làm sạch đầu ra bằng bộ lọc DOMPurify tránh hoàn toàn XSS Injection
     function tdlFormatMarkdown(text) {
         if (!text) return "";
         var cleanText = DOMPurify.sanitize(text);
@@ -361,7 +356,6 @@
         chat.scrollTop = chat.scrollHeight;
     }
 
-    // Loại bỏ hiệu ứng loading dots
     function tdlRemoveTyping() {
         var el = document.getElementById('tdlTyping');
         if (el) el.remove();
@@ -424,11 +418,10 @@
         chat.scrollTop = chat.scrollHeight;
     }
 
-    // === HÀM XỬ LÝ LỌC SO KHỚP TỪ KHÓA ĐÁP ỨNG THỜI GIAN 0ms KHÔNG TRỄ ===
+    // === HÀM XỬ LÝ LỌC SO KHỚP TỪ KHÓA ĐÁP ỨNG THỜI GIAN 0ms ===
     window.tdlSendMessage = function() {
         if (tdlIsLoading) return;
         
-        // Cooldown chống Spam liên tục dưới 2 giây
         var now = Date.now();
         if (now - tdlLastMessageTime < 2000) {
             alert("Vui lòng không thao tác quá nhanh!");
@@ -445,7 +438,6 @@
         tdlAddUserMsg(userText);
         tdlAddTyping();
 
-        // 100ms tạo hiệu ứng chuyển động tự nhiên cho khách hàng
         setTimeout(function() {
             try {
                 var textClean = tdlCleanStr(userText);
@@ -454,7 +446,6 @@
                 var matchedProds = [];
                 var isProdFound = false;
 
-                // A. KIỂM TRA ĐỐI CHIẾU ÉP CỨNG TỪ KHÓA ĐẶC BIỆT CHÍNH XÁC
                 if (textNorm.includes("thanh toan") || textNorm.includes("phuong thuc thanh toan")) {
                     replyText = "**Phương thức thanh toán linh hoạt tại Thành Đạt LED:**\n\n" +
                                 "• **Với đơn hàng lẻ / giao COD:** Quý khách kiểm tra đèn đúng mẫu mã, số lượng và thanh toán tiền trực tiếp cho shipper.\n\n" +
@@ -466,7 +457,6 @@
                                 "• Đèn tích hợp thấu kính gom sáng góc rộng, triệt tiêu hoàn toàn tia sáng thừa gây lóa khi ngước nhìn bóng. Anh/chị có thể nhấn nút **[Nhận báo giá]** ở chân ô nhập liệu hoặc chát trực tiếp Zalo để nhận hồ sơ kỹ thuật CO CQ sớm nhất ạ!";
                 }
                 else {
-                    // B. QUÉT ĐỐI CHIẾU DỮ LIỆU FAQ THEO CHẾ ĐỘ CHỨA KHỚP KHÔNG DẤU THÔNG MINH
                     var matchedFaq = null;
                     if (tdlDb.faq && tdlDb.faq.length > 1) {
                         for (var j = 1; j < tdlDb.faq.length; j++) {
@@ -491,7 +481,6 @@
                     if (matchedFaq) {
                         replyText = matchedFaq[2];
                     } else {
-                        // C. ĐỐI CHIẾU SẢN PHẨM TRONG KHO HÀNG HÓA
                         if (tdlDb.products && tdlDb.products.length > 1) {
                             for (var i = 1; i < tdlDb.products.length; i++) {
                                 var row = tdlDb.products[i];
@@ -559,7 +548,6 @@
         document.getElementById('tdlLeadForm').reset();
     };
 
-    // Chống Spam Form liên tục phá hoại bằng mốc Cooldown chặn nút gửi 15 giây
     window.tdlSubmitLeadForm = async function(event) {
         event.preventDefault();
         var now = Date.now();
@@ -603,7 +591,6 @@
                     tdlSendMessage(); 
                 }
             });
-            setTimeout(function() { inp.focus(); }, 300);
         }
     }
 

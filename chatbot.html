@@ -573,16 +573,20 @@
         </div>
 
         <div class="tdl-floating-quick-replies" id="tdlFloatingReplies">
-            <button class="tdl-floating-btn" onclick="tdlQuickAsk('tư vấn đèn sân pickleball chống chói')">
+            <button class="tdl-floating-btn" onclick="tdlQuickAsk('chiết khấu đại lý')">
+                <span>🏷️ Chính sách chiết khấu đại lý TDL</span>
+                <span class="tdl-floating-arrow">➔</span>
+            </button>
+            <button class="tdl-floating-btn" onclick="tdlQuickAsk('linh kiện xuất xứ CO CQ')">
+                <span>📜 Giấy tờ xuất xứ linh kiện CO/CQ</span>
+                <span class="tdl-floating-arrow">➔</span>
+            </button>
+            <button class="tdl-floating-btn" onclick="tdlQuickAsk('pickleball')">
                 <span>🏸 Tư vấn đèn sân Pickleball chống chói</span>
                 <span class="tdl-floating-arrow">➔</span>
             </button>
-            <button class="tdl-floating-btn" onclick="tdlQuickAsk('báo giá sỉ đèn pha và ufo nhà xưởng')">
-                <span>💰 Nhận báo giá sỉ đèn pha & UFO xưởng</span>
-                <span class="tdl-floating-arrow">➔</span>
-            </button>
             <button class="tdl-floating-btn" onclick="tdlQuickAsk('phương thức thanh toán')">
-                <span>💳 Phương thức thanh toán & Đặt cọc</span>
+                <span>💳 Phương thức thanh toán linh hoạt</span>
                 <span class="tdl-floating-arrow">➔</span>
             </button>
         </div>
@@ -674,6 +678,7 @@
         return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g," ").trim();
     }
 
+    // Định dạng Markdown hiển thị xuống dòng, in đậm an toàn
     function tdlFormatMarkdown(text) {
         if (!text) return "";
         var html = text.toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -776,7 +781,7 @@
         chat.scrollTop = chat.scrollHeight;
     }
 
-    // === SEND MESSAGE & MATCHING LOGIC ===
+    // === SEND MESSAGE & MATCHING LOGIC (ĐÃ SỬA LỖI TÌM KIẾM KHỚP TƯƠNG ĐỐI) ===
     window.tdlSendMessage = function() {
         if (tdlIsLoading) return;
         var input = document.getElementById('tdlQuestion');
@@ -796,15 +801,22 @@
                 var matchedProds = [];
                 var isProdFound = false;
 
-                // 1. ƯU TIÊN KIỂM TRA ĐỐI CHIẾU NỘI DUNG THANH TOÁN / DỰ ÁN / PICKLEBALL
+                // 1. ƯU TIÊN KIỂM TRA ĐỐI CHIẾU NỘI DUNG THANH TOÁN
                 var matchedFaq = null;
                 
-                if (textNorm.includes("thanh toan") || textNorm.includes("phuong thuc thanh toan") || textClean === "pickleball" || textNorm === "pickleball") {
+                if (textNorm.includes("thanh toan") || textNorm.includes("phuong thuc thanh toan")) {
                     replyText = "**Phương thức thanh toán linh hoạt tại Thành Đạt LED:**\n\n" +
                                 "• **Với đơn hàng lẻ / giao COD:** Quý khách kiểm tra đèn đúng mẫu mã, số lượng và thanh toán tiền trực tiếp cho shipper.\n\n" +
                                 "• **Với đơn hàng dự án / số lượng lớn:** Thanh toán theo tiến độ hợp đồng (Tạm ứng đặt cọc 30-50% để lên đơn sản xuất, phần còn lại thanh toán khi bàn giao đủ hàng hóa hoặc nghiệm thu sân).";
-                } else {
-                    // Quét kiểm tra dữ liệu FAQ từ file Google Sheets hệ thống
+                } 
+                // Ép nội dung Pickleball
+                else if (textNorm === "pickleball" || textClean === "pickleball" || textClean.includes("san pickleball chống choi") || textClean.includes("đèn san pickleball")) {
+                    replyText = "**Tư vấn Đèn LED chuyên dụng cho Sân Pickleball:**\n\n" +
+                                "• Để đảm bảo tiêu chuẩn thi đấu và không gây lóa mắt cho vận động viên, Thành Đạt LED cung cấp dòng **Đèn pha LED module chống chói** (Công suất khuyên dùng: 200W hoặc 300W).\n\n" +
+                                "• Đèn tích hợp thấu kính gom sáng góc rộng, triệt tiêu tia sáng thừa gây lóa khi ngước nhìn bóng. Anh/chị có thể nhấn nút **[Nhận báo giá]** hoặc chát trực tiếp Zalo để nhận hồ sơ kỹ thuật và báo giá đại lý tốt nhất ạ!";
+                }
+                else {
+                    // Quét kiểm tra dữ liệu FAQ từ file Google Sheets hệ thống theo logic thông minh (chứa từ khóa)
                     if (tdlDb.faq && tdlDb.faq.length > 1) {
                         for (var j = 1; j < tdlDb.faq.length; j++) {
                             var frow = tdlDb.faq[j];
@@ -813,13 +825,14 @@
                             var keyNorm = tdlNormalizeStr(frow[0]);
                             var synonymsStr = frow[1] || "";
                             
-                            if (textClean === keyClean || textNorm === keyNorm) {
+                            // CHỈ CẦN CHỨA TỪ KHÓA LÀ KHỚP (Sửa lỗi bấm không ăn từ hình ảnh của bạn)
+                            if (textClean.includes(keyClean) || keyClean.includes(textClean) || textNorm.includes(keyNorm)) {
                                 matchedFaq = frow; break;
                             }
                             var isSyn = synonymsStr.split(",").some(function(s) {
                                 var sClean = tdlCleanStr(s);
                                 var sNorm = tdlNormalizeStr(s);
-                                return sClean.trim() && (textClean === sClean || textNorm === sNorm);
+                                return sClean.trim() && (textClean.includes(sClean) || sClean.includes(textClean) || textNorm.includes(sNorm));
                             });
                             if (isSyn) { matchedFaq = frow; break; }
                         }
@@ -828,7 +841,7 @@
                     if (matchedFaq) {
                         replyText = matchedFaq[2];
                     } else {
-                        // 2. ĐỐI CHIẾU SẢN PHẨM (Chỉ chạy khi loại trừ từ khóa thanh toán)
+                        // 2. ĐỐI CHIẾU SẢN PHẨM (Chì chạy khi không khớp FAQ)
                         if (tdlDb.products && tdlDb.products.length > 1) {
                             for (var i = 1; i < tdlDb.products.length; i++) {
                                 var row = tdlDb.products[i];
@@ -928,7 +941,7 @@
         tdlLoadDatabase();
     };
 
-    // === LẮNG NGHE PHÍM ENTER AN TOÀN TRONG IFRAME ===
+    // === KHỞI TẠO BẮT SỰ KIỆN ENTER AN TOÀN TRONG IFRAME ===
     function initInputListener() {
         var inp = document.getElementById('tdlQuestion');
         if (inp) {

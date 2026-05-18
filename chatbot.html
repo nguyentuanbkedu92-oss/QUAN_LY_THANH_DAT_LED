@@ -31,25 +31,7 @@
     .tdl-header-btn { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; cursor:pointer; color:#fff; display:flex; align-items:center; justify-content:center; transition:background 0.2s; flex-shrink:0; text-decoration:none; }
     .tdl-header-btn:hover { background:rgba(255,255,255,0.28); }
 
-    /* ===== CATEGORY GRID 4 CỘT ===== */
-    .tdl-cats {
-        display:grid;
-        grid-template-columns:repeat(4,1fr);
-        gap:6px;
-        padding:10px 12px;
-        border-bottom:1px solid #f0f4f8;
-        flex-shrink:0;
-    }
-    .tdl-cat {
-        font-size:11.5px; font-weight:600; padding:7px 4px; border-radius:10px;
-        border:1.5px solid #e2e8f0; background:#f8fafc; color:#64748b;
-        cursor:pointer; transition:all 0.18s; text-align:center; line-height:1.3;
-        display:flex; flex-direction:column; align-items:center; gap:3px;
-    }
-    .tdl-cat .cat-icon { font-size:16px; line-height:1; }
-    .tdl-cat .cat-label { font-size:10.5px; font-weight:600; }
-    .tdl-cat:hover:not(:disabled), .tdl-cat.active { background:#eff6ff; border-color:#93c5fd; color:#1d4ed8; }
-    .tdl-cat:disabled { opacity:0.55; cursor:not-allowed; }
+
 
     /* ===== CHAT AREA ===== */
     #tdl-chat { flex:1; overflow-y:auto; padding:14px 14px 6px; display:flex; flex-direction:column; gap:12px; scroll-behavior:smooth; background:#f8fafc; }
@@ -219,21 +201,7 @@
       </div>
     </div>
 
-    <!-- CATEGORY GRID 4 CỘT (bỏ Tất cả) -->
-    <nav class="tdl-cats" aria-label="Danh mục sản phẩm">
-      <button class="tdl-cat" onclick="tdlCat(this,'đèn pha')">
-        <span class="cat-icon">🔦</span><span class="cat-label">Đèn pha</span>
-      </button>
-      <button class="tdl-cat" onclick="tdlCat(this,'đèn nhà xưởng')">
-        <span class="cat-icon">🏭</span><span class="cat-label">Nhà xưởng</span>
-      </button>
-      <button class="tdl-cat" onclick="tdlCat(this,'pickleball')">
-        <span class="cat-icon">🏸</span><span class="cat-label">Pickleball</span>
-      </button>
-      <button class="tdl-cat" onclick="tdlCat(this,'đèn đường')">
-        <span class="cat-icon">🛣️</span><span class="cat-label">Đèn đường</span>
-      </button>
-    </nav>
+
 
     <!-- CHAT -->
     <main id="tdl-chat" role="log" aria-live="polite" aria-label="Cuộc trò chuyện">
@@ -289,6 +257,18 @@
       </button>
       <button class="tdl-hint" onclick="tdlQuick('đèn nhà xưởng')">
         <span class="hint-icon">🏭</span><span class="hint-label">Nhà xưởng</span>
+      </button>
+      <button class="tdl-hint" onclick="tdlQuick('đèn sân vườn')">
+        <span class="hint-icon">🌿</span><span class="hint-label">Sân vườn</span>
+      </button>
+      <button class="tdl-hint" onclick="tdlQuick('đèn đường')">
+        <span class="hint-icon">🛣️</span><span class="hint-label">Đèn đường</span>
+      </button>
+      <button class="tdl-hint" onclick="tdlQuick('đèn năng lượng mặt trời')">
+        <span class="hint-icon">☀️</span><span class="hint-label">Năng lượng</span>
+      </button>
+      <button class="tdl-hint" onclick="tdlQuick('linh kiện đèn led')">
+        <span class="hint-icon">⚙️</span><span class="hint-label">Linh kiện</span>
       </button>
     </div>
 
@@ -495,7 +475,7 @@
         isLoading = state;
         var btn = document.getElementById('tdlSendBtn');
         if (btn) btn.disabled = state;
-        document.querySelectorAll('.tdl-float-btn,.tdl-hint,.tdl-cat,.tdl-chip').forEach(function(el){ el.disabled = state; });
+        document.querySelectorAll('.tdl-float-btn,.tdl-hint,.tdl-chip').forEach(function(el){ el.disabled = state; });
     }
 
     /* ─── RENDER ────────────────────────────────────────────── */
@@ -698,13 +678,6 @@
         if (isLoading) return;
         var inp = document.getElementById('tdlQ');
         if (inp) { inp.value=text; tdlSend(); }
-    };
-
-    window.tdlCat = function(el, query) {
-        if (isLoading) return;
-        document.querySelectorAll('.tdl-cat').forEach(function(b){ b.classList.remove('active'); });
-        el.classList.add('active');
-        tdlQuick(query);
     };
 
     /* ─── MODAL ─────────────────────────────────────────────── */

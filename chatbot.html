@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TDL AI Chatbot – Frame Content</title>
+    <title>TDL AI Chatbot – Hybrid Smart Version</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -157,16 +157,11 @@
     .tdl-form-group input, .tdl-form-group textarea { width: 100%; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; font-family: 'Be Vietnam Pro', sans-serif; color: #0f172a; outline: none; }
     .tdl-form-submit { width: 100%; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(135deg, #0ea5e9, #0369a1); color: white; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 4px; }
     .tdl-form-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-    
-    /* Màn chắn khởi tạo bảo vệ luồng async */
-    .tdl-initializing-mask { position: absolute; inset: 0; background: rgba(255,255,255,0.95); z-index: 99; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #0369a1; }
     </style>
 </head>
 <body>
 
 <div id="tdl-widget">
-    <div id="tdlInitMask" class="tdl-initializing-mask">Đang kết nối kho dữ liệu Thành Đạt LED...</div>
-
     <div id="tdl-panel">
         <div class="tdl-header">
             <div class="tdl-header-avatar"> TDL <div class="tdl-header-avatar-dot"></div> </div>
@@ -230,7 +225,7 @@
                 </button>
             </div>
             <div class="tdl-input-footer">
-                <span class="tdl-input-hint">Kho Thành Đạt LED – Bảo mật & Xác thực mã hóa</span>
+                <span class="tdl-input-hint">Kho Thành Đạt LED – Đồng bộ dữ liệu Hybrid 0ms</span>
                 <button class="tdl-quote-btn" onclick="tdlOpenLeadModal()" aria-label="Mở form đăng ký báo giá nhanh">📋 Nhận báo giá</button>
             </div>
         </div>
@@ -263,45 +258,51 @@
 
 <script>
 (function() {
-    // API URL Gốc kết nối trực tiếp với Google Apps Script của bạn
     var TDL_API_URL = "https://script.google.com/macros/s/AKfycbyLIkmrpcl4N5L--bZUkeLVQlVuLsr1nURC3klPWhB7liuTkTETJZniqSS5Z_c8WmwX/exec";
     
     var tdlIsLoading = false;
-    var tdlDbReady = false; 
     var tdlLastSubmitTime = 0; 
     var tdlLastMessageTime = 0; 
-    var tdlDb = { faq: [], products: [], config: { hotline: "0986474671" } };
 
-    // Tải Database dạng Bất đồng bộ đồng bộ chuẩn để kiểm soát UI nhận nút
-    function tdlLoadDatabase() {
-        return new Promise(function(resolve, reject) {
-            fetch(TDL_API_URL)
-                .then(function(res) { return res.json(); })
-                .then(function(data) {
-                    if (data && data.faq && data.faq.length > 0) {
-                        tdlDb.faq = data.faq;
-                        tdlDb.products = data.products;
-                        tdlDb.config = data.config;
-                        var zaloBtn = document.getElementById('cfgZaloBtn');
-                        if (tdlDb.config && tdlDb.config.zalo && zaloBtn) zaloBtn.href = tdlDb.config.zalo;
-                        tdlDbReady = true;
-                        
-                        var mask = document.getElementById('tdlInitMask');
-                        if (mask) mask.remove();
-                        resolve(true);
-                    } else {
-                        reject("Dữ liệu rỗng");
-                    }
-                })
-                .catch(function(err) {
-                    console.error("TDL Core Sync Error:", err);
-                    var mask = document.getElementById('tdlInitMask');
-                    if (mask) mask.innerHTML = "<span style='color:#ef4444;text-align:center;padding:10px;'>Kết nối gián đoạn. Vui lòng tải lại trang!</span>";
-                    reject(err);
-                });
-        });
+    // === 1. BỘ DỮ LIỆU CỨNG BACKUP TRỰC TIẾP TRÊN HTML (GIÚP CHẠY LẬP TỨC 0ms) ===
+    var tdlDb = {
+        faq: [
+            [], // Bỏ qua row tiêu đề hệ thống
+            ["chiết khấu đại lý", "chính sách sỉ, chiet khau, đại lý", "Dạ bên em chính sách **chiết khấu đại lý từ 30% - 45%** tùy theo giá trị đơn hàng sỉ của dự án chiếu sáng ạ."],
+            ["linh kiện xuất xứ CO CQ", "giấy tờ, chung chi, co cq, co/cq", "Dạ toàn bộ sản phẩm của Thành Đạt LED đều sử dụng linh kiện nguồn Driver (Philips, Done, Meanwell) và Chip LED (Bridgelux, Cree) có **đầy đủ chứng chỉ xuất xứ CO/CQ** phục vụ nghiệm thu công trình ạ."],
+            ["tuổi thọ đèn led", "tuoi tho, được bao lâu, ben khong", "Dạ đèn sử dụng chip LED linh kiện chính hãng cho tuổi thọ hoạt động đạt **50.000 giờ liên tục**, giúp tiết kiệm tối đa chi phí bảo trì sản xuất ạ."],
+            ["chính sách bảo hành", "bao hanh, loi thi sao", "Dạ toàn bộ đèn kho em xuất xưởng được **bảo hành chính hãng đổi mới từ 2 - 5 năm** tùy cấu hình linh kiện yêu cầu ạ."]
+        ],
+        products: [
+            [], // Bỏ qua row tiêu đề hệ thống
+            ["TDL-P200", "Đèn pha LED 200W Module Sân Thể Thao", "đèn pha", "200", "Liên hệ nhận giá sỉ", "Bridgelux", "Done/Philips", "2 - 5 năm", "pha 200w, den pha", "https://thanhdatled.com"],
+            ["TDL-UFO150", "Đèn LED Nhà Xưởng UFO 150W Cao Cấp", "đèn nhà xưởng", "150", "Liên hệ nhận giá sỉ", "Bridgelux", "Done/Philips", "2 - 3 năm", "highbay, ufo, nha xuong", "https://thanhdatled.com"]
+        ],
+        config: { hotline: "0986474671", zalo: "https://zalo.me/0986474671" }
+    };
+
+    // === 2. ĐỒNG BỘ NGẦM (BACKGROUND SYNC) TỪ GOOGLE SHEET NẾU CÓ MẠNG ===
+    function tdlBackgroundSync() {
+        fetch(TDL_API_URL)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data && data.faq && data.faq.length > 1) {
+                    // Nếu Google Sheet hoạt động tốt, cập nhật đè dữ liệu mới nhất vào bộ nhớ
+                    tdlDb.faq = data.faq;
+                    tdlDb.products = data.products;
+                    tdlDb.config = data.config;
+                    var zaloBtn = document.getElementById('cfgZaloBtn');
+                    if (tdlDb.config && tdlDb.config.zalo && zaloBtn) zaloBtn.href = tdlDb.config.zalo;
+                    console.log("TDL DB Live Background Sync thành công!");
+                }
+            })
+            .catch(function(err) {
+                // Lỗi Sheets? Không sao cả, bot vẫn chạy bằng bộ dữ liệu cứng ở trên bình thường
+                console.warn("TDL Live Sync gián đoạn, đang duy trì chế độ Local Backup:", err);
+            });
     }
-    tdlLoadDatabase();
+    // Kích hoạt hàm đồng bộ ngầm sau khi load trang xong
+    tdlBackgroundSync();
 
     function tdlGetTime() {
         return new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
@@ -317,7 +318,7 @@
         return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g," ").trim();
     }
 
-    // Làm sạch đầu ra bằng bộ lọc DOMPurify trước khi trả kết quả tránh XSS Injection
+    // Làm sạch đầu ra bằng bộ lọc DOMPurify tránh hoàn toàn XSS Injection
     function tdlFormatMarkdown(text) {
         if (!text) return "";
         var cleanText = DOMPurify.sanitize(text);
@@ -360,6 +361,7 @@
         chat.scrollTop = chat.scrollHeight;
     }
 
+    // Loại bỏ hiệu ứng loading dots
     function tdlRemoveTyping() {
         var el = document.getElementById('tdlTyping');
         if (el) el.remove();
@@ -422,27 +424,17 @@
         chat.scrollTop = chat.scrollHeight;
     }
 
-    // === HÀM GỬI TIN NHẮN CHÍNH XÁC KHỚP TƯƠNG ĐỐI & CHỐNG SPAM ===
-    window.tdlSendMessage = async function() {
+    // === HÀM XỬ LÝ LỌC SO KHỚP TỪ KHÓA ĐÁP ỨNG THỜI GIAN 0ms KHÔNG TRỄ ===
+    window.tdlSendMessage = function() {
         if (tdlIsLoading) return;
         
-        // Cooldown ngăn Spam lụt tin nhắn gửi lên Apps Script (Giới hạn tối thiểu 2 giây)
+        // Cooldown chống Spam liên tục dưới 2 giây
         var now = Date.now();
         if (now - tdlLastMessageTime < 2000) {
-            alert("Vui lòng không thao tác gửi quá nhanh!");
+            alert("Vui lòng không thao tác quá nhanh!");
             return;
         }
         tdlLastMessageTime = now;
-
-        // Ép đợi đồng bộ Database hoàn tất thực tế
-        if (!tdlDbReady) {
-            try {
-                await tdlLoadDatabase();
-            } catch(e) {
-                alert("Kết nối máy chủ kho hàng thất bại. Vui lòng thử lại!");
-                return;
-            }
-        }
 
         var input = document.getElementById('tdlQuestion');
         var userText = input.value.trim();
@@ -453,7 +445,7 @@
         tdlAddUserMsg(userText);
         tdlAddTyping();
 
-        // Xử lý Task Micro tối ưu độ nhạy phản hồi
+        // 100ms tạo hiệu ứng chuyển động tự nhiên cho khách hàng
         setTimeout(function() {
             try {
                 var textClean = tdlCleanStr(userText);
@@ -462,7 +454,7 @@
                 var matchedProds = [];
                 var isProdFound = false;
 
-                // A. KIỂM TRA ĐỐI CHIẾU ÉP CỨNG TỪ KHÓA ĐẶC BIỆT (Thanh toán / Pickleball)
+                // A. KIỂM TRA ĐỐI CHIẾU ÉP CỨNG TỪ KHÓA ĐẶC BIỆT CHÍNH XÁC
                 if (textNorm.includes("thanh toan") || textNorm.includes("phuong thuc thanh toan")) {
                     replyText = "**Phương thức thanh toán linh hoạt tại Thành Đạt LED:**\n\n" +
                                 "• **Với đơn hàng lẻ / giao COD:** Quý khách kiểm tra đèn đúng mẫu mã, số lượng và thanh toán tiền trực tiếp cho shipper.\n\n" +
@@ -474,7 +466,7 @@
                                 "• Đèn tích hợp thấu kính gom sáng góc rộng, triệt tiêu hoàn toàn tia sáng thừa gây lóa khi ngước nhìn bóng. Anh/chị có thể nhấn nút **[Nhận báo giá]** ở chân ô nhập liệu hoặc chát trực tiếp Zalo để nhận hồ sơ kỹ thuật CO CQ sớm nhất ạ!";
                 }
                 else {
-                    // B. QUÉT ĐỐI CHIẾU DỮ LIỆU FAQ THEO LOGIC CHỨA KHỚP TƯƠNG ĐỐI TỪ HÌNH ẢNH CỦA BẠN
+                    // B. QUÉT ĐỐI CHIẾU DỮ LIỆU FAQ THEO CHẾ ĐỘ CHỨA KHỚP KHÔNG DẤU THÔNG MINH
                     var matchedFaq = null;
                     if (tdlDb.faq && tdlDb.faq.length > 1) {
                         for (var j = 1; j < tdlDb.faq.length; j++) {
@@ -484,7 +476,6 @@
                             var keyNorm = tdlNormalizeStr(frow[0]);
                             var synonymsStr = frow[1] || "";
                             
-                            // Sử dụng .includes() đảo ngược hai chiều để đảm bảo nhấn nút là nhận diện được ngay câu trả lời
                             if (textClean.includes(keyClean) || keyClean.includes(textClean) || textNorm.includes(keyNorm)) {
                                 matchedFaq = frow; break;
                             }
@@ -568,12 +559,12 @@
         document.getElementById('tdlLeadForm').reset();
     };
 
-    // Chống Spam Form liên tục phá hoại bằng mốc Cooldown chặn nút 15 giây
+    // Chống Spam Form liên tục phá hoại bằng mốc Cooldown chặn nút gửi 15 giây
     window.tdlSubmitLeadForm = async function(event) {
         event.preventDefault();
         var now = Date.now();
         if (now - tdlLastSubmitTime < 15000) {
-            alert("Vui lòng đợi 15 giây trước khi thực hiện hành động tiếp theo!");
+            alert("Vui lòng đợi 15 giây trước khi gửi tiếp yêu cầu mới!");
             return;
         }
 
@@ -612,6 +603,7 @@
                     tdlSendMessage(); 
                 }
             });
+            setTimeout(function() { inp.focus(); }, 300);
         }
     }
 

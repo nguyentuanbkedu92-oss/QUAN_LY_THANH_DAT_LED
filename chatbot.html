@@ -45,7 +45,7 @@
         flex-direction: column;
         overflow: hidden;
         border: none !important;
-        border-radius: 0 !important; /* Bo góc do iframe bên ngoài kiểm soát */
+        border-radius: 0 !important;
         opacity: 1 !important;
         transform: none !important;
         pointer-events: all !important;
@@ -518,7 +518,7 @@
 
 <div id="tdl-widget">
 
-    <!-- Panel biệt lập chuyên dụng cho iframe (Luôn hiển thị mặc định) -->
+    <!-- Panel biệt lập tràn viền 100% -->
     <div id="tdl-panel">
 
         <!-- Header -->
@@ -656,7 +656,6 @@
         return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g," ").trim();
     }
 
-    // Xuất chuỗi định dạng text cơ bản an toàn (Cải tiến không dấu nếu dùng cho URL SEO)
     function tdlFormatMarkdown(text) {
         if (!text) return "";
         var html = text.toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -693,7 +692,6 @@
         chat.scrollTop = chat.scrollHeight;
     }
 
-    // Ép gỡ bỏ loading dots mượt mà
     function tdlRemoveTyping() {
         var el = document.getElementById('tdlTyping');
         if (el) el.remove();
@@ -756,7 +754,7 @@
         chat.scrollTop = chat.scrollHeight;
     }
 
-    // === SEND MESSAGE ===
+    // === SEND MESSAGE & MATCHING LOGIC ===
     window.tdlSendMessage = function() {
         if (tdlIsLoading) return;
         var input = document.getElementById('tdlQuestion');
@@ -776,57 +774,70 @@
                 var matchedProds = [];
                 var isProdFound = false;
 
-                // Đối chiếu danh sách sản phẩm TDL
-                if (tdlDb.products && tdlDb.products.length > 1) {
-                    for (var i = 1; i < tdlDb.products.length; i++) {
-                        var row = tdlDb.products[i];
-                        if (!row || !row[1]) continue;
-                        var prodNameClean = tdlCleanStr(row[1]);
-                        var prodNameNorm = tdlNormalizeStr(row[1]);
-                        var catClean = tdlCleanStr(row[2] || "");
-                        var keywordRow = tdlNormalizeStr(row[8] || "");
-                        var matchKeyword = keywordRow.split(",").some(function(k) {
-                            return k.trim() && textNorm.includes(tdlNormalizeStr(k));
-                        });
-                        if (textClean.includes(prodNameClean) || textNorm.includes(prodNameNorm) || textClean.includes(catClean) || matchKeyword) {
-                            matchedProds.push(row);
-                            isProdFound = true;
-                        }
-                    }
-                }
-
-                // Đối chiếu FAQ câu hỏi thường gặp
+                // 1. CẤU HÌNH ĐỐI CHIẾU FAQ (ƯU TIÊN TUYỆT ĐỐI KHỚP CHÍNH XÁC/TỪ KHÓA ĐẶC BIỆT)
                 var matchedFaq = null;
-                if (tdlDb.faq && tdlDb.faq.length > 1) {
-                    for (var j = 1; j < tdlDb.faq.length; j++) {
-                        var frow = tdlDb.faq[j];
-                        if (!frow || !frow[0]) continue;
-                        var keyClean = tdlCleanStr(frow[0]);
-                        var keyNorm = tdlNormalizeStr(frow[0]);
-                        var synonymsStr = frow[1] || "";
-                        if (textClean === keyClean || textClean.includes(keyClean) || keyClean.includes(textClean) || textNorm.includes(keyNorm)) {
-                            matchedFaq = frow; break;
+                
+                // Trường hợp đặc biệt ép nội dung thanh toán / dự án / pickleball từ bạn
+                if (textNorm.includes("thanh toan") || textNorm.includes("phuong thuc thanh toan") || textClean === "pickleball") {
+                    replyText = "**Phương thức thanh toán linh hoạt tại Thành Đạt LED:**\n\n" +
+                                "• **Với đơn hàng lẻ / giao COD:** Quý khách kiểm tra đèn đúng mẫu mã, số lượng và thanh toán tiền trực tiếp cho shipper.\n\n" +
+                                "• **Với đơn hàng dự án / số lượng lớn:** Thanh toán theo tiến độ hợp đồng (Tạm ứng đặt cọc 30-50% để lên đơn sản xuất, phần còn lại thanh toán khi bàn giao đủ hàng hóa hoặc nghiệm thu sân).";
+                } else {
+                    // Quét kiểm tra dữ liệu FAQ từ file Google Sheets hệ thống
+                    if (tdlDb.faq && tdlDb.faq.length > 1) {
+                        for (var j = 1; j < tdlDb.faq.length; j++) {
+                            var frow = tdlDb.faq[j];
+                            if (!frow || !frow[0]) continue;
+                            var keyClean = tdlCleanStr(frow[0]);
+                            var keyNorm = tdlNormalizeStr(frow[0]);
+                            var synonymsStr = frow[1] || "";
+                            
+                            if (textClean === keyClean || textClean == keyClean || textNorm === keyNorm) {
+                                matchedFaq = frow; break;
+                            }
+                            var isSyn = synonymsStr.split(",").some(function(s) {
+                                var sClean = tdlCleanStr(s);
+                                var sNorm = tdlNormalizeStr(s);
+                                return sClean.trim() && (textClean === sClean || textNorm === sNorm);
+                            });
+                            if (isSyn) { matchedFaq = frow; break; }
                         }
-                        var isSyn = synonymsStr.split(",").some(function(s) {
-                            var sClean = tdlCleanStr(s);
-                            var sNorm = tdlNormalizeStr(s);
-                            return sClean.trim() && (textClean.includes(sClean) || sClean.includes(textClean) || textNorm.includes(sNorm));
-                        });
-                        if (isSyn) { matchedFaq = frow; break; }
+                    }
+
+                    if (matchedFaq) {
+                        replyText = matchedFaq[2];
+                    } else {
+                        // 2. ĐỐI CHIẾU SẢN PHẨM (Chỉ chạy khi không khớp FAQ để tránh nhận diện sai danh mục)
+                        if (tdlDb.products && tdlDb.products.length > 1) {
+                            for (var i = 1; i < tdlDb.products.length; i++) {
+                                var row = tdlDb.products[i];
+                                if (!row || !row[1]) continue;
+                                var prodNameClean = tdlCleanStr(row[1]);
+                                var prodNameNorm = tdlNormalizeStr(row[1]);
+                                var catClean = tdlCleanStr(row[2] || "");
+                                var keywordRow = tdlNormalizeStr(row[8] || "");
+                                var matchKeyword = keywordRow.split(",").some(function(k) {
+                                    return k.trim() && (textNorm === tdlNormalizeStr(k) || textNorm.includes(tdlNormalizeStr(k)));
+                                });
+                                
+                                // Phân tách rõ ràng tránh nhận nhầm đèn pha khi gõ chữ pickleball
+                                if ((textClean.includes(prodNameClean) || textNorm.includes(prodNameNorm) || textClean === catClean || matchKeyword) && !textNorm.includes("thanh toan")) {
+                                    matchedProds.push(row);
+                                    isProdFound = true;
+                                }
+                            }
+                        }
+
+                        if (isProdFound) {
+                            replyText = "Dạ, TDL AI đã tìm thấy sản phẩm phù hợp bên dưới ạ:";
+                        } else {
+                            var hotline = (tdlDb.config && tdlDb.config.hotline) ? tdlDb.config.hotline : "0986474671";
+                            replyText = "Dạ, hệ thống chưa tìm thấy từ khóa khớp chính xác. Anh/chị có thể liên hệ Hotline/Zalo: **" + hotline + "** để được hỗ trợ báo giá và chiết khấu tốt nhất ạ!";
+                        }
                     }
                 }
 
-                // Thiết lập phản hồi tự động thông minh
-                if (matchedFaq) {
-                    replyText = matchedFaq[2];
-                } else if (isProdFound) {
-                    replyText = "Dạ, TDL AI đã tìm thấy sản phẩm phù hợp bên dưới ạ:";
-                } else {
-                    var hotline = (tdlDb.config && tdlDb.config.hotline) ? tdlDb.config.hotline : "0986474671";
-                    replyText = "Dạ, hệ thống chưa tìm thấy từ khóa khớp. Anh/chị có thể liên hệ Hotline/Zalo: **" + hotline + "** để được tư vấn trực tiếp ạ!";
-                }
-
-                var quickSugs = isProdFound
+                var quickSugs = isProdFound || textNorm.includes("thanh toan")
                     ? ["Chính sách bảo hành", "Phương thức vận chuyển", "Nhận báo giá sỉ"]
                     : ["Đèn pha LED 200W", "Đèn nhà xưởng HighBay", "Liên hệ kỹ thuật"];
 
@@ -903,7 +914,6 @@
                     tdlSendMessage(); 
                 }
             });
-            // Tự động focus ngay khi khung được mở từ ngoài WordPress
             setTimeout(function() { inp.focus(); }, 300);
         }
     }

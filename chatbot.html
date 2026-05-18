@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- DEMO PAGE BACKGROUND (xóa khi cài vào WordPress) -->
+    <!-- DEMO PAGE BACKGROUND (Xóa đoạn style này khi cài vào WordPress) -->
     <style>
         body {
             margin: 0;
@@ -34,7 +34,7 @@
 </div>
 
 <!-- =====================================================
-     TDL CHATBOT WIDGET – NHÚNG VÀO WORDPRESS
+     TDL CHATBOT WIDGET START – NHÚNG VÀO WORDPRESS
      Paste đoạn này vào: Appearance > Theme Editor > footer.php
      Hoặc dùng plugin "Insert Headers and Footers"
      ===================================================== -->
@@ -788,7 +788,10 @@
         if (tdlIsOpen) {
             widget.classList.add('open');
             document.getElementById('tdlNotif').classList.remove('show');
-            setTimeout(function() { document.getElementById('tdlQuestion').focus(); }, 350);
+            setTimeout(function() { 
+                var inp = document.getElementById('tdlQuestion');
+                if (inp) inp.focus(); 
+            }, 350);
         } else {
             widget.classList.remove('open');
         }
@@ -797,9 +800,10 @@
     // === TOOLTIP AUTO-SHOW ===
     setTimeout(function() {
         var tooltip = document.getElementById('tdlTooltip');
-        tooltip.classList.add('show');
-        document.getElementById('tdlNotif').classList.add('show');
-        setTimeout(function() { tooltip.classList.remove('show'); }, 4000);
+        var notif = document.getElementById('tdlNotif');
+        if(tooltip) tooltip.classList.add('show');
+        if(notif) notif.classList.add('show');
+        setTimeout(function() { if(tooltip) tooltip.classList.remove('show'); }, 4000);
     }, 1500);
 
     // === LOAD DATABASE ===
@@ -1020,8 +1024,11 @@
 
     window.tdlQuickAsk = function(text) {
         if (!tdlIsOpen) tdlToggleChat();
-        document.getElementById('tdlQuestion').value = text;
-        tdlSendMessage();
+        var inp = document.getElementById('tdlQuestion');
+        if (inp) {
+            inp.value = text;
+            tdlSendMessage();
+        }
     };
 
     window.tdlHandleCat = function(el, queryText) {
@@ -1067,21 +1074,24 @@
         tdlLoadDatabase();
     };
 
-    // === ENTER KEY ===
-    document.addEventListener('DOMContentLoaded', function() {
+    // === LẮNG NGHE PHÍM ENTER AN TOÀN ===
+    function initInputListener() {
         var inp = document.getElementById('tdlQuestion');
         if (inp) {
             inp.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); tdlSendMessage(); }
+                if (e.key === 'Enter' && !e.shiftKey) { 
+                    e.preventDefault(); 
+                    tdlSendMessage(); 
+                }
             });
         }
-    });
-    // fallback nếu DOM đã ready
-    var inp2 = document.getElementById('tdlQuestion');
-    if (inp2) {
-        inp2.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); tdlSendMessage(); }
-        });
+    }
+
+    // Đảm bảo bắt sự kiện chính xác dù DOM load trước hay sau Script
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initInputListener);
+    } else {
+        initInputListener();
     }
 
 })();

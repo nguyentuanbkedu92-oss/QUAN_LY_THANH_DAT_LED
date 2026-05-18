@@ -152,6 +152,18 @@
     .tdl-quote-btn:hover { opacity:0.88; }
     .tdl-input-hint { font-size:10.5px; color:#cbd5e1; text-align:right; }
 
+    /* Nút Xem thêm sản phẩm */
+    .tdl-xem-them {
+        display:flex; align-items:center; justify-content:center; gap:6px;
+        width:100%; margin-top:8px; padding:9px;
+        border-radius:8px; border:1.5px dashed #93c5fd;
+        background:#f0f9ff; color:#0369a1;
+        font-size:12.5px; font-weight:700;
+        font-family:'Be Vietnam Pro',sans-serif;
+        cursor:pointer; transition:all 0.18s;
+    }
+    .tdl-xem-them:hover { background:#dbeafe; border-color:#3b82f6; }
+
     /* ===== TOAST ===== */
     .tdl-toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#1e293b; color:#fff; padding:8px 18px; border-radius:99px; font-size:13px; font-weight:500; z-index:999999; pointer-events:none; white-space:nowrap; animation:tdlToastIn 0.2s ease; }
     @keyframes tdlToastIn { from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%)} }
@@ -399,10 +411,11 @@
         ],
         products: [
             null,
-            ['TDL-P200','Đèn Pha LED 200W Module Chống Chói','đèn pha','200','Liên hệ giá sỉ','Bridgelux','Philips/Done','3 – 5 năm','pha 200w,den pha,200w,san the thao','https://thanhdatled.com'],
-            ['TDL-P300','Đèn Pha LED 300W Module Sân Pickleball','đèn pha','300','Liên hệ giá sỉ','Bridgelux','Meanwell','3 – 5 năm','pha 300w,pickleball,300w,san bong','https://thanhdatled.com'],
-            ['TDL-UFO150','Đèn LED Nhà Xưởng UFO HighBay 150W','đèn nhà xưởng','150','Liên hệ giá sỉ','Bridgelux','Done','2 – 3 năm','highbay,ufo,nha xuong,xuong san xuat','https://thanhdatled.com'],
-            ['TDL-ST100','Đèn Đường LED Solar 100W','đèn đường','100','Liên hệ giá sỉ','Cree','Tích hợp','2 – 3 năm','den duong,solar,nang luong mat troi,street light','https://thanhdatled.com']
+            // [0]sku  [1]category  [2]watt  [3]price  [4]Thông số  [5]warranty  [6]keyword  [7]landing
+            ['TDLF-MKH200','đèn pha','200w',1950000,'Đèn pha led module 200w khung hộp','2 - 3 năm','đèn pha 200w,module 200w,pickleball 200w,đèn pha','https://khuyenmai.thanhdatled.com/landing-pickleball-200w-tdl/'],
+            ['TDLF-MKH300','đèn pha','300w',2950000,'Đèn pha led module 300w khung hộp','2 - 3 năm','đèn pha 300w,module 300w,pickleball 300w','https://thanhdatled.com'],
+            ['TDLF-MKH150','đèn pha','150w',1550000,'Đèn pha led module 150w khung hộp','2 - 3 năm','đèn pha 150w,module 150w','https://thanhdatled.com'],
+            ['TDLF-MKH50','đèn pha','50w',650000,'Đèn pha led module 50w khung hộp','2 - 3 năm','đèn pha 50w,module 50w,pickleball 50w','https://khuyenmai.thanhdatled.com/landing-pickleball-200w-tdl/']
         ],
         config: { hotline:'0986474671', zalo:'https://zalo.me/0986474671' }
     };
@@ -515,21 +528,25 @@
     function removeTyping() { var el=document.getElementById('tdlTyping'); if(el) el.remove(); }
 
     function renderProductCard(row) {
-        var sku  = sanitize(row[0]||'TDL-LED');
-        var name = sanitize(row[1]||'Sản phẩm Đèn LED');
-        var cat  = sanitize(row[2]||'Chiếu sáng');
-        var watt = row[3] ? sanitize(row[3])+'W' : '---';
-        var price= isNaN(row[4]) ? sanitize(row[4]) : Number(row[4]).toLocaleString('vi-VN')+' VNĐ';
-        var chip = sanitize(row[5]||'Chính hãng');
-        var war  = sanitize(row[7]||'2 – 3 năm');
-        var url  = sanitize(row[9]||'https://thanhdatled.com');
+        // Cấu trúc Sheet: [0]sku [1]category [2]watt [3]price [4]Thông số [5]warranty [6]keyword [7]landing
+        var sku   = sanitize(row[0]||'TDL-LED');
+        var cat   = sanitize(row[1]||'Chiếu sáng');
+        var watt  = row[2] ? sanitize(String(row[2]).replace(/w$/i,''))+'W' : '---';
+        var price = isNaN(Number(String(row[3]).replace(/[^\d]/g,'')))
+                    ? sanitize(row[3]||'Liên hệ giá sỉ')
+                    : Number(String(row[3]).replace(/[^\d]/g,'')).toLocaleString('vi-VN')+' VNĐ';
+        var spec  = sanitize((row[4]||'').split('\n')[0]||''); // dòng đầu của Thông số
+        var war   = sanitize(row[5]||'2 – 3 năm');
+        var url   = sanitize(row[7]||'https://thanhdatled.com');
+        // Lấy tên từ dòng đầu Thông số, nếu không có thì tạo từ sku + watt
+        var name  = spec || (sku + ' ' + watt);
         return '<div class="tdl-prod">'+
             '<div class="tdl-prod-name">'+name+'</div>'+
             '<div class="tdl-prod-sku">Mã: '+sku+' · '+cat+'</div>'+
             '<div class="tdl-prod-grid">'+
               '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">💰 Giá đại lý</div><div class="tdl-prod-stat-val price">'+price+'</div></div>'+
               '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">⚡ Công suất</div><div class="tdl-prod-stat-val">'+watt+'</div></div>'+
-              '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">🔮 Chip LED</div><div class="tdl-prod-stat-val">'+chip+'</div></div>'+
+              '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">🔮 Chip LED</div><div class="tdl-prod-stat-val">Bridgelux/Philips/Cree</div></div>'+
               '<div class="tdl-prod-stat"><div class="tdl-prod-stat-lbl">🛡️ Bảo hành</div><div class="tdl-prod-stat-val">'+war+'</div></div>'+
             '</div>'+
             '<a href="'+url+'" target="_blank" rel="noopener noreferrer" class="tdl-prod-link">🌐 Xem chi tiết & Đặt mua</a>'+
@@ -555,18 +572,37 @@
         return html;
     }
 
+    var _xemThemId = 0;
     function _renderAIBubble(text, products, topicKey) {
         var chat = document.getElementById('tdl-chat');
         var div  = document.createElement('div');
         div.className = 'tdl-msg ai';
-        var prodsHtml = (products||[]).map(renderProductCard).join('');
-        var nextHtml  = topicKey ? renderNextQ(topicKey) : '';
+        var prods = products || [];
+        var LIMIT = 3;
+        var visible  = prods.slice(0, LIMIT);
+        var hidden   = prods.slice(LIMIT);
+        var prodsHtml = visible.map(renderProductCard).join('');
+        var moreHtml  = '';
+        if (hidden.length > 0) {
+            var uid = 'tdlMore' + (++_xemThemId);
+            moreHtml =
+                '<div id="'+uid+'-more" style="display:none">' +
+                    hidden.map(renderProductCard).join('') +
+                '</div>' +
+                '<button class="tdl-xem-them" onclick="' +
+                    'document.getElementById(\''+uid+'-more\').style.display=\'block\';' +
+                    'this.style.display=\'none\';' +
+                    '">' +
+                    '➕ Xem thêm ' + hidden.length + ' sản phẩm' +
+                '</button>';
+        }
+        var nextHtml = topicKey ? renderNextQ(topicKey) : '';
         div.innerHTML =
             '<div class="tdl-msg-avatar" aria-hidden="true">AI</div>' +
             '<div style="flex:1;min-width:0">' +
               '<div class="tdl-bubble">' +
                 '<div>'+markdown(text)+'</div>' +
-                prodsHtml + nextHtml +
+                prodsHtml + moreHtml + nextHtml +
               '</div>' +
               '<div class="tdl-msg-time">'+getTime()+' · TDL AI</div>' +
             '</div>';
@@ -597,13 +633,28 @@
     function matchProducts(tC, tN) {
         var found=[];
         if (!db.products||db.products.length<2) return found;
+
+        // Trích watt user gõ: "200w", "300w"...
+        var wattMatch = tN.match(/(\d+)\s*w/);
+        var userWatt  = wattMatch ? wattMatch[1]+'w' : null;
+
         for (var i=1; i<db.products.length; i++) {
-            var row=db.products[i]; if (!row||!row[1]) continue;
-            var pN=norm(row[1]), pC=clean(row[2]||'');
-            var kwHit=String(row[8]||'').split(',').some(function(k){
-                var kk=norm(k); return kk&&(tN===kk||tN.includes(kk));
+            var row=db.products[i]; if (!row||!row[0]) continue;
+            // [0]sku [1]category [2]watt [3]price [4]Thông số [5]warranty [6]keyword [7]landing
+            var pCat = norm(row[1]||'');
+            var pWatt= norm(String(row[2]||'').replace(/\s/g,''));
+            var kwHit= String(row[6]||'').split(',').some(function(k){
+                var kk=norm(k.trim()); return kk&&(tN===kk||tN.includes(kk));
             });
-            if (tN.includes(pN)||tC===pC||kwHit) found.push(row);
+            var catHit = tN.includes(pCat)||tC===clean(row[1]||'');
+
+            if (userWatt) {
+                // Có gõ watt → chỉ lấy đúng watt đó (trong category khớp hoặc keyword khớp)
+                if (pWatt===userWatt && (catHit||kwHit)) found.push(row);
+            } else {
+                // Không gõ watt → lấy theo category hoặc keyword
+                if (catHit||kwHit) found.push(row);
+            }
         }
         return found;
     }

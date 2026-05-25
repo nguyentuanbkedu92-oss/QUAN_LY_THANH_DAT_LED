@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Giao Hàng - Thành Đạt LED</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #e8e8e8;
+            font-family: "Segoe UI", Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px 10px;
+        }
+
+        .page {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* ===== FORM NHẬP LIỆU ===== */
+        .form-panel {
+            width: 280px;
+            flex-shrink: 0;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+        .form-panel h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2.5px solid #e31a1a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .form-panel h2::before {
+            content: "📋";
+            font-size: 16px;
+        }
+        .field { margin-bottom: 10px; }
+        .field label {
+            display: block;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .field input, .field textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 12.5px;
+            color: #222;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .field input:focus, .field textarea:focus { border-color: #e31a1a; }
+        .field textarea { resize: vertical; min-height: 55px; line-height: 1.5; }
+        .btn-update {
+            width: 100%;
+            padding: 11px;
+            background: #222;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            margin-top: 14px;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+        }
+        .btn-update:hover { background: #444; }
+        .btn-export {
+            width: 100%;
+            padding: 11px;
+            background: #e31a1a;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+        }
+        .btn-export:hover { background: #c01515; }
+        .hint {
+            font-size: 10px;
+            color: #999;
+            text-align: center;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* ===== VÙNG PREVIEW PHIẾU ===== */
+        .slip-preview {
+            flex-shrink: 0;
+        }
+        .preview-label {
+            font-size: 11px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== PHIẾU GIAO HÀNG - KHỔ A5 CHUẨN (148mm x 210mm) ===== */
+        #slipA5 {
+            width: 148mm;
+            height: 210mm;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        /* Responsive scale cho mobile */
+        @media (max-width: 700px) {
+            #slipA5 {
+                transform: scale(0.5);
+                transform-origin: top left;
+                margin-right: -74mm;
+                margin-bottom: -105mm;
+            }
+            .slip-preview { overflow: hidden; }
+        }
+
+        /* ===== NỘI DUNG PHIẾU ===== */
+
+        /* Vạch đỏ trang trí trên cùng */
+        .slip-topbar {
+            height: 7mm;
+            background: #e31a1a;
+            display: flex;
+            align-items: center;
+            padding: 0 8mm;
+            gap: 3mm;
+            flex-shrink: 0;
+        }
+        .slip-topbar-text {
+            font-size: 8pt;
+            color: rgba(255,255,255,0.9);
+            font-family: Arial, sans-serif;
+            letter-spacing: 1px;
+        }
+        .slip-topbar-dot {
+            width: 3mm;
+            height: 3mm;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+        }
+
+        /* BODY của phiếu */
+        .slip-body {
+            flex: 1;
+            border: 2px solid #111;
+            margin: 5mm;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* === HEADER: Logo + Người gửi === */
+        .slip-header {
+            display: flex;
+            border-bottom: 2px solid #111;
+            flex-shrink: 0;
+        }
+        .header-logo {
+            width: 34mm;
+            flex-shrink: 0;
+            border-right: 2px solid #111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4mm 3mm;
+            gap: 1.5mm;
+        }
+        .logo-badge {
+            background: #e31a1a;
+            color: #fff;
+            font-size: 20pt;
+            font-weight: 900;
+            font-family: "Arial Black", Arial, sans-serif;
+            letter-spacing: 2px;
+            padding: 1mm 3mm;
+            line-height: 1;
+        }
+        .logo-tagline {
+            font-size: 6pt;
+            color: #555;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            letter-spacing: 0.5px;
+            font-style: italic;
+        }
+        .header-sender {
+            flex: 1;
+            padding: 4mm 5mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1.5mm;
+        }
+        .sender-tag {
+            font-size: 7.5pt;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+        }
+        .sender-company {
+            font-size: 11pt;
+            font-weight: 900;
+            color: #e31a1a;
+            font-family: "Arial Black", Arial, sans-serif;
+            line-height: 1.2;
+        }
+        .sender-phones {
+            font-size: 9.5pt;
+            color: #111;
+            line-height: 1.6;
+            font-family: Arial, sans-serif;
+        }
+        .sender-phones b { color: #333; }
+        .sender-website {
+            font-size: 9pt;
+            color: #e31a1a;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+        }
+
+        /* === TITLE PHIẾU GIAO HÀNG === */
+        .slip-title {
+            text-align: center;
+            padding: 3.5mm 5mm;
+            border-bottom: 2px solid #111;
+            flex-shrink: 0;
+            background: #fafafa;
+        }
+        .slip-title h1 {
+            font-size: 17pt;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #111;
+            font-family: "Arial Black", Arial, sans-serif;
+        }
+        .slip-title p {
+            font-size: 8pt;
+            color: #888;
+            margin-top: 1mm;
+            font-style: italic;
+            font-family: Arial, sans-serif;
+        }
+
+        /* === NGƯỜI NHẬN === */
+        .slip-recipient {
+            flex: 1;
+            display: flex;
+            border-bottom: 2px solid #111;
+            min-height: 0;
+        }
+        .row-label {
+            width: 28mm;
+            flex-shrink: 0;
+            border-right: 2px solid #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3mm 2mm;
+        }
+        .row-label span {
+            font-size: 9pt;
+            font-weight: bold;
+            color: #111;
+            text-decoration: underline;
+            font-family: Arial, sans-serif;
+            writing-mode: horizontal-tb;
+        }
+        .row-content {
+            flex: 1;
+            padding: 4mm 5mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .recipient-name {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #111;
+            margin-bottom: 2mm;
+            font-family: Arial, sans-serif;
+        }
+        .recipient-address {
+            font-size: 10.5pt;
+            color: #222;
+            line-height: 1.65;
+            font-family: Arial, sans-serif;
+        }
+        .recipient-phone-line {
+            display: flex;
+            align-items: center;
+            gap: 2mm;
+            margin-top: 1.5mm;
+        }
+        .phone-icon {
+            font-size: 9pt;
+            color: #e31a1a;
+            font-family: Arial, sans-serif;
+        }
+        .recipient-phone {
+            font-size: 11.5pt;
+            font-weight: bold;
+            color: #111;
+            letter-spacing: 0.5px;
+            font-family: Arial, sans-serif;
+        }
+        .recipient-note {
+            font-size: 9pt;
+            color: #555;
+            margin-top: 1.5mm;
+            font-style: italic;
+            font-family: Arial, sans-serif;
+        }
+
+        /* === HÀNG HÓA === */
+        .slip-goods {
+            display: flex;
+            border-bottom: 2px solid #111;
+            flex-shrink: 0;
+        }
+        .goods-content {
+            flex: 1;
+            padding: 3mm 5mm;
+            display: flex;
+            align-items: center;
+        }
+        .goods-name {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #111;
+            font-family: "Arial Black", Arial, sans-serif;
+        }
+
+        /* === FOOTER CHÚ Ý === */
+        .slip-footer {
+            padding: 4mm 5mm;
+            text-align: center;
+            flex-shrink: 0;
+            background: #fff;
+        }
+        .caution-text {
+            font-size: 13pt;
+            font-weight: 900;
+            color: #111;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: "Arial Black", Arial, sans-serif;
+            line-height: 1.5;
+        }
+        .caution-text em {
+            color: #e31a1a;
+            font-style: normal;
+        }
+        .thank-text {
+            font-size: 11.5pt;
+            font-weight: bold;
+            color: #555;
+            margin-top: 1mm;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Dải đỏ dưới cùng */
+        .slip-bottombar {
+            height: 5mm;
+            background: #e31a1a;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .slip-bottombar span {
+            font-size: 6.5pt;
+            color: rgba(255,255,255,0.85);
+            letter-spacing: 2px;
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- FORM NHẬP LIỆU -->
+    <div class="form-panel">
+        <h2>Dữ Liệu Giao Hàng</h2>
+
+        <div class="field">
+            <label>Tên người nhận</label>
+            <input type="text" id="i_name" value="Nguyễn Văn A">
+        </div>
+        <div class="field">
+            <label>Địa chỉ nhận hàng</label>
+            <textarea id="i_address">Số 3, Ngõ 23, Phố Nguyễn Đình Chiểu, Tổ 6, P. Phan Đình Phùng, TP. Thái Nguyên</textarea>
+        </div>
+        <div class="field">
+            <label>Số điện thoại</label>
+            <input type="text" id="i_phone" value="0984344424">
+        </div>
+        <div class="field">
+            <label>Ghi chú / Hướng dẫn shipper</label>
+            <input type="text" id="i_note" value="Xe tải cầu nhung 0975479193. Xe ở 38 lăng yên">
+        </div>
+        <div class="field">
+            <label>Tên hàng hóa</label>
+            <input type="text" id="i_goods" value="Đèn LED">
+        </div>
+        <div class="field">
+            <label>Ghi chú trên phiếu (tùy chọn)</label>
+            <input type="text" id="i_caution" value="CẦN THẬN, HÀNG DỄ VỠ">
+        </div>
+
+        <button class="btn-update" onclick="update()">↺ CẬP NHẬT PHIẾU</button>
+        <button class="btn-export" onclick="download()">⬇ XUẤT ẢNH A5</button>
+        <p class="hint">Ảnh xuất ra đúng tỷ lệ khổ A5<br>148 × 210 mm — sắc nét 300dpi</p>
+    </div>
+
+    <!-- PHIẾU GIAO HÀNG A5 -->
+    <div class="slip-preview">
+        <p class="preview-label">Xem trước phiếu A5</p>
+        <div id="slipA5">
+
+            <!-- Dải đỏ trên -->
+            <div class="slip-topbar">
+                <div class="slip-topbar-dot"></div>
+                <span class="slip-topbar-text">THÀNH ĐẠT LED — PHIẾU GIAO HÀNG</span>
+                <div class="slip-topbar-dot"></div>
+            </div>
+
+            <div class="slip-body">
+
+                <!-- HEADER: Logo + Người gửi -->
+                <div class="slip-header">
+                    <div class="header-logo">
+                        <div class="logo-badge">TDL</div>
+                        <div class="logo-tagline">Bừng sáng không gian</div>
+                    </div>
+                    <div class="header-sender">
+                        <div class="sender-tag">Người gửi</div>
+                        <div class="sender-company">CÔNG TY TNHH TM &amp; DV<br>THÀNH ĐẠT LED</div>
+                        <div class="sender-phones">
+                            <b>☎</b> 0986.474.671 &nbsp;–&nbsp; 0919.931.213
+                        </div>
+                        <div class="sender-website">🌐 Thanhdatled.com</div>
+                    </div>
+                </div>
+
+                <!-- TITLE -->
+                <div class="slip-title">
+                    <h1>PHIẾU GIAO HÀNG</h1>
+                    <p>Vui lòng kiểm tra hàng trước khi ký nhận</p>
+                </div>
+
+                <!-- NGƯỜI NHẬN -->
+                <div class="slip-recipient">
+                    <div class="row-label">
+                        <span>Người nhận</span>
+                    </div>
+                    <div class="row-content">
+                        <div class="recipient-name" id="o_name">Nguyễn Văn A</div>
+                        <div class="recipient-address" id="o_address">Số 3, Ngõ 23, Phố Nguyễn Đình Chiểu, Tổ 6, P. Phan Đình Phùng, TP. Thái Nguyên</div>
+                        <div class="recipient-phone-line">
+                            <span class="phone-icon">📞</span>
+                            <span class="recipient-phone" id="o_phone">0984344424</span>
+                        </div>
+                        <div class="recipient-note" id="o_note">Xe tải cầu nhung 0975479193. Xe ở 38 lăng yên</div>
+                    </div>
+                </div>
+
+                <!-- HÀNG HÓA -->
+                <div class="slip-goods">
+                    <div class="row-label">
+                        <span>Tên hàng hóa</span>
+                    </div>
+                    <div class="goods-content">
+                        <div class="goods-name" id="o_goods">Đèn LED</div>
+                    </div>
+                </div>
+
+                <!-- FOOTER -->
+                <div class="slip-footer">
+                    <div class="caution-text">
+                        ĐÈN LED – <em id="o_caution">CẦN THẬN, HÀNG DỄ VỠ</em>
+                    </div>
+                    <div class="thank-text">XIN TRÂN TRỌNG CẢM ƠN !!!</div>
+                </div>
+
+            </div>
+
+            <!-- Dải đỏ dưới -->
+            <div class="slip-bottombar">
+                <span>Thanhdatled.com — 0986.474.671</span>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function update() {
+        const name    = document.getElementById('i_name').value.trim();
+        const address = document.getElementById('i_address').value.trim();
+        const phone   = document.getElementById('i_phone').value.trim();
+        const note    = document.getElementById('i_note').value.trim();
+        const goods   = document.getElementById('i_goods').value.trim();
+        const caution = document.getElementById('i_caution').value.trim();
+
+        document.getElementById('o_name').innerText    = name;
+        document.getElementById('o_address').innerText = address;
+        document.getElementById('o_phone').innerText   = phone;
+        document.getElementById('o_note').innerText    = note;
+        document.getElementById('o_goods').innerText   = goods;
+        document.getElementById('o_caution').innerText = caution;
+    }
+
+    function download() {
+        const target = document.getElementById('slipA5');
+
+        /* Tạm bỏ transform (scale mobile) trước khi chụp */
+        const origTransform       = target.style.transform;
+        const origTransformOrigin = target.style.transformOrigin;
+        const origMarginRight     = target.style.marginRight;
+        const origMarginBottom    = target.style.marginBottom;
+
+        target.style.transform       = "none";
+        target.style.transformOrigin = "";
+        target.style.marginRight     = "";
+        target.style.marginBottom    = "";
+
+        /* A5 = 148mm × 210mm  @  96dpi = 559 × 794 px
+           scale 3  →  1677 × 2381 px  ≈ 300 dpi khi in A5 */
+        html2canvas(target, {
+            scale: 3,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            width: target.offsetWidth,
+            height: target.offsetHeight,
+            windowWidth: target.offsetWidth,
+            windowHeight: target.offsetHeight,
+            scrollX: 0,
+            scrollY: 0
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.download = 'PhieuGiaoHang_' + document.getElementById('i_name').value.trim() + '.png';
+            link.click();
+
+            /* Khôi phục transform */
+            target.style.transform       = origTransform;
+            target.style.transformOrigin = origTransformOrigin;
+            target.style.marginRight     = origMarginRight;
+            target.style.marginBottom    = origMarginBottom;
+        });
+    }
+</script>
+</body>
+</html>

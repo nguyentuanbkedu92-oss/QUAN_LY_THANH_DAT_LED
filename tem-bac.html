@@ -2,146 +2,184 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tem Bạc Thành Đạt - Fix Lỗi Tràn</title>
+    <title>Tem Bạc Thành Đạt</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #f4f4f4; font-family: "Segoe UI", Arial, sans-serif; padding: 20px; }
-        .wrapper { display: flex; gap: 20px; justify-content: center; }
+        body { background: #f0f0f0; font-family: "Roboto", Arial, sans-serif; padding: 24px; }
+        .wrapper { display: flex; gap: 28px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
 
-        .form-box { width: 320px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .form-box h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
-        .form-box input { width: 100%; padding: 8px; margin: 4px 0 10px; border: 1px solid #ddd; border-radius: 5px; }
-        .form-box button { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
-        .btn-up { background: #333; color: #fff; }
-        .btn-down { background: #e31a1a; color: #fff; font-size: 15px; box-shadow: 0 4px 0 #b31212; }
+        .form-box { width: 300px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+        .form-box h2 { font-size: 17px; margin-bottom: 14px; padding-bottom: 6px; color: #222; }
+        .form-box label { font-size: 11px; color: #666; display: block; margin-bottom: 2px; }
+        .form-box input { width: 100%; padding: 7px 9px; margin-bottom: 9px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; }
+        .form-box button { width: 100%; padding: 11px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; margin-bottom: 9px; font-size: 14px; }
+        .btn-up   { background: #333; color: #fff; }
+        .btn-down { background: #e31a1a; color: #fff; box-shadow: 0 4px 0 #b31212; }
+        .btn-down:active { transform: translateY(2px); box-shadow: 0 2px 0 #b31212; }
 
+        .preview-outer { width: 472px; height: 378px; position: relative; }
+        .preview-scale { transform: scale(2.5); transform-origin: top left; display: block; }
+
+        /* TEM */
         #temArea {
-            width: 120mm; 
-            height: 100mm; 
-            background: #fff;
-            border: 1px solid #333; 
-            border-radius: 0mm;
-            padding: 5mm 8mm; /* Giảm nhẹ padding để lấy thêm không gian */
-            display: flex; 
-            flex-direction: column;
-            overflow: hidden; /* Đảm bảo không có gì lòi ra ngoài */
-            position: relative;
+            width: 189px; height: 151px;
+            background: #fff; border: none;
+            padding: 5px 7px 4px 7px;
+            display: flex; flex-direction: column; overflow: hidden;
+            font-family: "Roboto", Arial, sans-serif;
+            letter-spacing: 0; word-spacing: 0;
+        }
+        #temArea * {
+            font-family: "Roboto", Arial, sans-serif;
+            letter-spacing: 0; word-spacing: 0; font-weight: 700;
         }
 
-        .header { display: flex; justify-content: space-between; border-bottom: 1px solid #000; padding-bottom: 1mm; font-size: 15px; font-weight: bold; }
-        
-        .main-title { text-align: center; margin-top: 2mm; width: 100%; }
-        .main-title h1 { font-size: 16pt; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
-        .thick-line { width: 100%; height: 1.2mm; background: #000; margin: 2mm 0; }
-
-        .body-content { 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; /* Căn giữa nội dung thông số */
-            flex-grow: 1; 
-            margin: 2mm 0;
+        .t-header {
+            display: flex; justify-content: space-between;
+            border-bottom: 0.5px solid #000;
+            padding-bottom: 1px; font-size: 7px; line-height: 1.2;
         }
-        
-        .info-side { width: 100%; font-size: 12pt; line-height: 1.5; }
-        .info-row { display: flex; margin-bottom: 2px; border-bottom: 1px dashed #eee; padding-bottom: 2px; }
-        .info-label { font-weight: 700; width: 110px; flex-shrink: 0; }
+        .t-header .slogan { font-style: italic; }
 
-        /* FOOTER NẰM GỌN TRONG KHUNG */
-        .footer { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-top: 0.5mm solid #333; 
-            padding-top: 2mm;
-            margin-top: auto; /* Đẩy footer xuống sát đáy */
+        .t-title { text-align: center; margin-top: 1px; }
+        .t-title h1 {
+            font-size: 9px; font-weight: 900;
+            text-transform: uppercase; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; line-height: 1.2;
         }
-        .icons { display: flex; gap: 10px; align-items: center; }
-        .icons img { height: 25px; width: auto; filter: grayscale(1); opacity: 0.8; }
-        
-        .origin { text-align: right; }
-        .origin b { font-size: 11pt; display: block; }
-        .origin p { font-size: 7.5pt; color: #444; font-style: italic; }
+        .t-line { width: 100%; height: 2px; background: #000; margin: 2px 0 1px; }
+
+        .t-body { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+
+        /* TABLE để đường dashed thẳng hàng */
+        .t-table { width: 100%; border-collapse: collapse; font-size: 7.5px; }
+        .t-table td {
+            padding: 1px 0; line-height: 1.25;
+            white-space: nowrap;
+            border-bottom: 0.5px dashed #bbb;
+            vertical-align: bottom;
+        }
+        .t-table tr:last-child td { border-bottom: none; }
+        .td-lbl { font-weight: 900; width: 46px; padding-right: 3px; }
+        .td-val { overflow: hidden; text-overflow: ellipsis; }
+
+        .t-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 0.5px solid #333; padding-top: 2px; margin-top: auto;
+        }
+        .t-icons { display: flex; gap: 2px; align-items: center; }
+        .t-icons img { height: 12px; width: auto; filter: grayscale(1); opacity: 0.85; }
+        .t-origin { text-align: right; }
+        .t-origin .o1 { font-size: 6px; font-weight: 900; display: block; line-height: 1.3; }
+        .t-origin .o2 { font-size: 5px; font-style: italic; color: #444; line-height: 1.3; display: block; }
+
+        @media print {
+            body { background: #fff; padding: 0; margin: 0; }
+            .form-box { display: none; }
+            .wrapper { display: block; }
+            .preview-outer { width: 50mm; height: 40mm; }
+            .preview-scale { transform: none; }
+            #temArea { width: 50mm; height: 40mm; border: 0.3mm solid #333; }
+            .t-header { font-size: 5pt; }
+            .t-title h1 { font-size: 6pt; }
+            .t-table { font-size: 5pt; }
+            .td-lbl { width: 13mm; }
+            .t-icons img { height: 3mm; }
+            .t-origin .o1 { font-size: 4pt; }
+            .t-origin .o2 { font-size: 3.5pt; }
+        }
     </style>
 </head>
 <body>
-
 <div class="wrapper">
+
     <div class="form-box">
         <h2>Thông Số Tem</h2>
+        <label>Tên sản phẩm</label>
         <input type="text" id="i1" value="ĐÈN PHA LED MODULE SMD 100W">
+        <label>Mã SP</label>
         <input type="text" id="i2" value="TDLF-MDS100">
+        <label>Công suất</label>
         <input type="text" id="i3" value="100W">
+        <label>Chip / Nguồn</label>
         <input type="text" id="i4" value="Bridgelux / DONE">
+        <label>Điện áp</label>
         <input type="text" id="i5" value="AC 220V - 50/60Hz">
+        <label>Ánh sáng</label>
         <input type="text" id="i6" value="6000K">
+        <label>Website</label>
         <input type="text" id="i7" value="thanhdatled.com">
+        <label>Hotline</label>
         <input type="text" id="i8" value="0986.474.671">
-
         <button class="btn-up" onclick="update()">CẬP NHẬT TEM</button>
-        <button class="btn-down" onclick="download()">XUẤT ẢNH PNG</button>
+        <button class="btn-down" onclick="download()">⬇ XUẤT ẢNH PNG</button>
     </div>
 
-    <div id="temArea">
-        <div class="header">
-            <span>THÀNH ĐẠT LED - TDL</span>
-            <span style="font-weight:normal; font-style:italic">Bừng sáng không gian</span>
-        </div>
-
-        <div class="main-title">
-            <h1 id="o1">ĐÈN PHA LED MODULE SMD 100W</h1>
-            <div class="thick-line"></div>
-        </div>
-
-        <div class="body-content">
-            <div class="info-side">
-                <div class="info-row"><span class="info-label">Mã SP:</span><span id="o2">TDLF-MDS100</span></div>
-                <div class="info-row"><span class="info-label">Công suất:</span><span id="o3">100W</span></div>
-                <div class="info-row"><span class="info-label">Chip/Nguồn:</span><span id="o4">Bridgelux / DONE</span></div>
-                <div class="info-row"><span class="info-label">Điện áp:</span><span id="o5">AC 220V - 50/60Hz</span></div>
-                <div class="info-row"><span class="info-label">Ánh sáng:</span><span id="o6">6000K</span></div>
-                <div class="info-row"><span class="info-label">Website:</span><span id="o7">thanhdatled.com</span></div>
-                <div class="info-row"><span class="info-label">Hotline:</span><span id="o8">0986.474.671</span></div>
-            </div>
-        </div>
-
-        <div class="footer">
-            <div class="icons">
-                <img src="https://cdn-icons-png.flaticon.com/128/15960/15960481.png" crossorigin="anonymous">
-                <img src="https://cdn-icons-png.flaticon.com/128/9321/9321803.png" crossorigin="anonymous">
-                <img src="https://cdn-icons-png.flaticon.com/128/11204/11204755.png" crossorigin="anonymous">
-                <img src="https://cdn-icons-png.flaticon.com/128/16170/16170798.png" crossorigin="anonymous">
-            </div>
-            <div class="origin">
-                <b>Sản xuất tại Việt Nam</b>
-                <p>Made in Vietnam</p>
+    <div>
+        <p style="font-size:12px;color:#888;margin-bottom:6px;">Xem trước (scale 2.5×)</p>
+        <div class="preview-outer">
+            <div class="preview-scale">
+                <div id="temArea">
+                    <div class="t-header">
+                        <span>THÀNH ĐẠT LED - TDL</span>
+                        <span class="slogan">Bừng sáng không gian</span>
+                    </div>
+                    <div class="t-title">
+                        <h1 id="o1">ĐÈN PHA LED MODULE SMD 100W</h1>
+                    </div>
+                    <div class="t-line"></div>
+                    <div class="t-body">
+                        <table class="t-table">
+                            <tr><td class="td-lbl">Mã SP:</td><td class="td-val" id="o2">TDLF-MDS100</td></tr>
+                            <tr><td class="td-lbl">Công suất:</td><td class="td-val" id="o3">100W</td></tr>
+                            <tr><td class="td-lbl">Chip/Nguồn:</td><td class="td-val" id="o4">Bridgelux / DONE</td></tr>
+                            <tr><td class="td-lbl">Điện áp:</td><td class="td-val" id="o5">AC 220V - 50/60Hz</td></tr>
+                            <tr><td class="td-lbl">Ánh sáng:</td><td class="td-val" id="o6">6000K</td></tr>
+                            <tr><td class="td-lbl">Website:</td><td class="td-val" id="o7">thanhdatled.com</td></tr>
+                            <tr><td class="td-lbl">Hotline:</td><td class="td-val" id="o8">0986.474.671</td></tr>
+                        </table>
+                    </div>
+                    <div class="t-footer">
+                        <div class="t-icons">
+                            <img src="https://cdn-icons-png.flaticon.com/128/15960/15960481.png" crossorigin="anonymous">
+                            <img src="https://cdn-icons-png.flaticon.com/128/9321/9321803.png" crossorigin="anonymous">
+                            <img src="https://cdn-icons-png.flaticon.com/128/11204/11204755.png" crossorigin="anonymous">
+                            <img src="https://cdn-icons-png.flaticon.com/128/16170/16170798.png" crossorigin="anonymous">
+                        </div>
+                        <div class="t-origin">
+                            <span class="o1">Sản xuất tại Việt Nam</span>
+                            <span class="o2">Made in Vietnam</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
-
 <script>
-    function update() {
-        for(let i=1; i<=8; i++) {
-            document.getElementById('o'+i).innerText = document.getElementById('i'+i).value;
-        }
+function update() {
+    for (let i = 1; i <= 8; i++) {
+        document.getElementById('o' + i).innerText = document.getElementById('i' + i).value;
     }
-
-    function download() {
-        const target = document.getElementById('temArea');
-        html2canvas(target, {
-            scale: 4, 
-            useCORS: true,
-            backgroundColor: "#ffffff"
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png', 1.0);
-            link.download = 'tem-chuan-' + Date.now() + '.png';
-            link.click();
-        });
-    }
+}
+function download() {
+    const scaleEl = document.querySelector('.preview-scale');
+    scaleEl.style.transform = 'none';
+    html2canvas(document.getElementById('temArea'), {
+        scale: 8, useCORS: true, backgroundColor: '#ffffff',
+        width: 189, height: 151, logging: false
+    }).then(canvas => {
+        scaleEl.style.transform = 'scale(2.5)';
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.download = 'tem-chuan-' + Date.now() + '.png';
+        link.click();
+    }).catch(() => { scaleEl.style.transform = 'scale(2.5)'; });
+}
 </script>
-
 </body>
 </html>

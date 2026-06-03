@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chiến Dịch 3 Tỷ / 1 Năm</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1f2d45;
+    --accent: #f59e0b;
+    --accent2: #3b82f6;
+    --accent3: #10b981;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --gold: #fbbf24;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 24px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--accent), #d97706);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+  }
+
+  .logo-text h1 {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .logo-text p {
+    font-size: 12px;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .stat-badge {
+    text-align: center;
+  }
+
+  .stat-badge .num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+  }
+
+  .stat-badge .label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--border);
+  }
+
+  /* PROGRESS BAR */
+  .progress-section {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 24px;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .progress-title {
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+  }
+
+  .progress-pct {
+    font-size: 28px;
+    font-weight: 800;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+  }
+
+  .progress-bar-track {
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 999px;
+    transition: width 0.5s cubic-bezier(.25,.8,.25,1);
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 768px) {
+    .main { grid-template-columns: 1fr; }
+  }
+
+  /* SIDEBAR */
+  .sidebar {}
+
+  .section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  /* TARGET LIST */
+  .target-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+    color: var(--text);
+  }
+
+  .target-item:last-child { border-bottom: none; }
+
+  .target-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* CATEGORY FILTER */
+  .cat-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .cat-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .cat-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .cat-btn.active {
+    background: var(--surface2);
+    border-color: var(--border);
+    color: var(--text);
+  }
+
+  .cat-btn .cat-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .cat-btn .cat-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cat-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    background: var(--surface2);
+    padding: 2px 7px;
+    border-radius: 999px;
+    color: var(--muted);
+  }
+
+  .cat-btn.active .cat-count {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  /* ADD TASK FORM */
+  .add-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .input-field {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 13.5px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-field:focus { border-color: var(--accent2); }
+  .input-field::placeholder { color: var(--muted); }
+
+  select.input-field option { background: #1a2235; }
+
+  .btn-add {
+    background: linear-gradient(135deg, var(--accent2), #1d4ed8);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-add:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-add:active { transform: translateY(0); }
+
+  /* RIGHT PANEL */
+  .right-panel {}
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 180px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 14px;
+    color: var(--text);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 13.5px;
+    outline: none;
+  }
+
+  .search-box:focus { border-color: var(--accent2); }
+  .search-box::placeholder { color: var(--muted); }
+
+  .filter-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 14px;
+    color: var(--muted);
+    font-size: 13px;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .filter-btn.active {
+    background: var(--surface2);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .filter-btn:hover { border-color: var(--accent2); color: var(--text); }
+
+  /* TASK LIST */
+  .tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .task-group-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .task-group-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .task-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: all 0.2s;
+    animation: slideIn 0.25s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .task-item:hover { border-color: #2a3f5f; }
+
+  .task-item.done-item {
+    opacity: 0.55;
+    border-style: dashed;
+  }
+
+  .task-check-wrap {
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .task-check {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .task-check:hover { border-color: var(--accent3); }
+
+  .task-check.checked {
+    background: var(--accent3);
+    border-color: var(--accent3);
+  }
+
+  .task-check.checked::after {
+    content: '✓';
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .task-body { flex: 1; min-width: 0; }
+
+  .task-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 5px;
+    outline: none;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-left: -4px;
+    transition: background 0.15s;
+    word-break: break-word;
+  }
+
+  .task-name:focus {
+    background: var(--surface2);
+  }
+
+  .task-name.done-text {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+
+  .task-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .cat-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .task-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    outline: none;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-left: -4px;
+    font-style: italic;
+    transition: background 0.15s;
+    min-height: 18px;
+  }
+
+  .task-note:focus { background: var(--surface2); }
+  .task-note:empty::before { content: 'Thêm ghi chú...'; color: #3a4a5c; }
+
+  .task-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    align-items: flex-start;
+  }
+
+  .act-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .act-btn:hover { border-color: var(--danger); color: var(--danger); background: rgba(239,68,68,0.08); }
+
+  .act-btn.pin-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(245,158,11,0.08); }
+  .act-btn.pin-btn.pinned { border-color: var(--accent); color: var(--accent); background: rgba(245,158,11,0.12); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* PRIORITY BADGE */
+  .priority-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+  }
+
+  .priority-high { background: var(--danger); }
+  .priority-med { background: var(--accent); }
+  .priority-low { background: var(--accent3); }
+
+  /* DATE BADGE */
+  .date-badge {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* PINNED BANNER */
+  .pinned-banner {
+    background: rgba(245,158,11,0.07);
+    border: 1px solid rgba(245,158,11,0.2);
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    width: 100%;
+    max-width: 460px;
+    animation: fadeUp 0.2s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  .modal .form-group {
+    margin-bottom: 14px;
+  }
+
+  .modal label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .btn-cancel {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel:hover { color: var(--text); }
+
+  .btn-save {
+    flex: 2;
+    background: linear-gradient(135deg, var(--accent2), #1d4ed8);
+    border: none;
+    border-radius: 10px;
+    padding: 11px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    transition: opacity 0.2s;
+  }
+
+  .btn-save:hover { opacity: 0.9; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 14px;
+    color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 300;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .header-stats { display: none; }
+    .main { padding: 0 14px; }
+    .progress-section { padding: 0 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🚀</div>
+      <div class="logo-text">
+        <h1>Chiến Dịch 3 Tỷ / Năm</h1>
+        <p>CAMPAIGN MANAGER 2025</p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-badge">
+        <div class="num" id="stat-total">0</div>
+        <div class="label">Tổng việc</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-badge">
+        <div class="num" id="stat-done" style="color:var(--accent3)">0</div>
+        <div class="label">Hoàn thành</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-badge">
+        <div class="num" id="stat-pending" style="color:var(--accent)">0</div>
+        <div class="label">Đang làm</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-section">
+  <div class="progress-header">
+    <span class="progress-title">Tiến độ tổng thể</span>
+    <span class="progress-pct" id="pct-text">0%</span>
+  </div>
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" style="margin-top: 20px;">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- TARGETS -->
+    <div class="section-card">
+      <div class="section-title">🎯 Mục tiêu tháng</div>
+      <div class="target-item">
+        <div class="target-dot" style="background:#3b82f6"></div>
+        50 Video Short / tháng
+      </div>
+      <div class="target-item">
+        <div class="target-dot" style="background:#8b5cf6"></div>
+        10 Video FAQ dài / tháng
+      </div>
+      <div class="target-item">
+        <div class="target-dot" style="background:#10b981"></div>
+        20 Bài SEO / tháng
+      </div>
+      <div class="target-item">
+        <div class="target-dot" style="background:#f59e0b"></div>
+        4 Landing Page trọng điểm
+      </div>
+      <div class="target-item">
+        <div class="target-dot" style="background:#ef4444"></div>
+        Backlink & Authority
+      </div>
+    </div>
+
+    <!-- CATEGORY FILTER -->
+    <div class="section-card">
+      <div class="section-title">📂 Phân loại</div>
+      <div class="cat-filters" id="cat-filters"></div>
+    </div>
+
+    <!-- ADD FORM -->
+    <div class="section-card">
+      <div class="section-title">➕ Thêm công việc</div>
+      <div class="add-form">
+        <input class="input-field" id="new-task" placeholder="Tên công việc..." />
+        <select class="input-field" id="new-cat">
+          <option value="Video Short">🎬 Video Short</option>
+          <option value="Video FAQ">📹 Video FAQ Dài</option>
+          <option value="Bài SEO">📝 Bài SEO</option>
+          <option value="Landing Page">🌐 Landing Page</option>
+          <option value="Backlink">🔗 Backlink</option>
+          <option value="Nội dung">✍️ Nội dung</option>
+          <option value="Khác">📌 Khác</option>
+        </select>
+        <select class="input-field" id="new-priority">
+          <option value="high">🔴 Ưu tiên cao</option>
+          <option value="med" selected>🟡 Ưu tiên vừa</option>
+          <option value="low">🟢 Ưu tiên thấp</option>
+        </select>
+        <input class="input-field" id="new-note" placeholder="Ghi chú (tuỳ chọn)..." />
+        <button class="btn-add" onclick="addTask()">+ Thêm việc</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="toolbar">
+      <input class="search-box" id="search-box" placeholder="🔍 Tìm kiếm công việc..." oninput="render()" />
+      <button class="filter-btn" id="filter-all" onclick="setFilter('all')" >Tất cả</button>
+      <button class="filter-btn" id="filter-pending" onclick="setFilter('pending')">Đang làm</button>
+      <button class="filter-btn" id="filter-done" onclick="setFilter('done')">Hoàn thành</button>
+    </div>
+
+    <div class="tasks-container" id="tasks"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CATEGORIES ───────────────────────────────────────────────────────────────
+const CATS = {
+  'Video Short':  { color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', emoji: '🎬' },
+  'Video FAQ':    { color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)',  emoji: '📹' },
+  'Bài SEO':      { color: '#10b981', bg: 'rgba(16,185,129,0.12)',  emoji: '📝' },
+  'Landing Page': { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  emoji: '🌐' },
+  'Backlink':     { color: '#ef4444', bg: 'rgba(239,68,68,0.12)',   emoji: '🔗' },
+  'Nội dung':     { color: '#ec4899', bg: 'rgba(236,72,153,0.12)',  emoji: '✍️' },
+  'Khác':         { color: '#64748b', bg: 'rgba(100,116,139,0.12)', emoji: '📌' },
+};
+
+function getCat(name) {
+  return CATS[name] || { color: '#64748b', bg: 'rgba(100,116,139,0.12)', emoji: '📌' };
+}
+
+// ─── STATE ─────────────────────────────────────────────────────────────────────
+let tasks = [];
+let filter = 'all';
+let activeCat = 'all';
+
+const STORAGE_KEY = 'chienDich3Ty_v2';
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+function load() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    tasks = JSON.parse(raw);
+  } else {
+    tasks = [
+      { id: uid(), task: '50 Video Short Đèn Module 200W - Sân Pickleball', cat: 'Video Short', priority: 'high', note: 'Tập trung từ khóa dài, hook 3 giây đầu', done: false, pinned: true, date: today() },
+      { id: uid(), task: '20 Bài SEO Đèn Pha Module - Nhà Xưởng', cat: 'Bài SEO', priority: 'high', note: 'Nhắm từ khóa: đèn module 200w, đèn sân pickleball', done: false, pinned: false, date: today() },
+      { id: uid(), task: '10 Video FAQ: Hỏi đáp Đèn Sân Tennis - Bóng Đá', cat: 'Video FAQ', priority: 'med', note: 'Format Q&A, dài 8-12 phút', done: false, pinned: false, date: today() },
+      { id: uid(), task: 'Landing Page Đèn Sân Pickleball chuyên biệt', cat: 'Landing Page', priority: 'high', note: 'Tích hợp form báo giá, CTA rõ ràng', done: false, pinned: true, date: today() },
+      { id: uid(), task: 'Landing Page Đèn Module Nhà Xưởng & Kho Hàng', cat: 'Landing Page', priority: 'med', note: '', done: false, pinned: false, date: today() },
+      { id: uid(), task: 'Backlink Profile: Đăng ký 20 website vệ tinh', cat: 'Backlink', priority: 'med', note: 'Dùng PBN + Guest Post', done: false, pinned: false, date: today() },
+      { id: uid(), task: 'Bài SEO chuyên sâu: Đèn Sân Tennis tiêu chuẩn FIFA', cat: 'Bài SEO', priority: 'med', note: '2500+ từ, ảnh thực tế', done: false, pinned: false, date: today() },
+      { id: uid(), task: '30 Video Short Đèn Pha Năng Lượng Mặt Trời', cat: 'Video Short', priority: 'low', note: '', done: true, pinned: false, date: today() },
+      { id: uid(), task: 'Nội dung Email Marketing tháng 1', cat: 'Nội dung', priority: 'low', note: '5 email chuỗi nuôi dưỡng khách hàng', done: true, pinned: false, date: today() },
+    ];
+    save();
+  }
+}
+
+function uid() {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+function today() {
+  return new Date().toLocaleDateString('vi-VN');
+}
+
+// ─── UI ────────────────────────────────────────────────────────────────────────
+function setFilter(f) {
+  filter = f;
+  ['all','pending','done'].forEach(x => {
+    document.getElementById('filter-'+x).classList.toggle('active', x === f);
+  });
+  render();
+}
+
+function setCatFilter(cat) {
+  activeCat = cat;
+  render();
+}
+
+function addTask() {
+  const taskEl = document.getElementById('new-task');
+  const catEl  = document.getElementById('new-cat');
+  const priEl  = document.getElementById('new-priority');
+  const noteEl = document.getElementById('new-note');
+
+  const taskName = taskEl.value.trim();
+  if (!taskName) { showToast('⚠️ Vui lòng nhập tên công việc!'); return; }
+
+  tasks.unshift({
+    id: uid(),
+    task: taskName,
+    cat: catEl.value,
+    priority: priEl.value,
+    note: noteEl.value.trim(),
+    done: false,
+    pinned: false,
+    date: today()
+  });
+
+  taskEl.value = '';
+  noteEl.value = '';
+  save();
+  render();
+  showToast('✅ Đã thêm công việc mới!');
+}
+
+function toggleDone(id) {
+  const t = tasks.find(x => x.id === id);
+  if (t) { t.done = !t.done; save(); render(); }
+}
+
+function togglePin(id) {
+  const t = tasks.find(x => x.id === id);
+  if (t) { t.pinned = !t.pinned; save(); render(); showToast(t.pinned ? '📌 Đã ghim!' : 'Bỏ ghim'); }
+}
+
+function deleteTask(id) {
+  if (!confirm('Xoá công việc này?')) return;
+  tasks = tasks.filter(x => x.id !== id);
+  save(); render();
+  showToast('🗑️ Đã xoá!');
+}
+
+function updateName(id, val) {
+  const t = tasks.find(x => x.id === id);
+  if (t) { t.task = val; save(); }
+}
+
+function updateNote(id, val) {
+  const t = tasks.find(x => x.id === id);
+  if (t) { t.note = val; save(); }
+}
+
+function render() {
+  // Stats
+  const total = tasks.length;
+  const done  = tasks.filter(t => t.done).length;
+  const pct   = total ? Math.round((done/total)*100) : 0;
+  document.getElementById('stat-total').textContent   = total;
+  document.getElementById('stat-done').textContent    = done;
+  document.getElementById('stat-pending').textContent = total - done;
+  document.getElementById('pct-text').textContent     = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Category filters sidebar
+  const catCounts = {};
+  tasks.forEach(t => { catCounts[t.cat] = (catCounts[t.cat]||0)+1; });
+  const cfl = document.getElementById('cat-filters');
+  cfl.innerHTML = `
+    <button class="cat-btn ${activeCat==='all'?'active':''}" onclick="setCatFilter('all')">
+      <span class="cat-left">📋 Tất cả</span>
+      <span class="cat-count">${tasks.length}</span>
+    </button>
+  `;
+  Object.keys(CATS).forEach(cat => {
+    const c = getCat(cat);
+    const count = catCounts[cat] || 0;
+    cfl.innerHTML += `
+      <button class="cat-btn ${activeCat===cat?'active':''}" onclick="setCatFilter('${cat}')">
+        <span class="cat-left">
+          <span class="cat-dot" style="background:${c.color}"></span>
+          ${cat}
+        </span>
+        <span class="cat-count">${count}</span>
+      </button>
+    `;
+  });
+
+  // Filter + search tasks
+  const q = document.getElementById('search-box').value.toLowerCase();
+  let list = tasks.filter(t => {
+    if (activeCat !== 'all' && t.cat !== activeCat) return false;
+    if (filter === 'done' && !t.done) return false;
+    if (filter === 'pending' && t.done) return false;
+    if (q && !t.task.toLowerCase().includes(q) && !t.note.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  // Sort: pinned first, then undone before done
+  list.sort((a,b) => {
+    if (a.pinned !== b.pinned) return b.pinned - a.pinned;
+    if (a.done !== b.done) return a.done - b.done;
+    const pOrder = {high:0,med:1,low:2};
+    return (pOrder[a.priority]||1) - (pOrder[b.priority]||1);
+  });
+
+  const container = document.getElementById('tasks');
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📭</div>
+        <p>Không có công việc nào phù hợp</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+
+  // Group pinned
+  const pinned  = list.filter(t => t.pinned);
+  const normal  = list.filter(t => !t.pinned);
+
+  if (pinned.length) {
+    container.innerHTML += `
+      <div class="task-group-header">
+        <span>📌 Ghim quan trọng</span>
+        <div class="task-group-line"></div>
+      </div>`;
+    pinned.forEach(t => container.innerHTML += taskHTML(t));
+  }
+
+  if (normal.length) {
+    if (pinned.length) container.innerHTML += `
+      <div class="task-group-header" style="margin-top:8px">
+        <span>Danh sách</span>
+        <div class="task-group-line"></div>
+      </div>`;
+    normal.forEach(t => container.innerHTML += taskHTML(t));
+  }
+}
+
+function taskHTML(t) {
+  const c = getCat(t.cat);
+  const pDot = { high: 'priority-high', med: 'priority-med', low: 'priority-low' }[t.priority] || 'priority-med';
+  const pLabel = { high: 'Cao', med: 'Vừa', low: 'Thấp' }[t.priority] || 'Vừa';
+  return `
+  <div class="task-item ${t.done ? 'done-item' : ''} ${t.pinned ? 'pinned-banner' : ''}" id="task-${t.id}">
+    <div class="task-check-wrap">
+      <div class="task-check ${t.done?'checked':''}" onclick="toggleDone('${t.id}')"></div>
+    </div>
+    <div class="task-body">
+      <div class="task-name ${t.done?'done-text':''}"
+        contenteditable="true"
+        onblur="updateName('${t.id}', this.innerText.trim())"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+      >${escHtml(t.task)}</div>
+      <div class="task-meta">
+        <span class="cat-tag" style="color:${c.color};background:${c.bg}">${c.emoji} ${t.cat}</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)">
+          <span class="priority-dot ${pDot}"></span>${pLabel}
+        </span>
+        <span class="date-badge">${t.date || ''}</span>
+      </div>
+      <div class="task-note"
+        contenteditable="true"
+        onblur="updateNote('${t.id}', this.innerText.trim())"
+      >${escHtml(t.note || '')}</div>
+    </div>
+    <div class="task-actions">
+      <button class="act-btn pin-btn ${t.pinned?'pinned':''}" onclick="togglePin('${t.id}')" title="Ghim">📌</button>
+      <button class="act-btn" onclick="deleteTask('${t.id}')" title="Xóa">🗑️</button>
+    </div>
+  </div>`;
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// Enter to add
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('new-task').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addTask();
+  });
+  setFilter('all');
+});
+
+// Boot
+load();
+render();
+</script>
+</body>
+</html>

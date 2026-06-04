@@ -46,7 +46,7 @@
         .value-text { flex: 1; border-bottom: 1px dotted #999; padding-left: 10px; }
 
         table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        th { background-color: #1a365d; color: white; border: 1px solid #1a365d; padding: 10px; font-size: 11pt; }
+        th { background-color: #ffffff; color: #1a365d; border: 1px solid #1a365d; padding: 10px; font-size: 11pt; font-weight: bold; }
         td { border: 1px solid #ccc; padding: 8px; font-size: 12pt; text-align: center; }
         .col-name { text-align: left; padding-left: 15px; width: 47%; }
         .col-val { font-weight: bold; color: #1a365d; width: 45%; }
@@ -57,10 +57,7 @@
         .sig-title { font-weight: bold; font-size: 12pt; text-transform: uppercase; color: #1a365d; }
         .sig-space { height: 80px; }
 
-        .watermark {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 70pt; opacity: 0.04; font-weight: 900; pointer-events: none; white-space: nowrap;
-        }
+        .watermark { display: none; }
     </style>
 </head>
 <body>
@@ -147,7 +144,7 @@
                     <p>(Ký tên)</p>
                 </div>
                 <div class="sig-box">
-                    <div class="sig-date">Hà Nội, ngày <span id="out_date">...</span></div>
+                    <div class="sig-date">Hà Nam, ngày <span id="out_date">...</span></div>
                     <div class="sig-title">ĐẠI DIỆN THÀNH ĐẠT LED</div>
                     <div class="sig-space"></div>
                     <p>(Ký tên và đóng dấu)</p>

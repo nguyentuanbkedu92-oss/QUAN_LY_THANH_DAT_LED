@@ -142,6 +142,11 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* === TABLET (901-1200px) === */
+@media(max-width:1200px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+}
+/* === TABLET nhỏ (max 900px) === */
 @media(max-width:900px){
   .sidebar{width:60px}
   .logo-text,.logo-sub,.nav-item span,.nav-section{display:none}
@@ -150,41 +155,88 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .chart-grid{grid-template-columns:1fr}
 }
+/* === MOBILE (max 600px) === */
 @media(max-width:600px){
-  .sidebar{width:0;overflow:hidden;position:fixed}
+  /* Ẩn sidebar, dùng bottom nav */
+  .sidebar{display:none}
   .main{margin-left:0}
-  .topbar{padding:0 12px;gap:8px;flex-wrap:wrap;height:auto;min-height:56px;padding-top:8px;padding-bottom:8px}
-  .topbar-title{font-size:14px;min-width:100px}
-  .month-nav{order:3;width:100%;justify-content:center;margin-bottom:4px}
-  .content{padding:12px}
-  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:10px}
-  .kpi-value{font-size:17px}
-  .chart-grid{grid-template-columns:1fr}
-  .chart-wrap{height:180px}
-  .table-header{padding:10px 12px;gap:8px}
-  .table-title{font-size:13px}
-  th,td{padding:8px 8px;font-size:12px}
-  .search-box{width:100%;min-width:0}
-  .filter-select{width:100%;min-width:0}
-  .table-header{flex-direction:column;align-items:stretch}
-  .table-header .btn{width:100%;justify-content:center}
-  .table-footer{flex-direction:column;gap:4px;padding:10px 12px}
-  .modal{width:100%;max-width:100vw;border-radius:var(--radius-lg) var(--radius-lg) 0 0;position:fixed;bottom:0;left:0;right:0;max-height:95vh;margin:0}
+  /* Topbar gọn cho mobile */
+  .topbar{padding:0 12px;gap:8px;height:52px;position:sticky;top:0;z-index:150}
+  .topbar-title{font-size:14px;font-weight:700;flex:1}
+  /* Ẩn nút tải + thêm đơn trong topbar — thay bằng FAB */
+  #refresh-btn{display:none}
+  .topbar .btn-primary{display:none}
+  /* Month nav compact */
+  .month-btn{padding:4px 8px;font-size:12px}
+  .month-label{font-size:13px;min-width:90px}
+  /* Content padding + bottom space for nav */
+  .content{padding:10px 10px 80px}
+  /* KPI grid 2 cột nhỏ */
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+  .kpi-card{padding:12px 14px}
+  .kpi-value{font-size:16px}
+  .kpi-label{font-size:11px}
+  .kpi-sub{font-size:10.5px}
+  .kpi-icon{font-size:22px;right:10px;top:10px}
+  /* Charts 1 cột */
+  .chart-grid{grid-template-columns:1fr;gap:10px;margin-bottom:14px}
+  .chart-wrap{height:160px}
+  .chart-card{padding:14px}
+  /* Ẩn desktop table, hiện mobile cards */
+  .desktop-table{display:none!important}
+  .mobile-cards{display:block!important}
+  /* Table header gọn */
+  .table-header{padding:10px 12px;gap:8px;flex-direction:column;align-items:stretch}
+  .table-title{font-size:13.5px;font-weight:700}
+  .search-box{width:100%;font-size:13px}
+  .filter-select{width:100%;font-size:13px}
+  .table-header .btn{justify-content:center;padding:9px 12px;font-size:13px}
+  .table-footer{flex-direction:column;gap:3px;padding:10px 12px;text-align:center}
+  /* Modal slide up từ dưới */
   .overlay{align-items:flex-end}
-  .form-row{grid-template-columns:1fr}
-  .form-row.three{grid-template-columns:1fr}
-  .product-row{grid-template-columns:1.6fr 45px 85px 80px 26px}
-  .product-row-hdr{grid-template-columns:1.6fr 45px 85px 80px 26px}
-  /* Mobile bottom nav */
-  .mobile-nav{display:flex}
+  .modal{width:100vw;max-width:100vw;border-radius:20px 20px 0 0;position:relative;max-height:92vh;transform:translateY(100%)}
+  .overlay.show .modal{transform:translateY(0)}
+  .modal-header{padding:16px 18px 12px;position:sticky;top:0;background:var(--bg2);z-index:10}
+  .modal-body{padding:14px 18px}
+  .modal-footer{padding:12px 18px;position:sticky;bottom:0;background:var(--bg2)}
+  /* Form mobile */
+  .form-row,.form-row.three{grid-template-columns:1fr;gap:10px;margin-bottom:10px}
+  .form-input,.form-select,.form-textarea{font-size:16px;padding:10px 12px} /* 16px để iOS không zoom */
+  .type-tabs{gap:5px;margin-bottom:14px}
+  .type-tab{padding:8px 4px;font-size:11.5px}
+  /* Product rows mobile */
+  .product-row{grid-template-columns:1fr 50px 90px 90px 28px;gap:5px}
+  .product-row-hdr{grid-template-columns:1fr 50px 90px 90px 28px;gap:5px}
+  /* Settings */
+  .settings-card{padding:16px}
+  .conn-banner{font-size:12px;padding:10px 12px}
+  /* Notification above bottom nav */
+  .notification{bottom:70px;right:12px;left:12px;max-width:100%}
 }
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:200;padding:0}
-.mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px;cursor:pointer;color:var(--text3);font-size:10px;gap:2px;transition:all .15s;border:none;background:none}
+/* === Mobile bottom nav === */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:300;safe-area-inset-bottom:0;padding-bottom:env(safe-area-inset-bottom,0)}
+.mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 6px;cursor:pointer;color:var(--text3);font-size:9.5px;font-weight:500;gap:2px;transition:all .15s;border:none;background:none;-webkit-tap-highlight-color:transparent}
 .mobile-nav-item.active{color:var(--accent)}
-.mobile-nav-item .mn-icon{font-size:20px}
-@media(max-width:600px){
-  .content{padding-bottom:72px}
-}
+.mobile-nav-item.active .mn-icon{transform:scale(1.15)}
+.mobile-nav-item .mn-icon{font-size:21px;transition:transform .15s;line-height:1}
+@media(max-width:600px){.mobile-nav{display:flex}}
+/* === FAB (Floating Action Button) thêm đơn nhanh === */
+.fab{display:none;position:fixed;bottom:70px;right:16px;width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;font-size:26px;border:none;cursor:pointer;z-index:250;box-shadow:0 4px 16px rgba(79,142,247,.5);align-items:center;justify-content:center;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.fab:active{transform:scale(.92)}
+@media(max-width:600px){.fab{display:flex}}
+/* === Mobile card layout cho bảng === */
+.mobile-cards{display:none}
+.m-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background .15s;position:relative}
+.m-card:active{background:var(--border)}
+.m-card-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.m-card-title{font-size:13.5px;font-weight:600;flex:1;line-height:1.3}
+.m-card-amount{font-size:15px;font-weight:700;white-space:nowrap}
+.m-card-meta{display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:11.5px;color:var(--text3)}
+.m-card-actions{display:flex;gap:6px;margin-top:8px;border-top:1px solid var(--border);padding-top:8px}
+.m-card-actions .btn{flex:1;justify-content:center;padding:6px 8px;font-size:12px}
+.m-empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.m-empty .empty-icon{font-size:40px;margin-bottom:8px}
+.m-empty .empty-text{font-size:14px;font-weight:500;color:var(--text2);margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -270,9 +322,10 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
           <div class="table-header">
             <div class="table-title">Giao dịch gần đây</div>
           </div>
-          <table><thead><tr>
+          <div class="desktop-table"><table><thead><tr>
             <th>Mã đơn</th><th>Loại</th><th>Nội dung</th><th>Ngày</th><th class="text-right">Số tiền</th><th>Trạng thái</th>
-          </tr></thead><tbody id="recent-tbody"></tbody></table>
+          </tr></thead><tbody id="recent-tbody"></tbody></table></div>
+          <div class="mobile-cards" id="mcards-recent"></div>
         </div>
       </div>
 
@@ -289,11 +342,12 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
             <button class="btn btn-success btn-sm" onclick="openAddModal('ban')">+ Thêm đơn bán</button>
             <button class="btn btn-ghost btn-sm" onclick="exportExcel('ban')" title="Xuất Excel bán hàng">📊 Xuất Excel</button>
           </div>
-          <table><thead><tr>
+          <div class="desktop-table"><table><thead><tr>
             <th>Mã đơn</th><th>Sản phẩm</th><th>Khách hàng / SĐT</th><th>Địa chỉ</th>
             <th>Ngày</th><th class="text-right">Doanh thu</th><th class="text-right">Cọc / Còn lại</th>
             <th class="text-right">Lợi nhuận</th><th>T.Thái</th><th>Thao tác</th>
-          </tr></thead><tbody id="tbody-ban"></tbody></table>
+          </tr></thead><tbody id="tbody-ban"></tbody></table></div>
+          <div class="mobile-cards" id="mcards-ban"></div>
           <div class="table-footer">
             <span class="page-info" id="page-info-ban">0 đơn</span>
             <strong style="color:var(--accent2)" id="total-ban">Doanh thu: 0 ₫</strong>
@@ -310,10 +364,11 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
             <button class="btn btn-primary btn-sm" onclick="openAddModal('nhap')">+ Thêm đơn nhập</button>
             <button class="btn btn-ghost btn-sm" onclick="exportExcel('nhap')" title="Xuất Excel nhập hàng">📊 Xuất Excel</button>
           </div>
-          <table><thead><tr>
+          <div class="desktop-table"><table><thead><tr>
             <th>Mã đơn</th><th>Hàng hóa</th><th>NCC</th><th>SL</th>
             <th>Ngày</th><th class="text-right">Đơn giá</th><th class="text-right">Tổng tiền</th><th>T.Thái</th><th>Thao tác</th>
-          </tr></thead><tbody id="tbody-nhap"></tbody></table>
+          </tr></thead><tbody id="tbody-nhap"></tbody></table></div>
+          <div class="mobile-cards" id="mcards-nhap"></div>
           <div class="table-footer">
             <span class="page-info" id="page-info-nhap">0 đơn</span>
             <strong style="color:var(--accent)" id="total-nhap">Tổng: 0 ₫</strong>
@@ -328,10 +383,11 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
             <div class="table-title">↩️ Trả hàng / Hoàn tiền</div>
             <button class="btn btn-warning btn-sm" onclick="openAddModal('tra')">+ Thêm trả hàng</button>
           </div>
-          <table><thead><tr>
+          <div class="desktop-table"><table><thead><tr>
             <th>Mã đơn</th><th>Đơn gốc</th><th>Lý do</th><th>Ngày</th>
             <th class="text-right">Số tiền hoàn</th><th>T.Thái</th><th>Thao tác</th>
-          </tr></thead><tbody id="tbody-tra"></tbody></table>
+          </tr></thead><tbody id="tbody-tra"></tbody></table></div>
+          <div class="mobile-cards" id="mcards-tra"></div>
           <div class="table-footer">
             <span class="page-info" id="page-info-tra">0 đơn</span>
             <strong style="color:var(--accent3)" id="total-tra">Tổng hoàn: 0 ₫</strong>
@@ -346,10 +402,11 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
             <div class="table-title">💸 Chi phí vận hành</div>
             <button class="btn btn-sm" style="background:var(--accent4);color:#000" onclick="openAddModal('chiphi')">+ Thêm chi phí</button>
           </div>
-          <table><thead><tr>
+          <div class="desktop-table"><table><thead><tr>
             <th>Mã</th><th>Hạng mục</th><th>Mô tả</th><th>Ngày</th>
             <th class="text-right">Số tiền</th><th>T.Thái</th><th>Thao tác</th>
-          </tr></thead><tbody id="tbody-chiphi"></tbody></table>
+          </tr></thead><tbody id="tbody-chiphi"></tbody></table></div>
+          <div class="mobile-cards" id="mcards-chiphi"></div>
           <div class="table-footer">
             <span class="page-info" id="page-info-chiphi">0 khoản</span>
             <strong style="color:var(--accent4)" id="total-chiphi">Tổng: 0 ₫</strong>
@@ -368,10 +425,11 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
               <option value="ban">Bán hàng</option><option value="tra">Trả hàng</option><option value="chiphi">Chi phí</option>
             </select>
           </div>
-          <table><thead><tr>
+          <div class="desktop-table"><table><thead><tr>
             <th>Mã đơn</th><th>Loại</th><th>Nội dung</th><th>Đối tác</th>
             <th>Ngày</th><th class="text-right">Số tiền</th><th>T.Thái</th><th>Thao tác</th>
-          </tr></thead><tbody id="tbody-all"></tbody></table>
+          </tr></thead><tbody id="tbody-all"></tbody></table></div>
+          <div class="mobile-cards" id="mcards-all"></div>
           <div class="table-footer">
             <span class="page-info" id="page-info-all">0 đơn</span>
           </div>
@@ -419,9 +477,13 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
   <button class="mobile-nav-item active" onclick="showPage('dashboard',null,'mob-0')" id="mob-0"><span class="mn-icon">📊</span>Tổng quan</button>
   <button class="mobile-nav-item" onclick="showPage('ban',null,'mob-1')" id="mob-1"><span class="mn-icon">📤</span>Bán hàng</button>
   <button class="mobile-nav-item" onclick="showPage('nhap',null,'mob-2')" id="mob-2"><span class="mn-icon">📥</span>Nhập hàng</button>
-  <button class="mobile-nav-item" onclick="showPage('orders',null,'mob-3')" id="mob-3"><span class="mn-icon">📋</span>Tất cả</button>
-  <button class="mobile-nav-item" onclick="showPage('settings',null,'mob-4')" id="mob-4"><span class="mn-icon">⚙️</span>Cài đặt</button>
+  <button class="mobile-nav-item" onclick="showPage('tra',null,'mob-3')" id="mob-3"><span class="mn-icon">↩️</span>Trả hàng</button>
+  <button class="mobile-nav-item" onclick="showPage('chiphi',null,'mob-4')" id="mob-4"><span class="mn-icon">💸</span>Chi phí</button>
+  <button class="mobile-nav-item" onclick="showPage('settings',null,'mob-5')" id="mob-5"><span class="mn-icon">⚙️</span>Cài đặt</button>
 </nav>
+
+<!-- FAB thêm đơn nhanh -->
+<button class="fab" id="fab-btn" onclick="openAddModal()" title="Thêm đơn hàng">＋</button>
 
 <!-- MODAL -->
 <div class="overlay" id="add-overlay" onclick="closeModalOutside(event)">
@@ -681,6 +743,13 @@ function showPage(name, el, mobId) {
   if (mobId) document.getElementById(mobId).classList.add('active');
   const titles = {dashboard:'Dashboard',orders:'Tất cả đơn hàng',nhap:'Nhập hàng',ban:'Bán hàng',tra:'Trả hàng',chiphi:'Chi phí',settings:'Cài đặt'};
   document.getElementById('topbar-title').textContent = titles[name] || name;
+  // FAB: hiện/ẩn, gán đúng type
+  const fab = document.getElementById('fab-btn');
+  if (fab) {
+    const fabTypes = {ban:'ban',nhap:'nhap',tra:'tra',chiphi:'chiphi',dashboard:'nhap',orders:'nhap'};
+    fab.onclick = () => openAddModal(fabTypes[name]||'nhap');
+    fab.style.display = name==='settings' ? 'none' : '';
+  }
   if (name === 'dashboard') buildCharts();
   else renderTable(name === 'orders' ? 'all' : name);
 }
@@ -981,10 +1050,10 @@ function renderTable(kind) {
   if (filterStatus) data=data.filter(o=>o.tt===filterStatus);
   if (search) data=data.filter(o=>JSON.stringify(o).toLowerCase().includes(search));
   const tbody=document.getElementById('tbody-'+kind);
-  if (!tbody) return;
-  tbody.innerHTML = data.length===0
-    ? `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Chưa có đơn hàng nào</div><div style="font-size:12px;color:var(--text3)">Nhấn "+ Thêm đơn" để tạo mới</div></div></td></tr>`
-    : data.map(o=>renderRow(o,kind)).join('');
+  const emptyHtml=`<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Chưa có đơn hàng nào</div><div style="font-size:12px;color:var(--text3)">Nhấn "+ Thêm đơn" để tạo mới</div></div></td></tr>`;
+  if (tbody) tbody.innerHTML = data.length===0 ? emptyHtml : data.map(o=>renderRow(o,kind)).join('');
+  // Mobile cards
+  renderMobileCards(kind, data);
   const info=document.getElementById('page-info-'+kind);
   if (info) info.textContent=data.length+(kind==='chiphi'?' khoản':' đơn');
   // totals
@@ -1005,6 +1074,106 @@ function renderTable(kind) {
     const t=data.filter(o=>o.tt!=='cancel').reduce((s,o)=>s+(o.tien||0),0);
     document.getElementById('total-chiphi').textContent='Tổng: '+fmtCur(t);
   }
+}
+
+function renderMobileCards(kind, data) {
+  const el = document.getElementById('mcards-'+kind);
+  if (!el) return;
+  if (!data || data.length===0) {
+    el.innerHTML=`<div class="m-empty"><div class="empty-icon">📭</div><div class="empty-text">Chưa có đơn hàng nào</div><div style="font-size:12px">Nhấn ＋ để tạo mới</div></div>`;
+    return;
+  }
+  el.innerHTML = data.map(o => renderMobileCard(o, kind)).join('');
+}
+
+function renderMobileCard(o, kind) {
+  const tt = `<span class="badge ${ttBadge[o.tt]||'badge-pending'}" style="font-size:10.5px">${ttLabel[o.tt]||o.tt}</span>`;
+  const dateStr = fmtDate(o.ngay);
+  const idStr = `<span style="color:var(--text3);font-size:10.5px">${o.id}</span>`;
+  const actions = `<div class="m-card-actions">
+    <button class="btn btn-ghost btn-sm" onclick="editOrder('${o.id}')">✏️ Sửa</button>
+    <button class="btn btn-ghost btn-sm" onclick="deleteOrder('${o.id}')" style="color:var(--red)">🗑️ Xóa</button>
+  </div>`;
+
+  if (kind==='ban') {
+    const prods = (o.products&&o.products.length>1)
+      ? o.products.map(p=>`${p.ten} ×${p.sl}`).join(', ')
+      : (o.ten||'-');
+    return `<div class="m-card">
+      <div class="m-card-top">
+        <div class="m-card-title">${prods}</div>
+        <div class="m-card-amount text-green">${fmtCur(o.dt)}</div>
+      </div>
+      <div class="m-card-meta">
+        ${idStr} · ${dateStr} · ${tt}
+        ${o.kh?`<span>👤 ${o.kh}</span>`:''}
+        ${o.sdt?`<span>📞 ${o.sdt}</span>`:''}
+        ${o.ln?`<span style="color:var(--green)">LN: ${fmtCur(o.ln)}</span>`:''}
+        ${o.coc>0?`<span style="color:var(--accent4)">Cọc: ${fmtCur(o.coc)} · Còn: ${fmtCur(o.conlai||0)}</span>`:''}
+      </div>
+      ${actions}
+    </div>`;
+  }
+  if (kind==='nhap') {
+    return `<div class="m-card">
+      <div class="m-card-top">
+        <div class="m-card-title">${o.ten||'-'}</div>
+        <div class="m-card-amount text-red">${fmtCur(o.total)}</div>
+      </div>
+      <div class="m-card-meta">
+        ${idStr} · ${dateStr} · ${tt}
+        ${o.ncc?`<span>🏭 ${o.ncc}</span>`:''}
+        <span>SL: ${o.sl||0} × ${fmtCur(o.gia)}</span>
+      </div>
+      ${actions}
+    </div>`;
+  }
+  if (kind==='tra') {
+    return `<div class="m-card">
+      <div class="m-card-top">
+        <div class="m-card-title">${o.lydo||'Trả hàng'}</div>
+        <div class="m-card-amount" style="color:var(--accent3)">${fmtCur(o.tien)}</div>
+      </div>
+      <div class="m-card-meta">
+        ${idStr} · ${dateStr} · ${tt}
+        ${o.goc?`<span>Đơn gốc: <code>${o.goc}</code></span>`:''}
+      </div>
+      ${actions}
+    </div>`;
+  }
+  if (kind==='chiphi') {
+    return `<div class="m-card">
+      <div class="m-card-top">
+        <div class="m-card-title">${hangLabel[o.hang]||o.hang||'-'}</div>
+        <div class="m-card-amount" style="color:var(--accent4)">${fmtCur(o.tien)}</div>
+      </div>
+      <div class="m-card-meta">
+        ${idStr} · ${dateStr} · ${tt}
+        ${o.note?`<span>${o.note}</span>`:''}
+      </div>
+      ${actions}
+    </div>`;
+  }
+  if (kind==='all') {
+    const content = o.ten||hangLabel[o.hang]||o.lydo||'-';
+    const partner = o.ncc||o.kh||'';
+    const amount = o.total||o.dt||o.tien||0;
+    const amtColor = o.type==='ban'?'var(--green)':o.type==='nhap'?'var(--red)':'var(--yellow)';
+    return `<div class="m-card">
+      <div class="m-card-top">
+        <div class="m-card-title">${content}</div>
+        <div class="m-card-amount" style="color:${amtColor}">${fmtCur(amount)}</div>
+      </div>
+      <div class="m-card-meta">
+        ${idStr} · ${dateStr}
+        <span class="badge ${typeBadge[o.type]}" style="font-size:10px">${typeLabel[o.type]}</span>
+        ${tt}
+        ${partner?`<span>${partner}</span>`:''}
+      </div>
+      ${actions}
+    </div>`;
+  }
+  return '';
 }
 
 const ttBadge={complete:'badge-complete',pending:'badge-pending',cancel:'badge-cancel'};
@@ -1072,8 +1241,13 @@ function renderRow(o,kind) {
 function renderRecent() {
   const recent=orders.slice(0,10);
   const tbody=document.getElementById('recent-tbody');
-  if (!recent.length) { tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state" style="padding:30px"><div class="empty-icon">📭</div><div class="empty-text">Chưa có giao dịch nào</div></div></td></tr>`; return; }
-  tbody.innerHTML=recent.map(o=>{
+  if (!recent.length) {
+    if(tbody) tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state" style="padding:30px"><div class="empty-icon">📭</div><div class="empty-text">Chưa có giao dịch nào</div></div></td></tr>`;
+    const mc=document.getElementById('mcards-recent');
+    if(mc) mc.innerHTML=`<div class="m-empty"><div class="empty-icon">📭</div><div class="empty-text">Chưa có giao dịch nào</div></div>`;
+    return;
+  }
+  if(tbody) tbody.innerHTML=recent.map(o=>{
     const content=o.ten||(o.hang?hangLabel[o.hang]:'')||o.lydo||'-';
     const amount=o.total||o.dt||o.tien||0;
     const amtColor=o.type==='ban'?'var(--green)':o.type==='nhap'?'var(--red)':'var(--yellow)';
@@ -1085,6 +1259,8 @@ function renderRecent() {
       <td><span class="badge ${ttBadge[o.tt]||'badge-pending'}">${ttLabel[o.tt]||o.tt}</span></td>
     </tr>`;
   }).join('');
+  const mc=document.getElementById('mcards-recent');
+  if(mc) mc.innerHTML=recent.map(o=>renderMobileCard(o,'all')).join('');
 }
 
 // ============================================================

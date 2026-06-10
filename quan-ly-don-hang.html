@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OrderPro – Quản Lý Đơn Hàng</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -1430,7 +1431,7 @@ function copyScriptCode() {
 }
 
 // ============================================================
-// EXPORT EXCEL
+// EXPORT EXCEL (SheetJS — file .xlsx thật, không cảnh báo)
 // ============================================================
 function exportExcel(type) {
   const mo = getMonthOrders().filter(o => o.type === type);
@@ -1441,52 +1442,48 @@ function exportExcel(type) {
     rows = mo.map(o => [
       o.id, o.ten || '', o.kh || '', o.sdt || '', o.diachi || '',
       o.ngay ? fmtDate(o.ngay) : '',
-      o.dt || 0, o.coc || 0, o.conlai || 0, o.ln || 0, o.tt || '', o.note || ''
+      o.dt || 0, o.coc || 0, o.conlai || 0, o.ln || 0,
+      {complete:'Hoàn thành',pending:'Chờ xử lý',cancel:'Đã hủy'}[o.tt]||o.tt||'',
+      o.note || ''
     ]);
   } else {
     headers = ['Mã đơn','Hàng hóa','Nhà cung cấp','Số lượng','Đơn giá','Tổng tiền','Ngày','Trạng thái','Ghi chú'];
     rows = mo.map(o => [
-      o.id, o.hang || '', o.ncc || '', o.sl || 0, o.gia || 0, o.total || 0,
-      o.ngay ? fmtDate(o.ngay) : '', o.tt || '', o.note || ''
+      o.id, o.ten || o.hang || '', o.ncc || '', o.sl || 0, o.gia || 0, o.total || 0,
+      o.ngay ? fmtDate(o.ngay) : '',
+      {complete:'Hoàn thành',pending:'Chờ xử lý',cancel:'Đã hủy'}[o.tt]||o.tt||'',
+      o.note || ''
     ]);
   }
 
-  // Build Excel XML (SpreadsheetML - opens in Excel/LibreOffice natively)
-  const escXml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-<Styles>
- <Style ss:ID="h"><Font ss:Bold="1"/><Interior ss:Color="#1E2435" ss:Pattern="Solid"/><Font ss:Color="#FFFFFF" ss:Bold="1"/></Style>
- <Style ss:ID="n"><NumberFormat ss:Format="#,##0"/></Style>
-</Styles>
-<Worksheet ss:Name="${type === 'ban' ? 'Bán hàng' : 'Nhập hàng'}">
-<Table>`;
+  // Tạo worksheet từ array
+  const wsData = [headers, ...rows];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-  // Header row
-  xml += '<Row>';
-  headers.forEach(h => { xml += `<Cell ss:StyleID="h"><Data ss:Type="String">${escXml(h)}</Data></Cell>`; });
-  xml += '</Row>';
-
-  // Data rows
-  rows.forEach(row => {
-    xml += '<Row>';
-    row.forEach((cell, i) => {
-      const isNum = typeof cell === 'number';
-      xml += `<Cell${isNum?' ss:StyleID="n"':''}><Data ss:Type="${isNum?'Number':'String'}">${isNum?cell:escXml(cell)}</Data></Cell>`;
+  // Định dạng cột số (tiền tệ)
+  const numCols = type === 'ban' ? [6,7,8,9] : [3,4,5];
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  for (let r = 1; r <= range.e.r; r++) {
+    numCols.forEach(c => {
+      const cell = ws[XLSX.utils.encode_cell({r, c})];
+      if (cell && typeof cell.v === 'number') {
+        cell.z = '#,##0';
+      }
     });
-    xml += '</Row>';
+  }
+
+  // Độ rộng cột tự động
+  ws['!cols'] = headers.map((h, i) => {
+    const maxLen = Math.max(h.length, ...rows.map(r => String(r[i]||'').length));
+    return { wch: Math.min(maxLen + 2, 40) };
   });
 
-  xml += '</Table></Worksheet></Workbook>';
+  const wb = XLSX.utils.book_new();
+  const sheetName = type === 'ban' ? 'Bán hàng' : 'Nhập hàng';
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
-  const blob = new Blob([xml], {type: 'application/vnd.ms-excel;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
   const label = type === 'ban' ? 'ban-hang' : 'nhap-hang';
-  a.download = `${label}-T${currentMonth+1}-${currentYear}.xls`;
-  a.click();
+  XLSX.writeFile(wb, `${label}-T${currentMonth+1}-${currentYear}.xlsx`);
   notify(`Đã xuất Excel ${type === 'ban' ? 'bán hàng' : 'nhập hàng'}!`, 'success');
 }
 

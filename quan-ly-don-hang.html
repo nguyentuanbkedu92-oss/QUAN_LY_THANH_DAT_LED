@@ -1135,9 +1135,33 @@ function buildPieChart() {
 }
 
 // ===== GOOGLE SHEETS SYNC =====
+function jsonpRequest(url) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'jsonp_cb_' + Date.now();
+    const script = document.createElement('script');
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('Timeout'));
+    }, 15000);
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+    window[cbName] = (data) => { cleanup(); resolve(data); };
+    script.onerror = () => { cleanup(); reject(new Error('Script load error')); };
+    script.src = url + '&callback=' + cbName;
+    document.head.appendChild(script);
+  });
+}
+
 async function syncToSheet() {
-  const url = localStorage.getItem('sheet_url');
-  if (!url) { notify('Chưa cài đặt URL Google Apps Script!','error'); showPage('settings', document.querySelector('.nav-item:last-child')); return; }
+  const url = localStorage.getItem('sheet_url') || sheetUrl;
+  if (!url) {
+    notify('Chưa cài đặt URL Google Apps Script!','error');
+    showPage('settings', document.querySelector('.nav-item:last-child'));
+    return;
+  }
 
   const btn = document.getElementById('sync-btn');
   btn.innerHTML = '<span class="loading-spinner"></span> Đang sync...';
@@ -1153,18 +1177,25 @@ async function syncToSheet() {
   };
 
   try {
-    // Dùng no-cors để bypass CORS (hoạt động với GitHub Pages)
-    // Apps Script nhận được data nhưng response bị opaque — dùng GET+param thay thế
     const encoded = encodeURIComponent(JSON.stringify(payload));
-    // Với data lớn dùng image beacon trick
-    await fetch(url + '?data=' + encoded, { method: 'GET', mode: 'no-cors' });
-    notify(`✅ Đồng bộ thành công tháng ${currentMonth+1}/${currentYear}!`, 'success');
-    document.getElementById('sync-dot').className = 'sync-dot ok';
-    document.getElementById('sync-status-text').textContent = 'Sync lúc ' + new Date().toLocaleTimeString('vi-VN');
-    localStorage.setItem('last_sync', new Date().toISOString());
+    const result = await jsonpRequest(url + '?data=' + encoded);
+
+    if (result && result.status === 'success') {
+      notify(`✅ Đồng bộ thành công! Đã ghi ${result.rows} đơn lên sheet ${result.sheet}`, 'success');
+      document.getElementById('sync-dot').className = 'sync-dot ok';
+      document.getElementById('sync-status-text').textContent = `Sync thành công lúc ${new Date().toLocaleTimeString('vi-VN')} — ${result.rows} đơn`;
+      localStorage.setItem('last_sync', new Date().toISOString());
+    } else {
+      throw new Error(result?.msg || 'Unknown error');
+    }
   } catch(e) {
-    notify('❌ Lỗi kết nối! Kiểm tra lại URL Apps Script.','error');
+    if (e.message === 'Timeout') {
+      notify('⏱ Timeout! Apps Script phản hồi quá chậm, thử lại sau.','error');
+    } else {
+      notify('❌ Lỗi: ' + e.message,'error');
+    }
     document.getElementById('sync-dot').className = 'sync-dot err';
+    document.getElementById('sync-status-text').textContent = 'Lỗi kết nối: ' + e.message;
   } finally {
     btn.innerHTML = '<span>☁</span> Đồng bộ Sheet';
     btn.disabled = false;

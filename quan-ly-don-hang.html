@@ -239,6 +239,13 @@
   .loading-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  .product-row { display:grid; grid-template-columns: 2fr 60px 100px 100px 28px; gap:6px; align-items:center; margin-bottom:6px; }
+  .product-row input { font-size:12.5px; padding:6px 8px; }
+  .product-row-hdr { display:grid; grid-template-columns: 2fr 60px 100px 100px 28px; gap:6px; margin-bottom:4px; }
+  .product-row-hdr span { font-size:10.5px; color:var(--text3); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+  .btn-remove-row { background:none; border:none; color:var(--red); font-size:16px; cursor:pointer; line-height:1; padding:4px; border-radius:4px; }
+  .btn-remove-row:hover { background:rgba(239,68,68,.15); }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -259,7 +266,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo">
-      <div class="logo-text">📦 THÀNH ĐẠT LED </div>
+      <div class="logo-text">📦 OrderPro</div>
       <div class="logo-sub">Quản lý đơn hàng</div>
     </div>
     <nav class="nav">
@@ -435,8 +442,8 @@
           </div>
           <table>
             <thead><tr>
-              <th>Mã đơn</th><th>Sản phẩm</th><th>Khách hàng</th><th>SL</th>
-              <th>Ngày bán</th><th class="text-right">Doanh thu</th><th class="text-right">Lợi nhuận</th><th>T.Thái</th><th>Thao tác</th>
+              <th>Mã đơn</th><th>Sản phẩm</th><th>Khách hàng / SĐT / Địa chỉ</th><th>SL</th>
+              <th>Ngày bán</th><th class="text-right">Doanh thu / Cọc</th><th class="text-right">Lợi nhuận</th><th>T.Thái</th><th>Thao tác</th>
             </tr></thead>
             <tbody id="tbody-ban"></tbody>
           </table>
@@ -574,19 +581,36 @@
 
       <!-- BAN HANG FORM -->
       <div id="form-ban" style="display:none">
+        <!-- Thông tin khách hàng -->
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">👤 Thông tin khách hàng</div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Sản phẩm *</label><input class="form-input" id="f-ban-ten" placeholder="Tên sản phẩm"></div>
           <div class="form-group"><label class="form-label">Khách hàng</label><input class="form-input" id="f-ban-kh" placeholder="Tên khách hàng"></div>
+          <div class="form-group"><label class="form-label">Số điện thoại</label><input class="form-input" id="f-ban-sdt" type="tel" placeholder="0912 345 678"></div>
         </div>
-        <div class="form-row three">
-          <div class="form-group"><label class="form-label">Số lượng *</label><input class="form-input" id="f-ban-sl" type="number" placeholder="0" oninput="calcBan()"></div>
-          <div class="form-group"><label class="form-label">Giá bán (₫) *</label><input class="form-input" id="f-ban-gia" type="number" placeholder="0" oninput="calcBan()"></div>
-          <div class="form-group"><label class="form-label">Giá vốn (₫)</label><input class="form-input" id="f-ban-von" type="number" placeholder="0" oninput="calcBan()"></div>
+        <div class="form-row full">
+          <div class="form-group"><label class="form-label">Địa chỉ giao hàng</label><input class="form-input" id="f-ban-diachi" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành..."></div>
         </div>
+        <div class="divider"></div>
+        <!-- Danh sách sản phẩm -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em">📦 Danh sách sản phẩm</div>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="addProductRow()" style="font-size:12px">+ Thêm sản phẩm</button>
+        </div>
+        <div id="ban-products-list">
+          <!-- rows injected by JS -->
+        </div>
+        <div class="divider"></div>
+        <!-- Tổng & thanh toán -->
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">💰 Thanh toán</div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Doanh thu</label><input class="form-input" id="f-ban-dt" readonly style="background:var(--bg);color:var(--accent2)"></div>
           <div class="form-group"><label class="form-label">Lợi nhuận</label><input class="form-input" id="f-ban-ln" readonly style="background:var(--bg);color:var(--green)"></div>
         </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Tiền cọc (₫)</label><input class="form-input" id="f-ban-coc" type="number" placeholder="0" oninput="calcBan()"></div>
+          <div class="form-group"><label class="form-label">Còn lại (₫)</label><input class="form-input" id="f-ban-conlai" readonly style="background:var(--bg);color:var(--accent4)"></div>
+        </div>
+        <div class="divider"></div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Ngày bán *</label><input class="form-input" id="f-ban-ngay" type="date"></div>
           <div class="form-group"><label class="form-label">Trạng thái</label>
@@ -748,6 +772,7 @@ function openAddModal(type) {
   document.getElementById('modal-title').textContent = 'Thêm đơn hàng';
   document.getElementById('add-overlay').classList.add('show');
   setToday();
+  if ((type||'nhap') === 'ban') addProductRow();
 }
 function closeModal() { document.getElementById('add-overlay').classList.remove('show'); }
 function closeModalOutside(e) { if (e.target.id === 'add-overlay') closeModal(); }
@@ -762,19 +787,28 @@ function setType(type, el) {
   const colors = {nhap:'var(--accent)',ban:'var(--accent2)',tra:'var(--accent3)',chiphi:'var(--accent4)'};
   document.getElementById('save-btn').style.background = colors[type] || 'var(--accent)';
   document.getElementById('save-btn').style.color = type === 'chiphi' ? '#000' : '#fff';
+  // ensure at least 1 product row when switching to ban
+  if (type === 'ban') {
+    const list = document.getElementById('ban-products-list');
+    if (list && list.querySelectorAll('.product-row').length === 0) addProductRow();
+  }
 }
 
 function resetForm() {
   ['f-nhap-ten','f-nhap-ncc','f-nhap-note','f-nhap-total',
-   'f-ban-ten','f-ban-kh','f-ban-dt','f-ban-ln','f-ban-kenh','f-ban-note',
+   'f-ban-kh','f-ban-sdt','f-ban-diachi','f-ban-coc','f-ban-dt','f-ban-ln','f-ban-conlai','f-ban-kenh','f-ban-note',
    'f-tra-goc','f-tra-lydo','f-cp-note'
   ].forEach(id => { const e = document.getElementById(id); if(e) e.value = ''; });
-  ['f-nhap-sl','f-nhap-gia','f-ban-sl','f-ban-gia','f-ban-von','f-tra-tien','f-cp-tien'].forEach(id => {
+  ['f-nhap-sl','f-nhap-gia','f-tra-tien','f-cp-tien'].forEach(id => {
     const e = document.getElementById(id); if(e) e.value = '';
   });
   ['f-nhap-tt','f-ban-tt','f-cp-tt'].forEach(id => {
     const e = document.getElementById(id); if(e) e.value = 'complete';
   });
+  // clear product rows
+  const list = document.getElementById('ban-products-list');
+  if (list) list.innerHTML = '';
+  banRowCounter = 0;
 }
 
 // ===== CALC =====
@@ -783,12 +817,69 @@ function calcNhap() {
   const gia = +document.getElementById('f-nhap-gia').value || 0;
   document.getElementById('f-nhap-total').value = formatNum(sl * gia);
 }
+// ===== MULTI-PRODUCT BAN =====
+let banProductRows = []; // [{id, ten, sl, gia, von}]
+let banRowCounter = 0;
+
+function addProductRow(data) {
+  const rid = ++banRowCounter;
+  const d = data || {};
+  const list = document.getElementById('ban-products-list');
+
+  // add header if first row
+  if (list.children.length === 0) {
+    const hdr = document.createElement('div');
+    hdr.className = 'product-row-hdr';
+    hdr.id = 'ban-products-hdr';
+    hdr.innerHTML = `<span>Tên sản phẩm *</span><span>SL *</span><span>Giá bán (₫) *</span><span>Giá vốn (₫)</span><span></span>`;
+    list.appendChild(hdr);
+  }
+
+  const row = document.createElement('div');
+  row.className = 'product-row';
+  row.id = 'prow-' + rid;
+  row.innerHTML = `
+    <input class="form-input" id="pr-ten-${rid}" placeholder="Tên sản phẩm" value="${d.ten||''}">
+    <input class="form-input" id="pr-sl-${rid}"  type="number" placeholder="0" value="${d.sl||''}" oninput="calcBan()">
+    <input class="form-input" id="pr-gia-${rid}" type="number" placeholder="0" value="${d.gia||''}" oninput="calcBan()">
+    <input class="form-input" id="pr-von-${rid}" type="number" placeholder="0" value="${d.von||''}" oninput="calcBan()">
+    <button type="button" class="btn-remove-row" onclick="removeProductRow(${rid})" title="Xóa">✕</button>
+  `;
+  list.appendChild(row);
+}
+
+function removeProductRow(rid) {
+  const row = document.getElementById('prow-' + rid);
+  if (row) row.remove();
+  // remove header if no rows left
+  const list = document.getElementById('ban-products-list');
+  const remaining = list.querySelectorAll('.product-row');
+  if (remaining.length === 0) {
+    const hdr = document.getElementById('ban-products-hdr');
+    if (hdr) hdr.remove();
+  }
+  calcBan();
+}
+
+function getProductRowIds() {
+  const rows = document.getElementById('ban-products-list').querySelectorAll('.product-row');
+  return Array.from(rows).map(r => r.id.replace('prow-',''));
+}
+
 function calcBan() {
-  const sl = +document.getElementById('f-ban-sl').value || 0;
-  const gia = +document.getElementById('f-ban-gia').value || 0;
-  const von = +document.getElementById('f-ban-von').value || 0;
-  document.getElementById('f-ban-dt').value = formatNum(sl * gia);
-  document.getElementById('f-ban-ln').value = formatNum(sl * (gia - von));
+  const ids = getProductRowIds();
+  let totalDt = 0, totalLn = 0;
+  ids.forEach(rid => {
+    const sl  = +document.getElementById('pr-sl-'+rid)?.value  || 0;
+    const gia = +document.getElementById('pr-gia-'+rid)?.value || 0;
+    const von = +document.getElementById('pr-von-'+rid)?.value || 0;
+    totalDt += sl * gia;
+    totalLn += sl * (gia - von);
+  });
+  const coc = +document.getElementById('f-ban-coc')?.value || 0;
+  document.getElementById('f-ban-dt').value = formatNum(totalDt);
+  document.getElementById('f-ban-ln').value = formatNum(totalLn);
+  document.getElementById('f-ban-conlai').value = formatNum(Math.max(0, totalDt - coc));
 }
 
 // ===== SAVE =====
@@ -807,14 +898,32 @@ function saveOrder() {
       ngay: document.getElementById('f-nhap-ngay').value, tt: document.getElementById('f-nhap-tt').value,
       note: document.getElementById('f-nhap-note').value };
   } else if (type === 'ban') {
-    const ten = document.getElementById('f-ban-ten').value.trim();
-    const sl = +document.getElementById('f-ban-sl').value;
-    const gia = +document.getElementById('f-ban-gia').value;
-    if (!ten || !sl || !gia) { notify('Vui lòng điền đầy đủ thông tin bắt buộc!','error'); return; }
-    const von = +document.getElementById('f-ban-von').value || 0;
-    order = {...order, ten, kh: document.getElementById('f-ban-kh').value, sl, gia, von,
-      dt: sl*gia, ln: sl*(gia-von), kenh: document.getElementById('f-ban-kenh').value,
-      ngay: document.getElementById('f-ban-ngay').value, tt: document.getElementById('f-ban-tt').value,
+    const ids = getProductRowIds();
+    const products = ids.map(rid => ({
+      ten: document.getElementById('pr-ten-'+rid)?.value.trim() || '',
+      sl:  +document.getElementById('pr-sl-'+rid)?.value  || 0,
+      gia: +document.getElementById('pr-gia-'+rid)?.value || 0,
+      von: +document.getElementById('pr-von-'+rid)?.value || 0,
+    })).filter(p => p.ten && p.sl && p.gia);
+    if (products.length === 0) { notify('Vui lòng điền ít nhất 1 sản phẩm hợp lệ!','error'); return; }
+    const totalDt = products.reduce((s,p) => s + p.sl*p.gia, 0);
+    const totalLn = products.reduce((s,p) => s + p.sl*(p.gia-p.von), 0);
+    const coc = +document.getElementById('f-ban-coc').value || 0;
+    // ten = first product name (for display), products array stored in order
+    order = {...order,
+      ten: products.map(p=>p.ten).join(', '),
+      products,
+      kh: document.getElementById('f-ban-kh').value,
+      sdt: document.getElementById('f-ban-sdt').value,
+      diachi: document.getElementById('f-ban-diachi').value,
+      sl: products.reduce((s,p)=>s+p.sl,0),
+      gia: products[0].gia,
+      von: products[0].von,
+      dt: totalDt, ln: totalLn,
+      coc, conlai: Math.max(0, totalDt - coc),
+      kenh: document.getElementById('f-ban-kenh').value,
+      ngay: document.getElementById('f-ban-ngay').value,
+      tt: document.getElementById('f-ban-tt').value,
       note: document.getElementById('f-ban-note').value };
   } else if (type === 'tra') {
     const tien = +document.getElementById('f-tra-tien').value;
@@ -862,11 +971,16 @@ function editOrder(id) {
     document.getElementById('f-nhap-note').value = o.note||'';
     calcNhap();
   } else if (o.type === 'ban') {
-    document.getElementById('f-ban-ten').value = o.ten||'';
+    // restore product rows
+    const list = document.getElementById('ban-products-list');
+    if (list) list.innerHTML = '';
+    banRowCounter = 0;
+    const prods = o.products || [{ten:o.ten||'', sl:o.sl||0, gia:o.gia||0, von:o.von||0}];
+    prods.forEach(p => addProductRow(p));
     document.getElementById('f-ban-kh').value = o.kh||'';
-    document.getElementById('f-ban-sl').value = o.sl||'';
-    document.getElementById('f-ban-gia').value = o.gia||'';
-    document.getElementById('f-ban-von').value = o.von||'';
+    document.getElementById('f-ban-sdt').value = o.sdt||'';
+    document.getElementById('f-ban-diachi').value = o.diachi||'';
+    document.getElementById('f-ban-coc').value = o.coc||'';
     document.getElementById('f-ban-kenh').value = o.kenh||'';
     document.getElementById('f-ban-ngay').value = o.ngay||'';
     document.getElementById('f-ban-tt').value = o.tt||'complete';
@@ -1003,10 +1117,18 @@ function renderRow(o, kind) {
       <td>${tt}</td>${acts}</tr>`;
   }
   if (kind === 'ban') {
+    const khInfo = [o.kh||'', o.sdt ? `📞 ${o.sdt}` : ''].filter(Boolean).join(' ');
+    const addrTip = o.diachi ? `title="${o.diachi}"` : '';
+    const cocInfo = o.coc > 0 ? `<div style="font-size:11px;color:var(--accent4)">Cọc: ${formatCur(o.coc)} | Còn: ${formatCur(o.conlai||0)}</div>` : '';
+    const productsHtml = (o.products && o.products.length > 1)
+      ? `<div style="font-size:12px">${o.products.map(p=>`${p.ten} x${p.sl}`).join(', ')}</div>`
+      : `<div>${o.ten||'-'}</div>`;
     return `<tr><td><code style="color:var(--accent);font-size:12px">${o.id}</code></td>
-      <td>${o.ten||'-'}</td><td>${o.kh||'-'}</td><td>${o.sl||0}</td>
+      <td>${productsHtml}</td>
+      <td ${addrTip}><div>${o.kh||'-'}</div>${o.sdt?`<div style="font-size:11px;color:var(--text3)">📞 ${o.sdt}</div>`:''}${o.diachi?`<div style="font-size:11px;color:var(--text3);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📍 ${o.diachi}</div>`:''}</td>
+      <td>${o.sl||0}</td>
       <td>${fmtDate(o.ngay)}</td>
-      <td class="text-right font-bold text-green">${formatCur(o.dt)}</td>
+      <td class="text-right font-bold text-green">${formatCur(o.dt)}${cocInfo}</td>
       <td class="text-right font-bold" style="color:${(o.ln||0)>=0?'var(--green)':'var(--red)'}">${formatCur(o.ln)}</td>
       <td>${tt}</td>${acts}</tr>`;
   }

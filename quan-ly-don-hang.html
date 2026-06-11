@@ -870,15 +870,22 @@ function calcBan() {
     dt += sl*gia; ln += sl*(gia-von);
   });
   const coc = +document.getElementById('f-ban-coc')?.value||0;
-  document.getElementById('f-ban-dt').value = fmtNum(dt);
-  document.getElementById('f-ban-ln').value = fmtNum(ln);
-  document.getElementById('f-ban-conlai').value = fmtNum(Math.max(0,dt-coc));
+  const conlai = Math.max(0, dt-coc);
+  const elDt = document.getElementById('f-ban-dt');
+  const elLn = document.getElementById('f-ban-ln');
+  const elCl = document.getElementById('f-ban-conlai');
+  elDt.value = fmtNum(dt);       elDt.dataset.raw = dt;
+  elLn.value = fmtNum(ln);       elLn.dataset.raw = ln;
+  elCl.value = fmtNum(conlai);   elCl.dataset.raw = conlai;
 }
 
 function calcNhap() {
   const sl  = +document.getElementById('f-nhap-sl').value||0;
   const gia = +document.getElementById('f-nhap-gia').value||0;
-  document.getElementById('f-nhap-total').value = fmtNum(sl*gia);
+  const total = sl * gia;
+  const el = document.getElementById('f-nhap-total');
+  el.value = fmtNum(total);
+  el.dataset.raw = total;
 }
 
 // ============================================================
@@ -1507,12 +1514,16 @@ function exportCSV() {
 // ============================================================
 // HELPERS
 // ============================================================
-function fmtNum(n) { return Math.round(n).toLocaleString('vi-VN'); }
+function fmtNum(n) {
+  if (n === null || n === undefined || isNaN(n)) return '0';
+  // Giữ nguyên số thập phân nếu có, không làm tròn
+  return Number(n).toLocaleString('vi-VN');
+}
 function fmtCur(n) {
-  n=n||0;
-  if(Math.abs(n)>=1e9) return (n/1e9).toFixed(1).replace('.0','')+' tỷ';
-  if(Math.abs(n)>=1e6) return (n/1e6).toFixed(1).replace('.0','')+' tr';
-  return Math.round(n).toLocaleString('vi-VN')+' ₫';
+  n = n || 0;
+  if (Math.abs(n) >= 1e9) return (n/1e9).toLocaleString('vi-VN', {maximumFractionDigits:3}) + ' tỷ';
+  if (Math.abs(n) >= 1e6) return (n/1e6).toLocaleString('vi-VN', {maximumFractionDigits:3}) + ' tr';
+  return Number(n).toLocaleString('vi-VN') + ' ₫';
 }
 function fmtDate(s) {
   if(!s) return '-';

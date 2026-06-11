@@ -1572,12 +1572,17 @@ function loadRow(idx) {
   switchTab('form');
 }
 
-// Auto-load config on start
+// Pre-configured URL — không cần cài đặt
+const DEFAULT_GS_URL = 'https://script.google.com/macros/s/AKfycbyDMaspGZ-a-gI9nbaNkPajdSFui9Ovn4IaDw-6U8OP5C-d3kDvrw2I0Qs7p0IJWicN/exec';
+const DEFAULT_GS_SHEET = 'BaoGia';
+
 window.addEventListener('DOMContentLoaded', () => {
-  const cfg = getGsConfig();
-  if (cfg.url) {
-    document.getElementById('gsConnectBanner').style.display = 'none';
+  // Nếu chưa có URL trong localStorage thì tự điền mặc định
+  if (!localStorage.getItem('gs_url')) {
+    localStorage.setItem('gs_url', DEFAULT_GS_URL);
+    localStorage.setItem('gs_sheet', DEFAULT_GS_SHEET);
   }
+  document.getElementById('gsConnectBanner').style.display = 'none';
 });
 
 // Close modal when click outside

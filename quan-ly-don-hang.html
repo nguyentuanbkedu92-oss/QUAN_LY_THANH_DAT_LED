@@ -122,11 +122,9 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 .notification.info{border-left:3px solid var(--accent)}
 .loading-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-/* connection banner */
 .conn-banner{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;font-size:13px;display:flex;align-items:center;gap:10px}
 .conn-banner.ok{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3)}
 .conn-banner.err{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3)}
-/* settings */
 .settings-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px}
 .settings-title{font-size:15px;font-weight:700;margin-bottom:4px}
 .settings-sub{font-size:12.5px;color:var(--text3);margin-bottom:20px}
@@ -140,14 +138,23 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 .sync-dot.err{background:var(--red)}
 .sync-dot.loading{background:var(--yellow);animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── DATE FILTER BAR ── */
+.date-filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px}
+.date-filter-label{font-size:11.5px;color:var(--text3);font-weight:600;white-space:nowrap;letter-spacing:.04em;text-transform:uppercase}
+.date-filter-pills{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.date-filter-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap;outline:none}
+.date-filter-btn:hover{background:var(--border);color:var(--text)}
+.date-filter-btn.active{background:rgba(79,142,247,.18);border-color:var(--accent);color:var(--accent);font-weight:600}
+.filter-range-label{font-size:11px;color:var(--accent2);white-space:nowrap;margin-left:4px;background:rgba(110,231,183,.08);border:1px solid rgba(110,231,183,.2);padding:4px 10px;border-radius:20px}
+
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-/* === TABLET (901-1200px) === */
+
 @media(max-width:1200px){
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
 }
-/* === TABLET nhỏ (max 900px) === */
 @media(max-width:900px){
   .sidebar{width:60px}
   .logo-text,.logo-sub,.nav-item span,.nav-section{display:none}
@@ -156,76 +163,66 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .chart-grid{grid-template-columns:1fr}
 }
-/* === MOBILE (max 600px) === */
 @media(max-width:600px){
-  /* Ẩn sidebar, dùng bottom nav */
   .sidebar{display:none}
   .main{margin-left:0}
-  /* Topbar gọn cho mobile */
   .topbar{padding:0 12px;gap:8px;height:52px;position:sticky;top:0;z-index:150}
   .topbar-title{font-size:14px;font-weight:700;flex:1}
-  /* Ẩn nút tải + thêm đơn trong topbar — thay bằng FAB */
   #refresh-btn{display:none}
   .topbar .btn-primary{display:none}
-  /* Month nav compact */
   .month-btn{padding:4px 8px;font-size:12px}
   .month-label{font-size:13px;min-width:90px}
-  /* Content padding + bottom space for nav */
   .content{padding:10px 10px 80px}
-  /* KPI grid 2 cột nhỏ */
   .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
   .kpi-card{padding:12px 14px}
   .kpi-value{font-size:16px}
   .kpi-label{font-size:11px}
   .kpi-sub{font-size:10.5px}
   .kpi-icon{font-size:22px;right:10px;top:10px}
-  /* Charts 1 cột */
   .chart-grid{grid-template-columns:1fr;gap:10px;margin-bottom:14px}
   .chart-wrap{height:160px}
   .chart-card{padding:14px}
-  /* Ẩn desktop table, hiện mobile cards */
   .desktop-table{display:none!important}
   .mobile-cards{display:block!important}
-  /* Table header gọn */
   .table-header{padding:10px 12px;gap:8px;flex-direction:column;align-items:stretch}
   .table-title{font-size:13.5px;font-weight:700}
   .search-box{width:100%;font-size:13px}
   .filter-select{width:100%;font-size:13px}
   .table-header .btn{justify-content:center;padding:9px 12px;font-size:13px}
   .table-footer{flex-direction:column;gap:3px;padding:10px 12px;text-align:center}
-  /* Modal slide up từ dưới */
   .overlay{align-items:flex-end;z-index:400}
   .modal{width:100vw;max-width:100vw;border-radius:20px 20px 0 0;position:relative;max-height:92vh;transform:translateY(100%)}
   .overlay.show .modal{transform:translateY(0)}
   .modal-header{padding:16px 18px 12px;position:sticky;top:0;background:var(--bg2);z-index:10}
   .modal-body{padding:14px 18px;padding-bottom:6px}
   .modal-footer{padding:12px 18px;padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px));position:sticky;bottom:0;background:var(--bg2);z-index:10;border-top:1px solid var(--border)}
-  /* Form mobile */
   .form-row,.form-row.three{grid-template-columns:1fr;gap:10px;margin-bottom:10px}
-  .form-input,.form-select,.form-textarea{font-size:16px;padding:10px 12px} /* 16px để iOS không zoom */
+  .form-input,.form-select,.form-textarea{font-size:16px;padding:10px 12px}
   .type-tabs{gap:5px;margin-bottom:14px}
   .type-tab{padding:8px 4px;font-size:11.5px}
-  /* Product rows mobile */
   .product-row{grid-template-columns:1fr 50px 90px 90px 28px;gap:5px}
   .product-row-hdr{grid-template-columns:1fr 50px 90px 90px 28px;gap:5px}
-  /* Settings */
   .settings-card{padding:16px}
   .conn-banner{font-size:12px;padding:10px 12px}
-  /* Notification above bottom nav */
   .notification{bottom:70px;right:12px;left:12px;max-width:100%}
+  /* Date filter on mobile */
+  .date-filter-bar{padding:10px 12px;gap:8px}
+  .date-filter-pills{gap:5px}
+  .date-filter-btn{font-size:11px;padding:4px 9px}
+  .filter-range-label{font-size:10.5px;padding:3px 8px}
 }
-/* === Mobile bottom nav === */
+
 .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:300;safe-area-inset-bottom:0;padding-bottom:env(safe-area-inset-bottom,0)}
 .mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 6px;cursor:pointer;color:var(--text3);font-size:9.5px;font-weight:500;gap:2px;transition:all .15s;border:none;background:none;-webkit-tap-highlight-color:transparent}
 .mobile-nav-item.active{color:var(--accent)}
 .mobile-nav-item.active .mn-icon{transform:scale(1.15)}
 .mobile-nav-item .mn-icon{font-size:21px;transition:transform .15s;line-height:1}
 @media(max-width:600px){.mobile-nav{display:flex}}
-/* === FAB (Floating Action Button) thêm đơn nhanh === */
+
 .fab{display:none;position:fixed;bottom:70px;right:16px;width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;font-size:26px;border:none;cursor:pointer;z-index:250;box-shadow:0 4px 16px rgba(79,142,247,.5);align-items:center;justify-content:center;transition:all .2s;-webkit-tap-highlight-color:transparent}
 .fab:active{transform:scale(.92)}
 @media(max-width:600px){.fab{display:flex}}
-/* === Mobile card layout cho bảng === */
+
 .mobile-cards{display:none}
 .m-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background .15s;position:relative}
 .m-card:active{background:var(--border)}
@@ -281,11 +278,28 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 
       <!-- DASHBOARD -->
       <div id="page-dashboard" class="page active">
+
+        <!-- BỘ LỌC THỜI GIAN -->
+        <div class="date-filter-bar">
+          <span class="date-filter-label">📅 Lọc theo</span>
+          <div class="date-filter-pills" id="date-filter-btns">
+            <button class="date-filter-btn active" onclick="setDateFilter('month',this)">Tháng này</button>
+            <button class="date-filter-btn" onclick="setDateFilter('today',this)">Hôm nay</button>
+            <button class="date-filter-btn" onclick="setDateFilter('yesterday',this)">Hôm qua</button>
+            <button class="date-filter-btn" onclick="setDateFilter('7days',this)">7 ngày qua</button>
+            <button class="date-filter-btn" onclick="setDateFilter('30days',this)">30 ngày qua</button>
+            <button class="date-filter-btn" onclick="setDateFilter('lastmonth',this)">Tháng trước</button>
+            <button class="date-filter-btn" onclick="setDateFilter('year',this)">Năm nay</button>
+            <button class="date-filter-btn" onclick="setDateFilter('lastyear',this)">Năm trước</button>
+          </div>
+          <span class="filter-range-label" id="filter-range-label"></span>
+        </div>
+
         <div class="kpi-grid">
           <div class="kpi-card" style="--accent-color:#4f8ef7">
             <div class="kpi-label">Doanh thu</div>
             <div class="kpi-value" id="kpi-doanhthu">—</div>
-            <div class="kpi-sub" id="kpi-dt-sub">Tháng hiện tại</div>
+            <div class="kpi-sub" id="kpi-dt-sub">Khoảng thời gian đã chọn</div>
             <div class="kpi-icon">💰</div>
           </div>
           <div class="kpi-card" style="--accent-color:#6ee7b7">
@@ -297,7 +311,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
           <div class="kpi-card" style="--accent-color:#f472b6">
             <div class="kpi-label">Tổng nhập hàng</div>
             <div class="kpi-value" id="kpi-nhaphang">—</div>
-            <div class="kpi-sub">Giá trị hàng nhập tháng này</div>
+            <div class="kpi-sub">Giá trị hàng nhập đã chọn</div>
             <div class="kpi-icon">📦</div>
           </div>
           <div class="kpi-card" style="--accent-color:#fbbf24">
@@ -307,6 +321,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
             <div class="kpi-icon">🎯</div>
           </div>
         </div>
+
         <div class="chart-grid">
           <div class="chart-card">
             <div class="chart-title">Doanh thu & Lợi nhuận</div>
@@ -315,13 +330,15 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
           </div>
           <div class="chart-card">
             <div class="chart-title">Phân bổ chi phí</div>
-            <div class="chart-sub">Tháng hiện tại</div>
+            <div class="chart-sub" id="pie-chart-sub">Khoảng thời gian đã chọn</div>
             <div class="chart-wrap"><canvas id="chart-pie"></canvas></div>
           </div>
         </div>
+
         <div class="table-card">
           <div class="table-header">
             <div class="table-title">Giao dịch gần đây</div>
+            <span id="recent-period-label" style="font-size:11.5px;color:var(--text3)"></span>
           </div>
           <div class="desktop-table"><table><thead><tr>
             <th>Mã đơn</th><th>Loại</th><th>Nội dung</th><th>Ngày</th><th class="text-right">Số tiền</th><th>Trạng thái</th>
@@ -483,7 +500,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
   <button class="mobile-nav-item" onclick="showPage('settings',null,'mob-5')" id="mob-5"><span class="mn-icon">⚙️</span>Cài đặt</button>
 </nav>
 
-<!-- FAB thêm đơn nhanh -->
+<!-- FAB -->
 <button class="fab" id="fab-btn" onclick="openAddModal()" title="Thêm đơn hàng">＋</button>
 
 <!-- MODAL -->
@@ -631,18 +648,105 @@ let banRowCounter = 0;
 let monthlyChart = null, pieChart = null;
 let isLoading = false;
 
+// ── DATE FILTER STATE ──
+let dateFilter = 'month'; // mặc định: tháng này
+
 // ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', async () => {
   updateMonthLabel();
+  updateFilterLabel();
   setAppsScriptCode();
   setToday();
   const urlInput = document.getElementById('api-url-input');
   if (urlInput) urlInput.value = apiUrl;
-  // Luôn tự động tải — URL đã nhúng sẵn
   await loadFromSheet();
 });
+
+// ============================================================
+// DATE FILTER LOGIC
+// ============================================================
+function setDateFilter(filter, el) {
+  dateFilter = filter;
+  document.querySelectorAll('.date-filter-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  updateFilterLabel();
+  renderKPI();
+  buildPieChart();
+  renderRecent();
+}
+
+function updateFilterLabel() {
+  const { start, end } = getFilterRange();
+  const fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  const el = document.getElementById('filter-range-label');
+  if (el) {
+    if (dateFilter === 'today') {
+      el.textContent = `📅 ${fmt(start)}`;
+    } else {
+      el.textContent = `📅 ${fmt(start)} – ${fmt(end)}`;
+    }
+  }
+  // cập nhật sub-label biểu đồ tròn
+  const pieSub = document.getElementById('pie-chart-sub');
+  if (pieSub) {
+    const labels = {
+      today:'Hôm nay', yesterday:'Hôm qua', '7days':'7 ngày qua',
+      '30days':'30 ngày qua', lastmonth:'Tháng trước', month:'Tháng này',
+      year:'Năm nay', lastyear:'Năm trước'
+    };
+    pieSub.textContent = labels[dateFilter] || 'Khoảng đã chọn';
+  }
+  // cập nhật label giao dịch gần đây
+  const rpl = document.getElementById('recent-period-label');
+  if (rpl) {
+    if (dateFilter === 'today') rpl.textContent = 'Hôm nay';
+    else rpl.textContent = `${fmt(start)} – ${fmt(end)}`;
+  }
+}
+
+function getFilterRange() {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let start, end;
+  switch(dateFilter) {
+    case 'today':
+      start = new Date(today); end = new Date(today); break;
+    case 'yesterday':
+      start = new Date(today); start.setDate(start.getDate() - 1);
+      end = new Date(start); break;
+    case '7days':
+      end = new Date(today);
+      start = new Date(today); start.setDate(start.getDate() - 6); break;
+    case '30days':
+      end = new Date(today);
+      start = new Date(today); start.setDate(start.getDate() - 29); break;
+    case 'lastmonth':
+      start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      end   = new Date(now.getFullYear(), now.getMonth(), 0); break;
+    case 'year':
+      start = new Date(now.getFullYear(), 0, 1);
+      end   = new Date(now.getFullYear(), 11, 31); break;
+    case 'lastyear':
+      start = new Date(now.getFullYear() - 1, 0, 1);
+      end   = new Date(now.getFullYear() - 1, 11, 31); break;
+    default: // 'month'
+      start = new Date(currentYear, currentMonth, 1);
+      end   = new Date(currentYear, currentMonth + 1, 0); break;
+  }
+  end.setHours(23, 59, 59, 999);
+  return { start, end };
+}
+
+function getFilteredOrders() {
+  const { start, end } = getFilterRange();
+  return orders.filter(o => {
+    if (!o.ngay) return false;
+    const d = new Date(o.ngay);
+    return d >= start && d <= end;
+  });
+}
 
 // ============================================================
 // API — Google Sheet as database
@@ -650,9 +754,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function apiCall(action, data) {
   if (!apiUrl) throw new Error('Chưa thiết lập API URL');
   const body = { action, data: data || {} };
-  // Use no-cors workaround via URL param for GET, POST for mutations
-  const url = apiUrl;
-  const resp = await fetch(url, {
+  const resp = await fetch(apiUrl, {
     method: 'POST',
     body: JSON.stringify(body),
   });
@@ -687,10 +789,7 @@ async function loadFromSheet() {
 }
 
 async function saveToSheet(action, order) {
-  if (!apiUrl) {
-    notify('Chưa kết nối Google Sheet!', 'error');
-    return false;
-  }
+  if (!apiUrl) { notify('Chưa kết nối Google Sheet!', 'error'); return false; }
   try {
     const res = await apiCall(action, order);
     if (res.status === 'ok') return true;
@@ -744,7 +843,6 @@ function showPage(name, el, mobId) {
   if (mobId) document.getElementById(mobId).classList.add('active');
   const titles = {dashboard:'Dashboard',orders:'Tất cả đơn hàng',nhap:'Nhập hàng',ban:'Bán hàng',tra:'Trả hàng',chiphi:'Chi phí',settings:'Cài đặt'};
   document.getElementById('topbar-title').textContent = titles[name] || name;
-  // FAB: hiện/ẩn, gán đúng type
   const fab = document.getElementById('fab-btn');
   if (fab) {
     const fabTypes = {ban:'ban',nhap:'nhap',tra:'tra',chiphi:'chiphi',dashboard:'nhap',orders:'nhap'};
@@ -759,11 +857,22 @@ function changeMonth(d) {
   currentMonth += d;
   if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
   if (currentMonth > 11) { currentMonth = 0;  currentYear++; }
-  updateMonthLabel(); renderAll(); buildCharts();
+  // nếu đang ở filter 'month', đồng bộ lại
+  if (dateFilter === 'month') {
+    updateFilterLabel();
+    renderKPI();
+    buildPieChart();
+    renderRecent();
+  }
+  updateMonthLabel();
+  renderAll();
+  buildCharts();
 }
+
 function updateMonthLabel() {
   document.getElementById('month-label').textContent = `Tháng ${currentMonth+1}/${currentYear}`;
 }
+
 function isCurrentMonth(s) {
   if (!s) return false;
   const d = new Date(s);
@@ -870,26 +979,19 @@ function calcBan() {
     dt += sl*gia; ln += sl*(gia-von);
   });
   const coc = +document.getElementById('f-ban-coc')?.value||0;
-  const conlai = Math.max(0, dt-coc);
-  const elDt = document.getElementById('f-ban-dt');
-  const elLn = document.getElementById('f-ban-ln');
-  const elCl = document.getElementById('f-ban-conlai');
-  elDt.value = fmtNum(dt);       elDt.dataset.raw = dt;
-  elLn.value = fmtNum(ln);       elLn.dataset.raw = ln;
-  elCl.value = fmtNum(conlai);   elCl.dataset.raw = conlai;
+  document.getElementById('f-ban-dt').value = fmtNum(dt);
+  document.getElementById('f-ban-ln').value = fmtNum(ln);
+  document.getElementById('f-ban-conlai').value = fmtNum(Math.max(0,dt-coc));
 }
 
 function calcNhap() {
   const sl  = +document.getElementById('f-nhap-sl').value||0;
   const gia = +document.getElementById('f-nhap-gia').value||0;
-  const total = sl * gia;
-  const el = document.getElementById('f-nhap-total');
-  el.value = fmtNum(total);
-  el.dataset.raw = total;
+  document.getElementById('f-nhap-total').value = fmtNum(sl*gia);
 }
 
 // ============================================================
-// SAVE ORDER → Google Sheet
+// SAVE ORDER
 // ============================================================
 function genId() { return 'DH'+String(Date.now()).slice(-7); }
 
@@ -945,7 +1047,6 @@ async function saveOrder() {
       note:document.getElementById('f-cp-note').value};
   }
 
-  // show saving state
   const btn=document.getElementById('save-btn');
   const spinner=document.getElementById('save-spinner');
   btn.disabled=true; spinner.style.display='';
@@ -956,7 +1057,6 @@ async function saveOrder() {
   btn.disabled=false; spinner.style.display='none';
 
   if (ok) {
-    // update local array
     if (editingId) {
       const idx=orders.findIndex(o=>o.id===editingId);
       if (idx>=0) orders[idx]=order; else orders.unshift(order);
@@ -1034,18 +1134,20 @@ function renderAll() {
 function getMonthOrders() { return orders.filter(o=>isCurrentMonth(o.ngay)); }
 
 function renderKPI() {
-  const mo=getMonthOrders();
-  const dt=mo.filter(o=>o.type==='ban'&&o.tt!=='cancel').reduce((s,o)=>s+(o.dt||0),0);
-  const nh=mo.filter(o=>o.type==='nhap'&&o.tt!=='cancel').reduce((s,o)=>s+(o.total||0),0);
-  const cp=mo.filter(o=>o.type==='chiphi'&&o.tt!=='cancel').reduce((s,o)=>s+(o.tien||0),0);
-  const tra=mo.filter(o=>o.type==='tra').reduce((s,o)=>s+(o.tien||0),0);
-  const ln=dt-nh-cp-tra;
-  const bien=dt>0?((ln/dt)*100).toFixed(1):0;
-  document.getElementById('kpi-doanhthu').textContent=fmtCur(dt);
-  document.getElementById('kpi-loinhuan').textContent=fmtCur(ln);
-  document.getElementById('kpi-loinhuan').style.color=ln>=0?'var(--green)':'var(--red)';
-  document.getElementById('kpi-nhaphang').textContent=fmtCur(nh);
-  document.getElementById('kpi-bien').textContent=bien+'%';
+  // Dashboard KPI dùng bộ lọc ngày
+  const mo = getFilteredOrders();
+  const dt  = mo.filter(o=>o.type==='ban'&&o.tt!=='cancel').reduce((s,o)=>s+(o.dt||0),0);
+  const nh  = mo.filter(o=>o.type==='nhap'&&o.tt!=='cancel').reduce((s,o)=>s+(o.total||0),0);
+  const cp  = mo.filter(o=>o.type==='chiphi'&&o.tt!=='cancel').reduce((s,o)=>s+(o.tien||0),0);
+  const tra = mo.filter(o=>o.type==='tra').reduce((s,o)=>s+(o.tien||0),0);
+  const ln  = dt - nh - cp - tra;
+  const bien = dt>0 ? ((ln/dt)*100).toFixed(1) : 0;
+  document.getElementById('kpi-doanhthu').textContent = fmtCur(dt);
+  document.getElementById('kpi-loinhuan').textContent = fmtCur(ln);
+  document.getElementById('kpi-loinhuan').style.color = ln>=0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('kpi-nhaphang').textContent = fmtCur(nh);
+  document.getElementById('kpi-bien').textContent = bien+'%';
+  document.getElementById('kpi-bien').style.color = bien>=0 ? 'var(--green)' : 'var(--red)';
 }
 
 function renderTable(kind) {
@@ -1060,11 +1162,9 @@ function renderTable(kind) {
   const tbody=document.getElementById('tbody-'+kind);
   const emptyHtml=`<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Chưa có đơn hàng nào</div><div style="font-size:12px;color:var(--text3)">Nhấn "+ Thêm đơn" để tạo mới</div></div></td></tr>`;
   if (tbody) tbody.innerHTML = data.length===0 ? emptyHtml : data.map(o=>renderRow(o,kind)).join('');
-  // Mobile cards
   renderMobileCards(kind, data);
   const info=document.getElementById('page-info-'+kind);
   if (info) info.textContent=data.length+(kind==='chiphi'?' khoản':' đơn');
-  // totals
   if (kind==='ban') {
     const t=data.filter(o=>o.tt!=='cancel').reduce((s,o)=>s+(o.dt||0),0);
     const l=data.filter(o=>o.tt!=='cancel').reduce((s,o)=>s+(o.ln||0),0);
@@ -1247,10 +1347,11 @@ function renderRow(o,kind) {
 }
 
 function renderRecent() {
-  const recent=orders.slice(0,10);
+  // Giao dịch gần đây theo bộ lọc hiện tại
+  const recent = getFilteredOrders().slice(0, 10);
   const tbody=document.getElementById('recent-tbody');
   if (!recent.length) {
-    if(tbody) tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state" style="padding:30px"><div class="empty-icon">📭</div><div class="empty-text">Chưa có giao dịch nào</div></div></td></tr>`;
+    if(tbody) tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state" style="padding:30px"><div class="empty-icon">📭</div><div class="empty-text">Chưa có giao dịch nào trong khoảng này</div></div></td></tr>`;
     const mc=document.getElementById('mcards-recent');
     if(mc) mc.innerHTML=`<div class="m-empty"><div class="empty-icon">📭</div><div class="empty-text">Chưa có giao dịch nào</div></div>`;
     return;
@@ -1306,12 +1407,12 @@ function buildMonthlyChart() {
 }
 
 function buildPieChart() {
-  const mo=getMonthOrders();
+  // Biểu đồ tròn dùng bộ lọc hiện tại
+  const mo = getFilteredOrders();
   const cpData={};
   mo.filter(o=>o.type==='chiphi'&&o.tt!=='cancel').forEach(o=>{
     cpData[o.hang]=(cpData[o.hang]||0)+(o.tien||0);
   });
-  // also add nhap as a category
   const nhTotal=mo.filter(o=>o.type==='nhap'&&o.tt!=='cancel').reduce((s,o)=>s+(o.total||0),0);
   if(nhTotal>0) cpData['_nhap']=nhTotal;
 
@@ -1319,6 +1420,14 @@ function buildPieChart() {
   const vals=Object.values(cpData);
   if(pieChart) pieChart.destroy();
   const ctx=document.getElementById('chart-pie').getContext('2d');
+  if (vals.length === 0) {
+    // không có dữ liệu — vẽ vòng trống
+    pieChart=new Chart(ctx,{type:'doughnut',data:{labels:['Không có dữ liệu'],datasets:[{
+      data:[1],backgroundColor:['rgba(42,49,71,.6)'],borderColor:'#1e2435',borderWidth:2
+    }]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:'#64748b',font:{size:11},padding:10}}}}});
+    return;
+  }
   pieChart=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{
     data:vals,
     backgroundColor:['rgba(79,142,247,.8)','rgba(110,231,183,.8)','rgba(244,114,182,.8)','rgba(251,191,36,.8)','rgba(167,139,250,.8)','rgba(249,115,22,.8)','rgba(34,197,94,.8)'],
@@ -1328,7 +1437,7 @@ function buildPieChart() {
 }
 
 // ============================================================
-// APPS SCRIPT CODE (embedded with the Sheet ID)
+// APPS SCRIPT CODE
 // ============================================================
 function setAppsScriptCode() {
   const code = `// OrderPro Backend — Google Apps Script
@@ -1438,7 +1547,7 @@ function copyScriptCode() {
 }
 
 // ============================================================
-// EXPORT EXCEL (SheetJS — file .xlsx thật, không cảnh báo)
+// EXPORT EXCEL
 // ============================================================
 function exportExcel(type) {
   const mo = getMonthOrders().filter(o => o.type === type);
@@ -1463,32 +1572,23 @@ function exportExcel(type) {
     ]);
   }
 
-  // Tạo worksheet từ array
   const wsData = [headers, ...rows];
   const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // Định dạng cột số (tiền tệ)
   const numCols = type === 'ban' ? [6,7,8,9] : [3,4,5];
   const range = XLSX.utils.decode_range(ws['!ref']);
   for (let r = 1; r <= range.e.r; r++) {
     numCols.forEach(c => {
       const cell = ws[XLSX.utils.encode_cell({r, c})];
-      if (cell && typeof cell.v === 'number') {
-        cell.z = '#,##0';
-      }
+      if (cell && typeof cell.v === 'number') { cell.z = '#,##0'; }
     });
   }
-
-  // Độ rộng cột tự động
   ws['!cols'] = headers.map((h, i) => {
     const maxLen = Math.max(h.length, ...rows.map(r => String(r[i]||'').length));
     return { wch: Math.min(maxLen + 2, 40) };
   });
-
   const wb = XLSX.utils.book_new();
   const sheetName = type === 'ban' ? 'Bán hàng' : 'Nhập hàng';
   XLSX.utils.book_append_sheet(wb, ws, sheetName);
-
   const label = type === 'ban' ? 'ban-hang' : 'nhap-hang';
   XLSX.writeFile(wb, `${label}-T${currentMonth+1}-${currentYear}.xlsx`);
   notify(`Đã xuất Excel ${type === 'ban' ? 'bán hàng' : 'nhập hàng'}!`, 'success');
@@ -1514,16 +1614,12 @@ function exportCSV() {
 // ============================================================
 // HELPERS
 // ============================================================
-function fmtNum(n) {
-  if (n === null || n === undefined || isNaN(n)) return '0';
-  // Giữ nguyên số thập phân nếu có, không làm tròn
-  return Number(n).toLocaleString('vi-VN');
-}
+function fmtNum(n) { return Math.round(n).toLocaleString('vi-VN'); }
 function fmtCur(n) {
-  n = n || 0;
-  if (Math.abs(n) >= 1e9) return (n/1e9).toLocaleString('vi-VN', {maximumFractionDigits:3}) + ' tỷ';
-  if (Math.abs(n) >= 1e6) return (n/1e6).toLocaleString('vi-VN', {maximumFractionDigits:3}) + ' tr';
-  return Number(n).toLocaleString('vi-VN') + ' ₫';
+  n=n||0;
+  if(Math.abs(n)>=1e9) return (n/1e9).toFixed(3).replace(/\.?0+$/,'')+' tỷ';
+  if(Math.abs(n)>=1e6) return (n/1e6).toFixed(3).replace(/\.?0+$/,'')+' tr';
+  return Math.round(n).toLocaleString('vi-VN')+' ₫';
 }
 function fmtDate(s) {
   if(!s) return '-';

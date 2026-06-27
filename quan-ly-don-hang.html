@@ -235,6 +235,29 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 .m-empty{text-align:center;padding:40px 20px;color:var(--text3)}
 .m-empty .empty-icon{font-size:40px;margin-bottom:8px}
 .m-empty .empty-text{font-size:14px;font-weight:500;color:var(--text2);margin-bottom:4px}
+/* ── DATE FILTER DROPDOWN ── */
+.date-filter-dropdown-btn{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  padding:6px 14px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;transition:all .15s;outline:none;
+  white-space:nowrap;
+}
+.date-filter-dropdown-btn:hover{background:var(--border)}
+.date-filter-dropdown{
+  position:absolute;top:calc(100% + 6px);left:0;z-index:500;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:6px;min-width:180px;box-shadow:var(--shadow);
+  display:none;flex-direction:column;gap:2px;
+}
+.date-filter-dropdown.open{display:flex}
+.df-opt{
+  background:none;border:none;color:var(--text2);text-align:left;
+  padding:8px 12px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;
+  transition:all .12s;outline:none;
+}
+.df-opt:hover{background:var(--bg3);color:var(--text)}
+.df-opt.active{background:rgba(79,142,247,.15);color:var(--accent);font-weight:600}
+
 </style>
 </head>
 <body>
@@ -279,21 +302,36 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       <!-- DASHBOARD -->
       <div id="page-dashboard" class="page active">
 
-        <!-- BỘ LỌC THỜI GIAN -->
-        <div class="date-filter-bar">
-          <span class="date-filter-label">📅 Lọc theo</span>
-          <div class="date-filter-pills" id="date-filter-btns">
-            <button class="date-filter-btn active" onclick="setDateFilter('month',this)">Tháng này</button>
-            <button class="date-filter-btn" onclick="setDateFilter('today',this)">Hôm nay</button>
-            <button class="date-filter-btn" onclick="setDateFilter('yesterday',this)">Hôm qua</button>
-            <button class="date-filter-btn" onclick="setDateFilter('7days',this)">7 ngày qua</button>
-            <button class="date-filter-btn" onclick="setDateFilter('30days',this)">30 ngày qua</button>
-            <button class="date-filter-btn" onclick="setDateFilter('lastmonth',this)">Tháng trước</button>
-            <button class="date-filter-btn" onclick="setDateFilter('year',this)">Năm nay</button>
-            <button class="date-filter-btn" onclick="setDateFilter('lastyear',this)">Năm trước</button>
-          </div>
-          <span class="filter-range-label" id="filter-range-label"></span>
+       <!-- BỘ LỌC THỜI GIAN -->
+<div class="date-filter-bar">
+  <span class="date-filter-label">📅 Lọc theo</span>
+  <div style="position:relative;display:inline-block">
+    <button class="date-filter-dropdown-btn" id="df-toggle-btn" onclick="toggleDateDropdown()">
+      <span id="df-btn-label">Tháng này</span> ▾
+    </button>
+    <div class="date-filter-dropdown" id="df-dropdown">
+      <button class="df-opt active" onclick="setDateFilter('today',this)">Hôm nay</button>
+      <button class="df-opt" onclick="setDateFilter('yesterday',this)">Hôm qua</button>
+      <button class="df-opt" onclick="setDateFilter('7days',this)">7 ngày qua</button>
+      <button class="df-opt" onclick="setDateFilter('30days',this)">30 ngày qua</button>
+      <button class="df-opt" onclick="setDateFilter('month',this)">Tháng này</button>
+      <button class="df-opt" onclick="setDateFilter('lastmonth',this)">Tháng trước</button>
+      <button class="df-opt" onclick="setDateFilter('year',this)">Năm nay</button>
+      <button class="df-opt" onclick="setDateFilter('lastyear',this)">Năm trước</button>
+      <hr style="border-color:var(--border);margin:6px 0">
+      <button class="df-opt" onclick="setDateFilter('custom',this)" id="df-custom-opt">✏️ Tùy chọn...</button>
+      <div id="df-custom-range" style="display:none;padding:8px 0 4px;display:none;gap:6px;flex-direction:column">
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="date" class="form-input" id="df-start" style="flex:1;font-size:12px;padding:5px 8px">
+          <span style="color:var(--text3);font-size:12px">→</span>
+          <input type="date" class="form-input" id="df-end" style="flex:1;font-size:12px;padding:5px 8px">
         </div>
+        <button class="btn btn-primary" style="width:100%;font-size:12px;padding:6px" onclick="applyCustomRange()">Lọc</button>
+      </div>
+    </div>
+  </div>
+  <span class="filter-range-label" id="filter-range-label"></span>
+</div>
 
         <div class="kpi-grid">
           <div class="kpi-card" style="--accent-color:#4f8ef7">
@@ -668,13 +706,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 // DATE FILTER LOGIC
 // ============================================================
 function setDateFilter(filter, el) {
+  const labelMap = {
+    today:'Hôm nay', yesterday:'Hôm qua', '7days':'7 ngày qua',
+    '30days':'30 ngày qua', month:'Tháng này', lastmonth:'Tháng trước',
+    year:'Năm nay', lastyear:'Năm trước', custom:'Tùy chọn'
+  };
+  if (filter === 'custom') {
+    const cr = document.getElementById('df-custom-range');
+    if (cr) cr.style.display = cr.style.display === 'none' ? 'flex' : 'none';
+    return;
+  }
   dateFilter = filter;
-  document.querySelectorAll('.date-filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.df-opt').forEach(b => b.classList.remove('active'));
   if (el) el.classList.add('active');
-  updateFilterLabel();
-  renderKPI();
-  buildPieChart();
-  renderRecent();
+  const btnLabel = document.getElementById('df-btn-label');
+  if (btnLabel) btnLabel.textContent = labelMap[filter] || filter;
+  document.getElementById('df-dropdown').classList.remove('open');
+  updateFilterLabel(); renderKPI(); buildPieChart(); renderRecent();
 }
 
 function updateFilterLabel() {
@@ -731,6 +779,9 @@ function getFilterRange() {
     case 'lastyear':
       start = new Date(now.getFullYear() - 1, 0, 1);
       end   = new Date(now.getFullYear() - 1, 11, 31); break;
+    case 'custom':
+      start = window._customStart ? new Date(window._customStart) : new Date(today);
+      end   = window._customEnd   ? new Date(window._customEnd)   : new Date(today); break;
     default: // 'month'
       start = new Date(currentYear, currentMonth, 1);
       end   = new Date(currentYear, currentMonth + 1, 0); break;
@@ -1648,6 +1699,30 @@ function setRefreshLoading(on) {
   const btn=document.getElementById('refresh-btn');
   if(icon) icon.textContent=on?'⏳':'🔄';
   if(btn) btn.disabled=on;
+}
+
+// ── DROPDOWN DATE FILTER ──
+function toggleDateDropdown() {
+  document.getElementById('df-dropdown').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  const dd = document.getElementById('df-dropdown');
+  const btn = document.getElementById('df-toggle-btn');
+  if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target)) {
+    dd.classList.remove('open');
+  }
+});
+function applyCustomRange() {
+  const s = document.getElementById('df-start').value;
+  const e = document.getElementById('df-end').value;
+  if (!s || !e) { notify('Vui lòng chọn đủ ngày!','error'); return; }
+  dateFilter = 'custom';
+  window._customStart = new Date(s);
+  window._customEnd   = new Date(e); window._customEnd.setHours(23,59,59,999);
+  document.getElementById('df-dropdown').classList.remove('open');
+  const btnLabel = document.getElementById('df-btn-label');
+  if (btnLabel) btnLabel.textContent = 'Tùy chọn';
+  updateFilterLabel(); renderKPI(); buildPieChart(); renderRecent();
 }
 </script>
 </body>

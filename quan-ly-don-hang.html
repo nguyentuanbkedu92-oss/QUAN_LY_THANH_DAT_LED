@@ -105,9 +105,9 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 .type-tab.active{border-color:var(--tab-color);color:var(--tab-color);background:rgba(255,255,255,.05)}
 .divider{height:1px;background:var(--border);margin:14px 0}
 .section-label{font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-.product-row{display:grid;grid-template-columns:2fr 55px 105px 100px 26px;gap:6px;align-items:center;margin-bottom:6px}
-.product-row input{font-size:12.5px;padding:6px 8px}
-.product-row-hdr{display:grid;grid-template-columns:2fr 55px 105px 100px 26px;gap:6px;margin-bottom:4px}
+.product-row{display:grid;grid-template-columns:2.4fr 70px 110px 26px;gap:6px;align-items:center;margin-bottom:6px}
+.product-row input,.product-row select{font-size:12.5px;padding:6px 8px}
+.product-row-hdr{display:grid;grid-template-columns:2.4fr 70px 110px 26px;gap:6px;margin-bottom:4px}
 .product-row-hdr span{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .btn-remove-row{background:none;border:none;color:var(--red);font-size:15px;cursor:pointer;line-height:1;padding:3px;border-radius:4px}
 .btn-remove-row:hover{background:rgba(239,68,68,.15)}
@@ -147,6 +147,21 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 .date-filter-btn:hover{background:var(--border);color:var(--text)}
 .date-filter-btn.active{background:rgba(79,142,247,.18);border-color:var(--accent);color:var(--accent);font-weight:600}
 .filter-range-label{font-size:11px;color:var(--accent2);white-space:nowrap;margin-left:4px;background:rgba(110,231,183,.08);border:1px solid rgba(110,231,183,.2);padding:4px 10px;border-radius:20px}
+
+/* ── NCC RECONCILE PANEL ── */
+.ncc-recon{display:none;align-items:center;gap:18px;flex-wrap:wrap;background:rgba(79,142,247,.06);border:1px solid rgba(79,142,247,.25);border-radius:var(--radius);padding:10px 16px;margin:0 20px 14px;font-size:12.5px}
+.ncc-recon.show{display:flex}
+.ncc-recon b{color:var(--accent2)}
+.badge-used{background:rgba(148,163,184,.15);color:var(--text3)}
+.badge-unpaid{background:rgba(239,68,68,.13);color:var(--red)}
+.badge-paid{background:rgba(34,197,94,.15);color:var(--green)}
+.nhap-select-info{font-size:11.5px;color:var(--text3);margin-top:3px;line-height:1.4}
+.guide-box{background:rgba(79,142,247,.06);border:1px solid rgba(79,142,247,.25);border-radius:10px;padding:12px 14px;margin-bottom:16px}
+.guide-title{font-size:12.5px;font-weight:700;color:var(--accent);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.guide-steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.guide-steps li{font-size:12px;color:var(--text2);line-height:1.5;padding-left:18px;position:relative}
+.guide-steps li b{color:var(--text)}
+.guide-warn{font-size:11.5px;color:var(--accent4);margin-top:8px;padding-top:8px;border-top:1px dashed rgba(251,191,36,.3)}
 
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -200,11 +215,12 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
   .form-input,.form-select,.form-textarea{font-size:16px;padding:10px 12px}
   .type-tabs{gap:5px;margin-bottom:14px}
   .type-tab{padding:8px 4px;font-size:11.5px}
-  .product-row{grid-template-columns:1fr 50px 90px 90px 28px;gap:5px}
-  .product-row-hdr{grid-template-columns:1fr 50px 90px 90px 28px;gap:5px}
+  .product-row{grid-template-columns:1fr 55px 95px 28px;gap:5px}
+  .product-row-hdr{grid-template-columns:1fr 55px 95px 28px;gap:5px}
   .settings-card{padding:16px}
   .conn-banner{font-size:12px;padding:10px 12px}
   .notification{bottom:70px;right:12px;left:12px;max-width:100%}
+  .ncc-recon{margin:0 0 12px;padding:10px 12px;font-size:11.5px}
   /* Date filter on mobile */
   .date-filter-bar{padding:10px 12px;gap:8px}
   .date-filter-pills{gap:5px}
@@ -417,12 +433,25 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
           <div class="table-header">
             <div class="table-title">📥 Đơn nhập hàng</div>
             <input class="search-box" placeholder="🔍 Tìm kiếm..." id="search-nhap" oninput="renderTable('nhap')">
+            <select class="filter-select" id="filter-ncc-nhap" onchange="renderTable('nhap')">
+              <option value="">Tất cả NCC</option>
+            </select>
+            <select class="filter-select" id="filter-ttncc-nhap" onchange="renderTable('nhap')">
+              <option value="">TT thanh toán: Tất cả</option>
+              <option value="chuathanh">Chưa thanh toán</option>
+              <option value="daT">Đã thanh toán</option>
+            </select>
             <button class="btn btn-primary btn-sm" onclick="openAddModal('nhap')">+ Thêm đơn nhập</button>
             <button class="btn btn-ghost btn-sm" onclick="exportExcel('nhap')" title="Xuất Excel nhập hàng">📊 Xuất Excel</button>
           </div>
+          <div class="ncc-recon" id="ncc-recon">
+            <span>🏭 NCC: <b id="recon-ncc-name">—</b></span>
+            <span>Số đơn chưa thanh toán: <b id="recon-count">0</b></span>
+            <span>Tổng phải trả: <b id="recon-total" style="color:var(--red)">0 ₫</b></span>
+          </div>
           <div class="desktop-table"><table><thead><tr>
             <th>Mã đơn</th><th>Hàng hóa</th><th>NCC</th><th>SL</th>
-            <th>Ngày</th><th class="text-right">Đơn giá</th><th class="text-right">Tổng tiền</th><th>T.Thái</th><th>Thao tác</th>
+            <th>Ngày</th><th class="text-right">Đơn giá</th><th class="text-right">Tổng tiền</th><th>Nhận hàng</th><th>TT.NCC</th><th>Liên kết</th><th>Thao tác</th>
           </tr></thead><tbody id="tbody-nhap"></tbody></table></div>
           <div class="mobile-cards" id="mcards-nhap"></div>
           <div class="table-footer">
@@ -558,6 +587,16 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 
       <!-- NHAP -->
       <div id="form-nhap">
+        <div class="guide-box">
+          <div class="guide-title">📌 Hướng dẫn nhập hàng</div>
+          <ol class="guide-steps">
+            <li>1. Điền <b>tên hàng hóa</b> và <b>nhà cung cấp (NCC)</b> — nên đặt tên rõ ràng vì sau này bên Bán hàng sẽ chọn theo tên này.</li>
+            <li>2. Nhập <b>số lượng</b> và <b>đơn giá</b> — hệ thống tự tính tổng tiền, không cần tính tay.</li>
+            <li>3. Chọn <b>ngày nhập</b> và đánh dấu <b>Nhận hàng</b>: Hoàn thành khi đã nhận đủ hàng.</li>
+            <li>4. <b>Thanh toán NCC</b> chỉ đánh dấu khi đã trả tiền — không liên quan đến việc đã nhận hàng hay chưa.</li>
+          </ol>
+          <div class="guide-warn">✅ Sau khi lưu, đơn này sẽ tự hiện ra trong danh sách chọn khi lên đơn Bán hàng.</div>
+        </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Tên hàng hóa *</label><input class="form-input" id="f-nhap-ten" placeholder="Tên sản phẩm"></div>
           <div class="form-group"><label class="form-label">Nhà cung cấp</label><input class="form-input" id="f-nhap-ncc" placeholder="Tên NCC"></div>
@@ -567,11 +606,16 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
           <div class="form-group"><label class="form-label">Đơn giá (₫) *</label><input class="form-input" id="f-nhap-gia" type="number" placeholder="0" oninput="calcNhap()"></div>
           <div class="form-group"><label class="form-label">Tổng tiền</label><input class="form-input" id="f-nhap-total" readonly style="background:var(--bg);color:var(--accent)"></div>
         </div>
-        <div class="form-row">
+        <div class="form-row three">
           <div class="form-group"><label class="form-label">Ngày nhập *</label><input class="form-input" id="f-nhap-ngay" type="date"></div>
-          <div class="form-group"><label class="form-label">Trạng thái</label>
+          <div class="form-group"><label class="form-label">Nhận hàng</label>
             <select class="form-select" id="f-nhap-tt">
               <option value="complete">Hoàn thành</option><option value="pending">Chờ xử lý</option><option value="cancel">Đã hủy</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Thanh toán NCC</label>
+            <select class="form-select" id="f-nhap-ttncc">
+              <option value="chuathanh">Chưa thanh toán</option><option value="daT">Đã thanh toán</option>
             </select>
           </div>
         </div>
@@ -580,6 +624,17 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 
       <!-- BAN -->
       <div id="form-ban" style="display:none">
+        <div class="guide-box">
+          <div class="guide-title">📌 Hướng dẫn lên đơn bán</div>
+          <ol class="guide-steps">
+            <li>1. Điền <b>thông tin khách hàng</b> (tên, SĐT, địa chỉ giao hàng).</li>
+            <li>2. Bấm <b>"+ Thêm dòng"</b>, rồi ở ô "Đơn nhập nguồn" — <b>chọn đúng đơn nhập</b> của mặt hàng khách mua (không cần gõ tên, không cần biết giá vốn).</li>
+            <li>3. Nhập <b>số lượng bán</b> và <b>giá bán cho khách</b> — hệ thống tự tính doanh thu & lợi nhuận.</li>
+            <li>4. Nếu đơn có nhiều sản phẩm/nhiều NCC khác nhau — lặp lại bước 2-3 cho từng dòng.</li>
+            <li>5. Nhập <b>tiền cọc</b> (nếu có), chọn <b>ngày bán</b> và <b>trạng thái</b> đơn.</li>
+          </ol>
+          <div class="guide-warn">⚠️ Mỗi đơn nhập chỉ chọn được cho <b>1 đơn bán duy nhất</b>. Nếu không thấy đơn nhập cần tìm trong danh sách, có thể nó đã được dùng cho đơn bán khác — kiểm tra ở trang <b>Nhập hàng</b> (cột "Liên kết").</div>
+        </div>
         <div class="section-label">👤 Thông tin khách hàng</div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Khách hàng</label><input class="form-input" id="f-ban-kh" placeholder="Tên khách hàng"></div>
@@ -590,10 +645,11 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
         </div>
         <div class="divider"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div class="section-label" style="margin:0">📦 Danh sách sản phẩm</div>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="addProductRow()">+ Thêm sản phẩm</button>
+          <div class="section-label" style="margin:0">📦 Sản phẩm — chọn từ đơn Nhập hàng</div>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="addProductRow()">+ Thêm dòng</button>
         </div>
         <div id="ban-products-list"></div>
+        <div class="nhap-select-info">💡 Chọn đơn nhập tương ứng cho từng sản phẩm — hệ thống tự lấy giá vốn, bạn không cần nhập tay. Mỗi đơn nhập chỉ dùng được cho 1 đơn bán.</div>
         <div class="divider"></div>
         <div class="section-label">💰 Thanh toán</div>
         <div class="form-row">
@@ -683,6 +739,7 @@ let currentYear  = new Date().getFullYear();
 let currentType  = 'nhap';
 let editingId    = null;
 let banRowCounter = 0;
+let originalNhapIds = []; // nhapId list đang được đơn bán (đang sửa) sử dụng, để tính toán giải phóng/khóa lại khi lưu
 let monthlyChart = null, pieChart = null;
 let isLoading = false;
 
@@ -902,6 +959,7 @@ function showPage(name, el, mobId) {
   }
   if (name === 'dashboard') buildCharts();
   else renderTable(name === 'orders' ? 'all' : name);
+  if (name === 'nhap') populateNccFilter();
 }
 
 function changeMonth(d) {
@@ -935,6 +993,7 @@ function isCurrentMonth(s) {
 // ============================================================
 function openAddModal(type) {
   editingId = null;
+  originalNhapIds = [];
   resetForm();
   const t = type||'nhap';
   setType(t, document.querySelector(`.type-tab[data-type="${t}"]`));
@@ -970,6 +1029,7 @@ function resetForm() {
   ].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
   ['f-nhap-sl','f-nhap-gia','f-tra-tien','f-cp-tien'].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
   ['f-nhap-tt','f-ban-tt','f-cp-tt'].forEach(id => { const e=document.getElementById(id); if(e) e.value='complete'; });
+  const ttncc = document.getElementById('f-nhap-ttncc'); if (ttncc) ttncc.value='chuathanh';
   const list = document.getElementById('ban-products-list');
   if (list) list.innerHTML = '';
   banRowCounter = 0;
@@ -983,28 +1043,62 @@ function setToday() {
 }
 
 // ============================================================
-// MULTI-PRODUCT ROWS
+// MULTI-PRODUCT ROWS — liên kết trực tiếp với đơn Nhập hàng
 // ============================================================
-function addProductRow(data) {
+// Trả về danh sách đơn nhập còn có thể chọn: chưa "đã dùng" (hoặc chính là
+// đơn đang được dòng này giữ, để không mất lựa chọn khi sửa đơn bán), và
+// chưa bị hủy.
+function getAvailableNhapOrders(currentNhapId) {
+  return orders.filter(o => o.type==='nhap' && o.tt!=='cancel' && (!o.used || o.id===currentNhapId));
+}
+
+function buildNhapOptionsHtml(selectedId) {
+  const list = getAvailableNhapOrders(selectedId);
+  let html = `<option value="">— Chọn đơn nhập —</option>`;
+  list.forEach(o => {
+    const label = `${o.id} – ${o.ten||'(chưa đặt tên)'} – ${o.ncc||'?'} – ${fmtDate(o.ngay)}`;
+    html += `<option value="${o.id}" ${o.id===selectedId?'selected':''}>${label}</option>`;
+  });
+  return html;
+}
+
+function addProductRow(existing) {
   const rid = ++banRowCounter;
-  const d = data||{};
+  const d = existing||{};
   const list = document.getElementById('ban-products-list');
   if (!list) return;
   if (list.querySelectorAll('.product-row').length===0) {
     const hdr = document.createElement('div');
     hdr.className='product-row-hdr'; hdr.id='ban-hdr';
-    hdr.innerHTML='<span>Tên sản phẩm *</span><span>SL *</span><span>Giá bán (₫) *</span><span>Giá vốn (₫)</span><span></span>';
+    hdr.innerHTML='<span>Đơn nhập nguồn *</span><span>SL *</span><span>Giá bán (₫) *</span><span></span>';
     list.appendChild(hdr);
   }
   const row = document.createElement('div');
   row.className='product-row'; row.id='prow-'+rid;
+  const selectedNhapId = d.nhapId || '';
   row.innerHTML=`
-    <input class="form-input" id="pr-ten-${rid}" placeholder="Tên sản phẩm" value="${d.ten||''}">
+    <select class="form-select" id="pr-nhap-${rid}" onchange="onNhapRowChange(${rid})">${buildNhapOptionsHtml(selectedNhapId)}</select>
     <input class="form-input" id="pr-sl-${rid}"  type="number" placeholder="1" value="${d.sl||''}" oninput="calcBan()">
     <input class="form-input" id="pr-gia-${rid}" type="number" placeholder="0" value="${d.gia||''}" oninput="calcBan()">
-    <input class="form-input" id="pr-von-${rid}" type="number" placeholder="0" value="${d.von||''}" oninput="calcBan()">
     <button type="button" class="btn-remove-row" onclick="removeProductRow(${rid})">✕</button>`;
   list.appendChild(row);
+  if (selectedNhapId && !d.sl) onNhapRowChange(rid, true);
+}
+
+// Khi sale chọn 1 đơn nhập cho dòng sản phẩm: tự điền số lượng mặc định
+// theo đơn nhập (sale vẫn có thể sửa nếu bán lẻ 1 phần). Giá vốn được giữ
+// nội bộ (không hiển thị) và chỉ dùng khi tính lợi nhuận lúc lưu.
+function onNhapRowChange(rid, skipDefaultSl) {
+  const sel = document.getElementById('pr-nhap-'+rid);
+  const nhapId = sel ? sel.value : '';
+  const slInput = document.getElementById('pr-sl-'+rid);
+  if (nhapId) {
+    const nhap = orders.find(o=>o.id===nhapId && o.type==='nhap');
+    if (nhap && slInput && (!slInput.value || !skipDefaultSl)) {
+      if (!slInput.value) slInput.value = nhap.sl||1;
+    }
+  }
+  calcBan();
 }
 
 function removeProductRow(rid) {
@@ -1021,13 +1115,27 @@ function getProductRowIds() {
   return Array.from(rows).map(r=>r.id.replace('prow-',''));
 }
 
-function calcBan() {
-  let dt=0, ln=0;
-  getProductRowIds().forEach(rid => {
+// Đọc chi tiết từng dòng sản phẩm: lấy tên & giá vốn từ đơn Nhập hàng đã chọn,
+// giá bán do sale nhập tay — giá vốn hoàn toàn không hiển thị lên form.
+function getProductRowsData() {
+  return getProductRowIds().map(rid => {
+    const nhapId = document.getElementById('pr-nhap-'+rid)?.value || '';
     const sl  = +document.getElementById('pr-sl-'+rid)?.value||0;
     const gia = +document.getElementById('pr-gia-'+rid)?.value||0;
-    const von = +document.getElementById('pr-von-'+rid)?.value||0;
-    dt += sl*gia; ln += sl*(gia-von);
+    const nhap = nhapId ? orders.find(o=>o.id===nhapId && o.type==='nhap') : null;
+    return {
+      nhapId, sl, gia,
+      ten: nhap ? nhap.ten : '',
+      von: nhap ? (nhap.gia||0) : 0,
+      ncc: nhap ? nhap.ncc : '',
+    };
+  });
+}
+
+function calcBan() {
+  let dt=0, ln=0;
+  getProductRowsData().forEach(p => {
+    dt += p.sl*p.gia; ln += p.sl*(p.gia-p.von);
   });
   const coc = +document.getElementById('f-ban-coc')?.value||0;
   document.getElementById('f-ban-dt').value = fmtNum(dt);
@@ -1049,29 +1157,30 @@ function genId() { return 'DH'+String(Date.now()).slice(-7); }
 async function saveOrder() {
   const type = currentType;
   let order = { id: editingId||genId(), type };
+  let nhapToMark = null, nhapToFree = null; // tính sau khi validate xong
 
   if (type==='nhap') {
     const ten=document.getElementById('f-nhap-ten').value.trim();
     const sl=+document.getElementById('f-nhap-sl').value;
     const gia=+document.getElementById('f-nhap-gia').value;
     if (!ten||!sl||!gia) { notify('Vui lòng điền đầy đủ!','error'); return; }
+    const existing = editingId ? orders.find(o=>o.id===editingId) : null;
     order = {...order, ten, ncc:document.getElementById('f-nhap-ncc').value, sl, gia, total:sl*gia,
       ngay:document.getElementById('f-nhap-ngay').value, tt:document.getElementById('f-nhap-tt').value,
+      tt_ncc:document.getElementById('f-nhap-ttncc').value,
+      used: existing?existing.used||false:false, used_by: existing?existing.used_by||'':'',
       note:document.getElementById('f-nhap-note').value};
   } else if (type==='ban') {
-    const ids = getProductRowIds();
-    const products = ids.map(rid=>({
-      ten:document.getElementById('pr-ten-'+rid)?.value.trim()||'',
-      sl:+document.getElementById('pr-sl-'+rid)?.value||0,
-      gia:+document.getElementById('pr-gia-'+rid)?.value||0,
-      von:+document.getElementById('pr-von-'+rid)?.value||0,
-    })).filter(p=>p.ten&&p.sl&&p.gia);
-    if (products.length===0) { notify('Thêm ít nhất 1 sản phẩm hợp lệ!','error'); return; }
+    const products = getProductRowsData().filter(p=>p.nhapId && p.sl && p.gia);
+    if (products.length===0) { notify('Chọn ít nhất 1 đơn nhập hợp lệ cho sản phẩm!','error'); return; }
+    const usedTwice = products.map(p=>p.nhapId).filter((v,i,a)=>a.indexOf(v)!==i);
+    if (usedTwice.length) { notify('Một đơn nhập đang được chọn nhiều lần trong cùng đơn bán!','error'); return; }
     const totalDt = products.reduce((s,p)=>s+p.sl*p.gia,0);
     const totalLn = products.reduce((s,p)=>s+p.sl*(p.gia-p.von),0);
     const coc = +document.getElementById('f-ban-coc').value||0;
     order = {...order,
-      ten: products.map(p=>p.ten).join(', '), products,
+      ten: products.map(p=>p.ten).join(', '),
+      products: products.map(p=>({nhapId:p.nhapId, ten:p.ten, sl:p.sl, gia:p.gia, von:p.von})),
       kh:document.getElementById('f-ban-kh').value,
       sdt:document.getElementById('f-ban-sdt').value,
       diachi:document.getElementById('f-ban-diachi').value,
@@ -1082,6 +1191,9 @@ async function saveOrder() {
       ngay:document.getElementById('f-ban-ngay').value,
       tt:document.getElementById('f-ban-tt').value,
       note:document.getElementById('f-ban-note').value};
+    const newNhapIds = products.map(p=>p.nhapId);
+    nhapToFree = originalNhapIds.filter(id => !newNhapIds.includes(id));
+    nhapToMark = newNhapIds;
   } else if (type==='tra') {
     const tien=+document.getElementById('f-tra-tien').value;
     if (!tien) { notify('Nhập số tiền hoàn!','error'); return; }
@@ -1105,6 +1217,10 @@ async function saveOrder() {
   const action = editingId ? 'update' : 'add';
   const ok = await saveToSheet(action, order);
 
+  if (ok && type==='ban') {
+    await applyNhapUsage(nhapToMark, nhapToFree, order.id);
+  }
+
   btn.disabled=false; spinner.style.display='none';
 
   if (ok) {
@@ -1117,6 +1233,27 @@ async function saveOrder() {
     notify(editingId?'Đã cập nhật ✓':'Đã thêm đơn hàng ✓','success');
     closeModal();
     renderAll(); buildCharts();
+  }
+}
+
+// Đánh dấu các đơn nhập được dùng bởi đơn bán này, và giải phóng lại các
+// đơn nhập không còn được dùng nữa (khi sửa đơn bán và đổi sản phẩm).
+async function applyNhapUsage(markIds, freeIds, saleId) {
+  for (const id of (freeIds||[])) {
+    const nh = orders.find(o=>o.id===id && o.type==='nhap');
+    if (nh) {
+      const updated = {...nh, used:false, used_by:''};
+      const ok = await saveToSheet('update', updated);
+      if (ok) { const idx=orders.findIndex(o=>o.id===id); if(idx>=0) orders[idx]=updated; }
+    }
+  }
+  for (const id of (markIds||[])) {
+    const nh = orders.find(o=>o.id===id && o.type==='nhap');
+    if (nh) {
+      const updated = {...nh, used:true, used_by:saleId};
+      const ok = await saveToSheet('update', updated);
+      if (ok) { const idx=orders.findIndex(o=>o.id===id); if(idx>=0) orders[idx]=updated; }
+    }
   }
 }
 
@@ -1133,12 +1270,14 @@ function editOrder(id) {
     document.getElementById('f-nhap-gia').value=o.gia||'';
     document.getElementById('f-nhap-ngay').value=o.ngay||'';
     document.getElementById('f-nhap-tt').value=o.tt||'complete';
+    document.getElementById('f-nhap-ttncc').value=o.tt_ncc||'chuathanh';
     document.getElementById('f-nhap-note').value=o.note||'';
     calcNhap();
   } else if (o.type==='ban') {
     const list=document.getElementById('ban-products-list');
     if(list) list.innerHTML=''; banRowCounter=0;
-    const prods=o.products||[{ten:o.ten||'',sl:o.sl||0,gia:o.gia||0,von:o.von||0}];
+    const prods=o.products && o.products.length ? o.products : [{nhapId:'',ten:o.ten||'',sl:o.sl||0,gia:o.gia||0,von:o.von||0}];
+    originalNhapIds = prods.map(p=>p.nhapId).filter(Boolean);
     prods.forEach(p=>addProductRow(p));
     document.getElementById('f-ban-kh').value=o.kh||'';
     document.getElementById('f-ban-sdt').value=o.sdt||'';
@@ -1166,8 +1305,14 @@ function editOrder(id) {
 
 async function deleteOrder(id) {
   if (!confirm('Xóa đơn hàng này?')) return;
+  const target = orders.find(o=>o.id===id);
   const ok = await deleteFromSheet(id);
   if (ok) {
+    // nếu xóa đơn bán, giải phóng lại các đơn nhập đã liên kết
+    if (target && target.type==='ban' && target.products && target.products.length) {
+      const freeIds = target.products.map(p=>p.nhapId).filter(Boolean);
+      await applyNhapUsage([], freeIds, '');
+    }
     orders=orders.filter(o=>o.id!==id);
     renderAll(); buildCharts();
     notify('Đã xóa đơn hàng','info');
@@ -1180,6 +1325,7 @@ async function deleteOrder(id) {
 function renderAll() {
   renderKPI(); renderTable('all'); renderTable('nhap');
   renderTable('ban'); renderTable('tra'); renderTable('chiphi'); renderRecent();
+  populateNccFilter();
 }
 
 function getMonthOrders() { return orders.filter(o=>isCurrentMonth(o.ngay)); }
@@ -1201,14 +1347,43 @@ function renderKPI() {
   document.getElementById('kpi-bien').style.color = bien>=0 ? 'var(--green)' : 'var(--red)';
 }
 
+// ── Bộ lọc NCC / đối soát công nợ trang Nhập hàng ──
+function populateNccFilter() {
+  const sel = document.getElementById('filter-ncc-nhap');
+  if (!sel) return;
+  const cur = sel.value;
+  const nccList = [...new Set(orders.filter(o=>o.type==='nhap'&&o.ncc).map(o=>o.ncc))].sort();
+  sel.innerHTML = '<option value="">Tất cả NCC</option>' + nccList.map(n=>`<option value="${n}">${n}</option>`).join('');
+  if (nccList.includes(cur)) sel.value = cur;
+  updateNccRecon();
+}
+
+function updateNccRecon() {
+  const box = document.getElementById('ncc-recon');
+  const sel = document.getElementById('filter-ncc-nhap');
+  if (!box || !sel) return;
+  const ncc = sel.value;
+  if (!ncc) { box.classList.remove('show'); return; }
+  const unpaid = orders.filter(o=>o.type==='nhap' && o.ncc===ncc && o.tt!=='cancel' && (o.tt_ncc||'chuathanh')!=='daT');
+  const total = unpaid.reduce((s,o)=>s+(o.total||0),0);
+  document.getElementById('recon-ncc-name').textContent = ncc;
+  document.getElementById('recon-count').textContent = unpaid.length;
+  document.getElementById('recon-total').textContent = fmtCur(total);
+  box.classList.add('show');
+}
+
 function renderTable(kind) {
   const search=(document.getElementById('search-'+kind)||{value:''}).value.toLowerCase();
   const filterStatus=(document.getElementById('filter-status-'+kind)||{value:''}).value;
   const filterType=(document.getElementById('filter-type-'+kind)||{value:''}).value;
+  const filterNcc=(document.getElementById('filter-ncc-'+kind)||{value:''}).value;
+  const filterTtNcc=(document.getElementById('filter-ttncc-'+kind)||{value:''}).value;
   let data=getMonthOrders();
   if (kind!=='all') data=data.filter(o=>o.type===kind);
   if (filterType) data=data.filter(o=>o.type===filterType);
   if (filterStatus) data=data.filter(o=>o.tt===filterStatus);
+  if (kind==='nhap' && filterNcc) data=data.filter(o=>o.ncc===filterNcc);
+  if (kind==='nhap' && filterTtNcc) data=data.filter(o=>(o.tt_ncc||'chuathanh')===filterTtNcc);
   if (search) data=data.filter(o=>JSON.stringify(o).toLowerCase().includes(search));
   const tbody=document.getElementById('tbody-'+kind);
   const emptyHtml=`<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Chưa có đơn hàng nào</div><div style="font-size:12px;color:var(--text3)">Nhấn "+ Thêm đơn" để tạo mới</div></div></td></tr>`;
@@ -1224,6 +1399,7 @@ function renderTable(kind) {
   if (kind==='nhap') {
     const t=data.filter(o=>o.tt!=='cancel').reduce((s,o)=>s+(o.total||0),0);
     document.getElementById('total-nhap').textContent='Tổng nhập: '+fmtCur(t);
+    updateNccRecon();
   }
   if (kind==='tra') {
     const t=data.reduce((s,o)=>s+(o.tien||0),0);
@@ -1274,6 +1450,8 @@ function renderMobileCard(o, kind) {
     </div>`;
   }
   if (kind==='nhap') {
+    const usedBadge = o.used ? `<span class="badge badge-used">🔗 ${o.used_by||'Đã dùng'}</span>` : `<span class="badge" style="background:rgba(34,197,94,.1);color:var(--green)">Sẵn sàng</span>`;
+    const ttnccBadge = (o.tt_ncc||'chuathanh')==='daT' ? `<span class="badge badge-paid">Đã thanh toán</span>` : `<span class="badge badge-unpaid">Chưa thanh toán</span>`;
     return `<div class="m-card">
       <div class="m-card-top">
         <div class="m-card-title">${o.ten||'-'}</div>
@@ -1283,6 +1461,7 @@ function renderMobileCard(o, kind) {
         ${idStr} · ${dateStr} · ${tt}
         ${o.ncc?`<span>🏭 ${o.ncc}</span>`:''}
         <span>SL: ${o.sl||0} × ${fmtCur(o.gia)}</span>
+        ${ttnccBadge} ${usedBadge}
       </div>
       ${actions}
     </div>`;
@@ -1375,10 +1554,13 @@ function renderRow(o,kind) {
       <td>${tt}</td>${acts(o.id)}</tr>`;
   }
   if (kind==='nhap') {
+    const usedBadge = o.used ? `<span class="badge badge-used" title="Đã dùng bởi đơn bán ${o.used_by||''}">🔗 ${o.used_by||'Đã dùng'}</span>` : `<span class="badge" style="background:rgba(34,197,94,.1);color:var(--green)">Sẵn sàng</span>`;
+    const ttnccBadge = (o.tt_ncc||'chuathanh')==='daT' ? `<span class="badge badge-paid">Đã TT</span>` : `<span class="badge badge-unpaid">Chưa TT</span>`;
     return `<tr><td><code style="color:var(--accent);font-size:12px">${o.id}</code></td>
       <td>${o.ten||'-'}</td><td>${o.ncc||'-'}</td><td>${o.sl||0}</td>
       <td>${fmtDate(o.ngay)}</td><td class="text-right">${fmtCur(o.gia)}</td>
-      <td class="text-right font-bold text-red">${fmtCur(o.total)}</td><td>${tt}</td>${acts(o.id)}</tr>`;
+      <td class="text-right font-bold text-red">${fmtCur(o.total)}</td><td>${tt}</td>
+      <td>${ttnccBadge}</td><td>${usedBadge}</td>${acts(o.id)}</tr>`;
   }
   if (kind==='tra') {
     return `<tr><td><code style="color:var(--accent);font-size:12px">${o.id}</code></td>
@@ -1495,7 +1677,7 @@ function setAppsScriptCode() {
 // Gắn vào Google Sheet: https://docs.google.com/spreadsheets/d/1GxCuHiGujstfHqGoZQ5MgTQMYulC6CYrc5hDN0czsOw/
 const SHEET_ID = '1GxCuHiGujstfHqGoZQ5MgTQMYulC6CYrc5hDN0czsOw';
 const SHEET_NAME = 'DonHang';
-const HEADERS = ['id','type','ten','kh','sdt','diachi','ncc','sl','gia','von','total','dt','ln','coc','conlai','kenh','ngay','tt','note','lydo','goc','loai_tra','hang','tien','products_json','created_at','updated_at'];
+const HEADERS = ['id','type','ten','kh','sdt','diachi','ncc','sl','gia','von','total','dt','ln','coc','conlai','kenh','ngay','tt','tt_ncc','used','used_by','note','lydo','goc','loai_tra','hang','tien','products_json','created_at','updated_at'];
 
 function getOrCreateSheet() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
@@ -1580,6 +1762,7 @@ function rowToObj(r) {
   HEADERS.forEach((h,i) => { if(r[i]!==''&&r[i]!==null) o[h]=r[i]; });
   if (o.products_json) { try{o.products=JSON.parse(o.products_json);}catch(e){} delete o.products_json; }
   ['sl','gia','von','total','dt','ln','coc','conlai','tien'].forEach(k=>{if(o[k]!==undefined) o[k]=Number(o[k])||0;});
+  if (o.used !== undefined) o.used = (o.used===true||o.used==='true'||o.used===1||o.used==='1');
   return o;
 }
 
@@ -1614,11 +1797,12 @@ function exportExcel(type) {
       o.note || ''
     ]);
   } else {
-    headers = ['Mã đơn','Hàng hóa','Nhà cung cấp','Số lượng','Đơn giá','Tổng tiền','Ngày','Trạng thái','Ghi chú'];
+    headers = ['Mã đơn','Hàng hóa','Nhà cung cấp','Số lượng','Đơn giá','Tổng tiền','Ngày','Nhận hàng','TT NCC','Ghi chú'];
     rows = mo.map(o => [
       o.id, o.ten || o.hang || '', o.ncc || '', o.sl || 0, o.gia || 0, o.total || 0,
       o.ngay ? fmtDate(o.ngay) : '',
       {complete:'Hoàn thành',pending:'Chờ xử lý',cancel:'Đã hủy'}[o.tt]||o.tt||'',
+      (o.tt_ncc||'chuathanh')==='daT'?'Đã thanh toán':'Chưa thanh toán',
       o.note || ''
     ]);
   }

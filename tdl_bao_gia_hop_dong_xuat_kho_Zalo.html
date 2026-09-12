@@ -485,6 +485,9 @@ textarea{resize:vertical;min-height:80px}
     <p>Chưa kết nối Google Sheet. Nhấn <strong>Cài Google Sheet</strong> để thiết lập.</p>
     <button class="btn btn-primary" style="margin:0;padding:10px 20px;width:auto" onclick="openGsModal()">⚙ Cài đặt ngay</button>
   </div>
+  <input type="text" id="historySearch" oninput="applyHistoryFilter()"
+    placeholder="🔍 Tìm theo tên khách hoặc số điện thoại..."
+    style="width:100%;padding:12px 14px;margin:12px 0;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;box-sizing:border-box">
   <div id="historyList"><div class="history-empty">📋 Nhấn "Tải lịch sử" để xem các báo giá đã lưu.</div></div>
 </div>
 
@@ -614,7 +617,9 @@ function fmt(n) { return Math.round(n).toLocaleString('vi-VN'); }
 
 function fmtDate(raw) {
   if(!raw) return '';
-  const d = new Date(raw+'T00:00:00');
+  const s = String(raw);
+  const d = s.includes('T') ? new Date(s) : new Date(s+'T00:00:00');
+  if (isNaN(d.getTime())) return s.slice(0,10);
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
 }
 
@@ -1541,17 +1546,37 @@ async function loadHistory() {
 }
 
 function renderHistory(rows) {
+  // Giữ nguyên thứ tự gốc từ sheet để loadRow luôn tra đúng dòng, kể cả khi đang lọc
+  window._historyOriginal = rows ? rows.slice() : [];
+  applyHistoryFilter();
+}
+
+function applyHistoryFilter() {
+  const rows = window._historyOriginal || [];
   const listEl = document.getElementById('historyList');
-  if (!rows || !rows.length) {
+  const q = (document.getElementById('historySearch').value || '').trim().toLowerCase();
+
+  if (!rows.length) {
     listEl.innerHTML = '<div class="history-empty">📭 Chưa có báo giá nào được lưu.</div>';
     return;
   }
-  listEl.innerHTML = rows.reverse().map((row, idx) => {
-    const d = row;
+
+  const withIndex = rows.map((row, origIdx) => ({ row, origIdx }));
+  const filtered = q ? withIndex.filter(x =>
+    String(x.row.khachHang||'').toLowerCase().includes(q) ||
+    String(x.row.sdt||'').toLowerCase().includes(q)
+  ) : withIndex;
+
+  if (!filtered.length) {
+    listEl.innerHTML = '<div class="history-empty">🔍 Không tìm thấy báo giá nào khớp "' + q + '".</div>';
+    return;
+  }
+
+  listEl.innerHTML = filtered.slice().reverse().map(({row: d, origIdx}) => {
     const ngay = d.ngayKy ? fmtDate(d.ngayKy) : (d.timestamp||'').slice(0,10);
     const tong = d.tongTien ? fmt(Number(d.tongTien)) + ' VNĐ' : '—';
     const soHD = d.soHopDong || '—';
-    return `<div class="history-item" onclick="loadRow(${rows.length-1-idx})">
+    return `<div class="history-item" onclick="loadRow(${origIdx})">
       <div class="history-item-top">
         <div class="history-item-name">🏢 ${d.khachHang||'—'}</div>
         <div class="history-item-date">${ngay}</div>
@@ -1560,12 +1585,10 @@ function renderHistory(rows) {
       <div class="history-item-total">💰 ${tong}</div>
     </div>`;
   }).join('');
-  // Store rows for load
-  window._historyRows = rows.slice().reverse();
 }
 
 function loadRow(idx) {
-  const row = window._historyRows && window._historyRows[idx];
+  const row = window._historyOriginal && window._historyOriginal[idx];
   if (!row) return;
   if (!confirm('Tải báo giá của "' + row.khachHang + '" vào form? Dữ liệu hiện tại sẽ bị thay thế.')) return;
   fillFormData(row);

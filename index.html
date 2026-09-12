@@ -10,6 +10,28 @@
         header { text-align: center; margin-bottom: 20px; }
         header h1 { font-size: 22px; color: #38bdf8; text-transform: uppercase; }
 
+        /* BADGE CHĂM SÓC KHÁCH HÀNG */
+        .cs-badge {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            background: rgba(232, 119, 34, 0.12);
+            border: 1px solid #e87722;
+            color: #fdba74;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .cs-badge:active { background: rgba(232, 119, 34, 0.22); }
+        .cs-badge .arrow { color: #fdba74; font-weight: normal; }
+        .cs-badge.empty { border-color: #334155; background: #1e293b; color: #64748b; font-weight: normal; }
+
         /* VÙNG 1: 4 CỘT CỐ ĐỊNH */
         .file-grid { 
             display: grid; 
@@ -69,6 +91,11 @@
     <header>
         <h1>THÀNH ĐẠT LED - TDL</h1>
     </header>
+
+    <a href="cham-soc.html" id="cs-badge" class="cs-badge">
+        <span id="cs-text">🔔 Đang kiểm tra việc cần chăm sóc...</span>
+        <span class="arrow">Xem &rarr;</span>
+    </a>
 
     <div class="file-grid">
         <a href="phieu-xuat-xuong.html" target="_blank" class="file-card"><span>📜</span>XUẤT XƯỞNG</a>
@@ -136,6 +163,38 @@ Ngân hàng: Techcombank</pre>
                 setTimeout(() => { toast.style.display = 'none'; }, 1500);
             });
         }
+
+        // ============================================================
+        // BADGE CHĂM SÓC KHÁCH HÀNG — lấy số việc cần làm từ CRM_Sync
+        // ============================================================
+        const CRM_API_URL = localStorage.getItem('tdlcrm_api_url') ||
+            'https://script.google.com/macros/s/AKfycbx11aX_eBt4qI7Ip9LyUye6G6UP_IkaoFghkAoALX6kNrHNileXqdxXNjm-J13pHTyY/exec';
+
+        async function loadCareBadge() {
+            const badge = document.getElementById('cs-badge');
+            const text = document.getElementById('cs-text');
+            try {
+                const resp = await fetch(CRM_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getChamSoc', data: { chuaXuLy: true } })
+                });
+                const res = await resp.json();
+                if (res.status !== 'ok') throw new Error(res.msg || 'Lỗi API');
+                const count = (res.chamSoc || []).length;
+                badge.style.display = 'flex';
+                if (count > 0) {
+                    badge.classList.remove('empty');
+                    text.textContent = '🔔 ' + count + ' việc cần chăm sóc hôm nay';
+                } else {
+                    badge.classList.add('empty');
+                    text.textContent = '✅ Không có việc cần chăm sóc hôm nay';
+                }
+            } catch (e) {
+                // Lỗi kết nối thì ẩn badge, không làm phiền trang chính
+                badge.style.display = 'none';
+            }
+        }
+        loadCareBadge();
     </script>
 </body>
 </html>

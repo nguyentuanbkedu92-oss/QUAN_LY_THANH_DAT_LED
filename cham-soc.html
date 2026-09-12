@@ -141,12 +141,22 @@ function showBanner(type, msg) {
 }
 function hideBanner() { document.getElementById('banner').style.display = 'none'; }
 
+// Hàm tự động chuẩn hóa số điện thoại (bổ sung số 0 nếu bị mất số đầu)
+function fmtPhone(s) {
+  let cleanS = String(s || '').trim();
+  if (cleanS.length === 9 && !cleanS.startsWith('0')) {
+    cleanS = '0' + cleanS;
+  }
+  return cleanS;
+}
+
 function fmtCur(n) {
   n = n || 0;
   if (Math.abs(n) >= 1e9) return (n/1e9).toFixed(2).replace(/\.?0+$/,'') + ' tỷ';
   if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(2).replace(/\.?0+$/,'') + ' tr';
   return Math.round(n).toLocaleString('vi-VN') + ' đ';
 }
+
 function fmtDate(s) {
   if (!s) return '-';
   const d = new Date(s);
@@ -192,13 +202,13 @@ function renderTasks() {
     <div class="task" id="task-${t.id}">
       <div class="task-top">
         <div>
-          <div class="task-name">${t.ten || t.sdt}</div>
-          <div class="task-note">📞 ${t.sdt} — ${t.ghiChu || ''}</div>
+          <div class="task-name">${t.ten || fmtPhone(t.sdt)}</div>
+          <div class="task-note">📞 ${fmtPhone(t.sdt)} — ${t.ghiChu || ''}</div>
         </div>
         <span class="task-tag ${t.loaiViec==='Gợi ý mua lại'?'buy':''}">${t.loaiViec}</span>
       </div>
       <div class="task-actions">
-        <a class="btn-sm btn-call" href="tel:${t.sdt}">📞 Gọi ngay</a>
+        <a class="btn-sm btn-call" href="tel:${fmtPhone(t.sdt)}">📞 Gọi ngay</a>
         <button class="btn-sm btn-done" onclick="markDone('${t.id}')">✅ Đã xử lý</button>
       </div>
     </div>`).join('');
@@ -223,6 +233,7 @@ function renderTabs() {
     `<button class="tab-btn ${currentFilter===f.key?'active':''}" onclick="setFilter('${f.key}')">${f.label}</button>`
   ).join('');
 }
+
 function setFilter(key) { currentFilter = key; renderTabs(); renderKhach(); }
 
 function renderKhach() {
@@ -247,19 +258,19 @@ function renderKhach() {
   el.innerHTML = list.map(k => `
     <div class="kh-row">
       <div class="kh-info">
-        <div class="kh-name">${k.ten || k.sdt}</div>
-        <div class="kh-sub">📞 ${k.sdt} · Mua gần nhất: ${fmtDate(k.ngayMuaGanNhat)}</div>
+        <div class="kh-name">${k.ten || fmtPhone(k.sdt)}</div>
+        <div class="kh-sub">📞 ${fmtPhone(k.sdt)} · Mua gần nhất: ${fmtDate(k.ngayMuaGanNhat)}</div>
         
-        <!-- HIỂN THỊ THÔNG TIN NHANH: SẢN PHẨM, SỐ LƯỢNG, ĐƠN GIÁ -->
+        <!-- HIỂN THỊ CHI TIẾT SẢN PHẨM, SỐ LƯỢNG, ĐƠN GIÁ -->
         <div class="kh-product-info">
-          📦 ${k.nhuCauChinh || 'Đang tư vấn / Cập nhật sản phẩm'} 
+          📦 ${k.nhuCauChinh ? k.nhuCauChinh : '<span style="color:#f59e0b">Chưa cập nhật sản phẩm</span>'} 
           ${k.soLuong ? '— SL: <b>' + k.soLuong + '</b>' : ''}
           ${k.donGia ? '— Giá: <b>' + fmtCur(k.donGia) + '</b>' : ''}
         </div>
         
         <!-- NHÂN VIÊN PHỤ TRÁCH -->
         <div class="kh-staff-info">
-          👤 Phụ trách báo giá: ${k.nhanVien || 'Kinh doanh TDL'}
+          👤 Phụ trách: ${k.nhanVien || 'Kinh doanh TDL'}
         </div>
 
         <div><span class="kh-badge ${BADGE_CLASS[k.phanLoai]||'b-tiemnang'}">${k.phanLoai}</span></div>

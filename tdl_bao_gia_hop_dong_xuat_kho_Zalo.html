@@ -545,6 +545,11 @@ function switchTab(tab) {
   const map = {form:0, previewBaoGia:1, previewXuatKho:2, previewHopDong:3, history:4};
   document.querySelectorAll('.tab-btn')[map[tab]].classList.add('active');
   document.getElementById(tab+'Panel').classList.add('active');
+
+  // MỚI: tự động tải lịch sử ngay khi bấm vào tab "Lịch sử"
+  if (tab === 'history') {
+    loadHistory();
+  }
 }
 
 function addProduct() {

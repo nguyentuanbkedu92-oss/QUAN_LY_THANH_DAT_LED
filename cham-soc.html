@@ -28,7 +28,6 @@
   .refresh-btn { background:none; border:1px solid #334155; color:#94a3b8; border-radius:6px; padding:4px 10px; font-size:11px; cursor:pointer; text-transform:none; }
   .refresh-btn:active { background:#334155; }
 
-  /* Ô tìm kiếm nhanh */
   .search-box { width:100%; background:#0f172a; border:1px solid #334155; border-radius:8px; padding:10px 14px; color:#f8fafc; font-size:13px; margin-bottom:12px; outline:none; }
   .search-box:focus { border-color:#38bdf8; }
 
@@ -56,8 +55,7 @@
   .kh-info { min-width:0; flex:1; }
   .kh-name { font-weight:bold; font-size:13px; color:#f8fafc; }
   .kh-sub { font-size:11px; color:#94a3b8; margin-top:1px; }
-  
-  /* Phần thông tin chi tiết sản phẩm & nhân viên báo giá */
+
   .kh-product-info { font-size:11.5px; color:#38bdf8; margin-top:4px; font-weight:500; }
   .kh-staff-info { font-size:10.5px; color:#94a3b8; margin-top:2px; }
 
@@ -72,6 +70,7 @@
   .kh-money .lbl { color:#64748b; font-size:10px; }
 
   .cfg { font-size:11px; color:#64748b; margin-top:20px; text-align:center; }
+  .cfg .cfg-row { margin-top:10px; }
   .cfg input { width:80%; max-width:400px; background:#0f172a; border:1px solid #334155; color:#cbd5e1; padding:6px; border-radius:6px; font-size:11px; margin-top:6px; }
   .cfg button { margin-left:6px; background:#38bdf8; color:#0f172a; border:none; padding:6px 10px; border-radius:6px; font-size:11px; cursor:pointer; }
 </style>
@@ -105,15 +104,23 @@
   </section>
 
   <div class="cfg">
-    URL API CRM &nbsp;
-    <div><input id="api-url-input" placeholder="https://script.google.com/macros/s/.../exec"><button onclick="saveUrl()">Lưu</button></div>
+    <div class="cfg-row">
+      URL API CRM
+      <div><input id="api-url-input" placeholder="https://script.google.com/macros/s/.../exec"><button onclick="saveUrl()">Lưu</button></div>
+    </div>
+    <div class="cfg-row">
+      URL API Báo Giá <span style="color:#475569">(để tự lấy sản phẩm/SL/giá đã báo theo SĐT)</span>
+      <div><input id="baogia-url-input" placeholder="https://script.google.com/macros/s/.../exec"><button onclick="saveBaoGiaUrl()">Lưu</button></div>
+    </div>
   </div>
 </div>
 
 <script>
 let apiUrl = localStorage.getItem('tdlcrm_api_url') || 'https://script.google.com/macros/s/AKfycbx11aX_eBt4qI7Ip9LyUye6G6UP_IkaoFghkAoALX6kNrHNileXqdxXNjm-J13pHTyY/exec';
+let baoGiaApiUrl = localStorage.getItem('tdlcrm_baogia_api_url') || '';
 let khachHang = [];
 let tasks = [];
+let quotesByPhone = {}; // phoneKey -> báo giá gần nhất (đã có products[], tongTien, timestamp...)
 let currentFilter = 'all';
 
 const FILTERS = [
@@ -130,11 +137,29 @@ const BADGE_CLASS = {
 };
 
 document.getElementById('api-url-input').value = apiUrl;
+document.getElementById('baogia-url-input').value = baoGiaApiUrl;
 
 async function apiCall(action, data) {
   const resp = await fetch(apiUrl, { method:'POST', body: JSON.stringify({ action, data: data||{} }) });
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
   return resp.json();
+}
+
+// Gọi API Báo Giá (GET ?action=list&sheet=BaoGia) - không throw, lỗi thì trả mảng rỗng
+// để không làm hỏng phần CRM chính nếu URL sai hoặc chưa cấu hình.
+async function fetchBaoGia() {
+  if (!baoGiaApiUrl) return [];
+  try {
+    const sep = baoGiaApiUrl.includes('?') ? '&' : '?';
+    const resp = await fetch(baoGiaApiUrl + sep + 'action=list&sheet=BaoGia');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (!data.success) throw new Error(data.error || 'Lỗi không rõ');
+    return data.rows || [];
+  } catch (e) {
+    console.error('Lỗi tải Báo Giá:', e);
+    return [];
+  }
 }
 
 function showBanner(type, msg) {
@@ -143,13 +168,24 @@ function showBanner(type, msg) {
 }
 function hideBanner() { document.getElementById('banner').style.display = 'none'; }
 
-// Hàm tự động chuẩn hóa số điện thoại (bổ sung số 0 nếu bị mất số đầu)
+// Hàm tự động chuẩn hóa số điện thoại (bổ sung số 0 nếu bị mất số đầu) - dùng để HIỂN THỊ
 function fmtPhone(s) {
   let cleanS = String(s || '').trim();
   if (cleanS.length === 9 && !cleanS.startsWith('0')) {
     cleanS = '0' + cleanS;
   }
   return cleanS;
+}
+
+// Chuẩn hóa số điện thoại để SO KHỚP giữa các nguồn dữ liệu khác nhau (CRM vs Báo Giá).
+// SĐT trong sheet Báo Giá có thể dính tên ("0981485716 - Mr. Nam"), có khoảng trắng
+// ("0944 188 198"), hoặc bị Google Sheets làm mất số 0 đầu khi đọc là number (985950120).
+function phoneKey(s) {
+  let d = String(s == null ? '' : s).replace(/\D/g, '');
+  if (!d) return '';
+  if (d.length === 9 && !d.startsWith('0')) d = '0' + d;
+  if (d.length === 11 && d.startsWith('84')) d = '0' + d.slice(2);
+  return d;
 }
 
 function fmtCur(n) {
@@ -166,19 +202,38 @@ function fmtDate(s) {
   return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
 }
 
+// Với mỗi SĐT, gộp toàn bộ báo giá về SĐT đó và chỉ giữ lại bản GẦN NHẤT (theo timestamp).
+function buildQuotesIndex(rows) {
+  const idx = {};
+  (rows || []).forEach(r => {
+    const key = phoneKey(r.sdt);
+    if (!key) return;
+    const ts = Date.parse(r.timestamp) || 0;
+    if (!idx[key] || ts > idx[key]._ts) {
+      idx[key] = Object.assign({}, r, { _ts: ts });
+    }
+  });
+  return idx;
+}
+
 async function loadAll() {
   document.getElementById('task-list').innerHTML = '<div class="empty">Đang tải...</div>';
   document.getElementById('kh-list').innerHTML = '<div class="empty">Đang tải...</div>';
   try {
-    const [r1, r2] = await Promise.all([
+    const [r1, r2, bgRows] = await Promise.all([
       apiCall('getChamSoc', { chuaXuLy:true }),
-      apiCall('getKhachHang')
+      apiCall('getKhachHang'),
+      fetchBaoGia()
     ]);
     if (r1.status !== 'ok') throw new Error(r1.msg);
     if (r2.status !== 'ok') throw new Error(r2.msg);
     tasks = r1.chamSoc || [];
     khachHang = r2.khachHang || [];
+    quotesByPhone = buildQuotesIndex(bgRows);
     hideBanner();
+    if (baoGiaApiUrl && !bgRows.length) {
+      showBanner('warn', '⚠️ Không lấy được dữ liệu từ URL API Báo Giá (kiểm tra lại URL bên dưới)');
+    }
     renderStats();
     renderTasks();
     renderTabs();
@@ -199,8 +254,28 @@ function renderStats() {
 
 // Tìm khách hàng tương ứng trong danh sách CRM theo SĐT (để lấy SP đã báo giá & nhân viên phụ trách)
 function findKhachByPhone(sdt) {
-  const p = fmtPhone(sdt);
-  return khachHang.find(k => fmtPhone(k.sdt) === p);
+  const p = phoneKey(sdt);
+  return khachHang.find(k => phoneKey(k.sdt) === p);
+}
+
+// Dòng thông tin sản phẩm: ưu tiên dữ liệu đã nhập tay trong CRM (kh.nhuCauChinh),
+// nếu chưa có thì tự lấy từ báo giá GẦN NHẤT khớp SĐT trong sheet BaoGia.
+function productInfoLine(sdt, kh) {
+  if (kh && kh.nhuCauChinh) {
+    return `📦 ${kh.nhuCauChinh}${kh.soLuong ? ' — SL: <b>' + kh.soLuong + '</b>' : ''}${kh.donGia ? ' — Giá: <b>' + fmtCur(kh.donGia) + '</b>' : ''}`;
+  }
+  const q = quotesByPhone[phoneKey(sdt)];
+  if (q && Array.isArray(q.products) && q.products.length) {
+    const p0 = q.products[0];
+    let desc = String(p0.mo_ta || '').split('\n')[0].trim();
+    if (desc.length > 70) desc = desc.slice(0, 70) + '…';
+    const more = q.products.length > 1 ? ` (+${q.products.length - 1} SP khác)` : '';
+    const sl = p0.so_luong;
+    const gia = p0.don_gia;
+    return `📦 ${desc || 'Sản phẩm'}${more}${sl ? ' — SL: <b>' + sl + '</b>' : ''}${gia ? ' — Giá: <b>' + fmtCur(Number(gia)) + '</b>' : ''}` +
+      ` <span style="color:#64748b;font-size:10px;">(BG ${fmtDate(q.timestamp)})</span>`;
+  }
+  return '📦 <span style="color:#f59e0b">Chưa tìm thấy báo giá nào khớp SĐT</span>';
 }
 
 function renderTasks() {
@@ -208,9 +283,7 @@ function renderTasks() {
   if (!tasks.length) { el.innerHTML = '<div class="empty">✅ Không có việc nào cần làm hôm nay</div>'; return; }
   el.innerHTML = tasks.map(t => {
     const kh = findKhachByPhone(t.sdt);
-    const productLine = kh && kh.nhuCauChinh
-      ? `📦 ${kh.nhuCauChinh}${kh.soLuong ? ' — SL: <b>' + kh.soLuong + '</b>' : ''}${kh.donGia ? ' — Giá: <b>' + fmtCur(kh.donGia) + '</b>' : ''}`
-      : '📦 <span style="color:#f59e0b">Chưa cập nhật sản phẩm đã báo giá</span>';
+    const productLine = productInfoLine(t.sdt, kh);
     const staffLine = `👤 Nhân viên đã báo giá: <b>${(kh && kh.nhanVien) || 'Chưa rõ'}</b>`;
     return `
     <div class="task" id="task-${t.id}">
@@ -256,35 +329,34 @@ function setFilter(key) { currentFilter = key; renderTabs(); renderKhach(); }
 function renderKhach() {
   const el = document.getElementById('kh-list');
   const query = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase().trim() : '';
-  
+
   let list = currentFilter === 'all' ? khachHang : khachHang.filter(k => k.phanLoai === currentFilter);
-  
-  // Lọc theo từ khóa tìm kiếm (Tên, SĐT, Sản phẩm)
+
+  // Lọc theo từ khóa tìm kiếm (Tên, SĐT, Sản phẩm - kể cả sản phẩm lấy tự động từ Báo Giá)
   if (query) {
-    list = list.filter(k => 
-      (k.ten && k.ten.toLowerCase().includes(query)) ||
-      (k.sdt && String(k.sdt).toLowerCase().includes(query)) ||
-      (k.nhuCauChinh && k.nhuCauChinh.toLowerCase().includes(query))
-    );
+    list = list.filter(k => {
+      const q = quotesByPhone[phoneKey(k.sdt)];
+      const autoProduct = q && q.products && q.products[0] ? String(q.products[0].mo_ta || '') : '';
+      return (k.ten && k.ten.toLowerCase().includes(query)) ||
+        (k.sdt && String(k.sdt).toLowerCase().includes(query)) ||
+        (k.nhuCauChinh && k.nhuCauChinh.toLowerCase().includes(query)) ||
+        (autoProduct && autoProduct.toLowerCase().includes(query));
+    });
   }
 
   list = list.slice().sort((a,b) => (b.tongDoanhThu||0) - (a.tongDoanhThu||0));
-  
+
   if (!list.length) { el.innerHTML = '<div class="empty">Không tìm thấy khách hàng nào</div>'; return; }
-  
+
   el.innerHTML = list.map(k => `
     <div class="kh-row">
       <div class="kh-info">
         <div class="kh-name">${k.ten || fmtPhone(k.sdt)}</div>
         <div class="kh-sub">📞 ${fmtPhone(k.sdt)} · Mua gần nhất: ${fmtDate(k.ngayMuaGanNhat)}</div>
-        
-        <!-- HIỂN THỊ CHI TIẾT SẢN PHẨM, SỐ LƯỢNG, ĐƠN GIÁ -->
-        <div class="kh-product-info">
-          📦 ${k.nhuCauChinh ? k.nhuCauChinh : '<span style="color:#f59e0b">Chưa cập nhật sản phẩm</span>'} 
-          ${k.soLuong ? '— SL: <b>' + k.soLuong + '</b>' : ''}
-          ${k.donGia ? '— Giá: <b>' + fmtCur(k.donGia) + '</b>' : ''}
-        </div>
-        
+
+        <!-- HIỂN THỊ CHI TIẾT SẢN PHẨM, SỐ LƯỢNG, ĐƠN GIÁ (tự khớp từ Báo Giá nếu CRM chưa có) -->
+        <div class="kh-product-info">${productInfoLine(k.sdt, k)}</div>
+
         <!-- NHÂN VIÊN PHỤ TRÁCH -->
         <div class="kh-staff-info">
           👤 Phụ trách: ${k.nhanVien || 'Kinh doanh TDL'}
@@ -305,6 +377,14 @@ function saveUrl() {
   apiUrl = v;
   localStorage.setItem('tdlcrm_api_url', v);
   showBanner('ok', '✅ Đã lưu URL, đang tải lại...');
+  loadAll();
+}
+
+function saveBaoGiaUrl() {
+  const v = document.getElementById('baogia-url-input').value.trim();
+  baoGiaApiUrl = v;
+  localStorage.setItem('tdlcrm_baogia_api_url', v);
+  showBanner('ok', '✅ Đã lưu URL Báo Giá, đang tải lại...');
   loadAll();
 }
 

@@ -39,6 +39,8 @@
   .task-tag { font-size:10px; background:#7c2d12; color:#fdba74; padding:2px 8px; border-radius:20px; white-space:nowrap; }
   .task-tag.buy { background:#0c4a6e; color:#7dd3fc; }
   .task-note { font-size:12px; color:#94a3b8; margin-top:4px; }
+  .task-product-info { font-size:11.5px; color:#38bdf8; margin-top:6px; font-weight:500; }
+  .task-staff-info { font-size:10.5px; color:#94a3b8; margin-top:2px; }
   .task-actions { display:flex; gap:6px; margin-top:8px; }
   .btn-sm { flex:1; padding:7px; border:none; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer; text-align:center; text-decoration:none; }
   .btn-call { background:#334155; color:#fff; }
@@ -195,15 +197,29 @@ function renderStats() {
   document.getElementById('s-vip').textContent = khachHang.filter(k => k.phanLoai === 'VIP / NPP').length;
 }
 
+// Tìm khách hàng tương ứng trong danh sách CRM theo SĐT (để lấy SP đã báo giá & nhân viên phụ trách)
+function findKhachByPhone(sdt) {
+  const p = fmtPhone(sdt);
+  return khachHang.find(k => fmtPhone(k.sdt) === p);
+}
+
 function renderTasks() {
   const el = document.getElementById('task-list');
   if (!tasks.length) { el.innerHTML = '<div class="empty">✅ Không có việc nào cần làm hôm nay</div>'; return; }
-  el.innerHTML = tasks.map(t => `
+  el.innerHTML = tasks.map(t => {
+    const kh = findKhachByPhone(t.sdt);
+    const productLine = kh && kh.nhuCauChinh
+      ? `📦 ${kh.nhuCauChinh}${kh.soLuong ? ' — SL: <b>' + kh.soLuong + '</b>' : ''}${kh.donGia ? ' — Giá: <b>' + fmtCur(kh.donGia) + '</b>' : ''}`
+      : '📦 <span style="color:#f59e0b">Chưa cập nhật sản phẩm đã báo giá</span>';
+    const staffLine = `👤 Nhân viên đã báo giá: <b>${(kh && kh.nhanVien) || 'Chưa rõ'}</b>`;
+    return `
     <div class="task" id="task-${t.id}">
       <div class="task-top">
         <div>
           <div class="task-name">${t.ten || fmtPhone(t.sdt)}</div>
           <div class="task-note">📞 ${fmtPhone(t.sdt)} — ${t.ghiChu || ''}</div>
+          <div class="task-product-info">${productLine}</div>
+          <div class="task-staff-info">${staffLine}</div>
         </div>
         <span class="task-tag ${t.loaiViec==='Gợi ý mua lại'?'buy':''}">${t.loaiViec}</span>
       </div>
@@ -211,7 +227,8 @@ function renderTasks() {
         <a class="btn-sm btn-call" href="tel:${fmtPhone(t.sdt)}">📞 Gọi ngay</a>
         <button class="btn-sm btn-done" onclick="markDone('${t.id}')">✅ Đã xử lý</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 async function markDone(id) {

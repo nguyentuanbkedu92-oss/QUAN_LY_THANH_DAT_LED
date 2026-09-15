@@ -233,8 +233,9 @@ textarea{resize:vertical;min-height:80px}
 .gs-status.ok{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:var(--green);display:block}
 .gs-status.err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);display:block}
 .gs-status.loading{background:rgba(232,119,34,.1);border:1px solid rgba(232,119,34,.3);color:var(--accent);display:block}
-/* HISTORY PANEL */
-.history-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color .2s}
+
+/* HISTORY PANEL & ACTION BUTTONS */
+.history-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;transition:border-color .2s}
 .history-item:hover{border-color:var(--accent)}
 .history-item-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
 .history-item-name{font-size:14px;font-weight:700;color:var(--text)}
@@ -246,6 +247,14 @@ textarea{resize:vertical;min-height:80px}
 .gs-connect-banner p{font-size:13px;color:var(--muted);margin-bottom:10px}
 .gs-top-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .gs-top-bar .btn{margin:0;flex:1;min-width:120px;padding:10px;font-size:13px}
+
+.history-item-actions{display:flex;gap:6px;margin-top:10px}
+.history-action-btn{flex:1;padding:7px 6px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.history-action-btn.edit{color:#3b9af5;border-color:rgba(59,154,245,.35)}
+.history-action-btn.dup{color:var(--green);border-color:rgba(34,197,94,.35)}
+.history-action-btn.del{color:var(--red);border-color:rgba(239,68,68,.35)}
+.edit-mode-banner{background:rgba(59,154,245,.1);border:1px solid rgba(59,154,245,.35);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12.5px;color:#bcd6f5;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.edit-mode-banner button{background:none;border:1px solid rgba(59,154,245,.5);color:#3b9af5;border-radius:7px;padding:5px 10px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap}
 
 /* TẠM ỨNG DOT TOGGLE */
 .tu-toggle{display:flex;gap:8px;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
@@ -294,6 +303,10 @@ textarea{resize:vertical;min-height:80px}
 
 <!-- ===== FORM PANEL ===== -->
 <div id="formPanel" class="panel active">
+  <div id="editModeBanner" class="edit-mode-banner" style="display:none">
+    <span id="editModeText"></span>
+    <button type="button" onclick="cancelEditMode()">✖ Huỷ, tạo mới</button>
+  </div>
 
   <div class="section-title">🏢 Thông tin khách hàng (Bên Mua)</div>
   <div class="field">
@@ -599,7 +612,6 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-btn')[map[tab]].classList.add('active');
   document.getElementById(tab+'Panel').classList.add('active');
 
-  // MỚI: tự động tải lịch sử ngay khi bấm vào tab "Lịch sử"
   if (tab === 'history') {
     loadHistory();
   }
@@ -779,7 +791,6 @@ function downloadTamUng() {
 function generateZaloText(data) {
   const t = calcTotals();
 
-  // Chi tiết từng sản phẩm
   let productLines = '';
   products.forEach((p, i) => {
     const dg = parseFloat(p.don_gia)||0;
@@ -792,14 +803,12 @@ function generateZaloText(data) {
     }
   });
 
-  // Dòng tổng
   let tongDong = `💰 TỔNG: ${fmt(t.sub)} VNĐ`;
   if(t.discPct > 0) tongDong += ` − CK ${t.discPct}% = ${fmt(t.base)} VNĐ`;
   if(t.vatPct > 0) tongDong += ` + VAT ${t.vatPct}% = ${fmt(t.total)} VNĐ`;
   else if(t.discPct === 0) tongDong += ` (chưa VAT)`;
   tongDong += ' (chưa ship)';
 
-  // Khách hàng
   const kh = data.khachHang || '';
   const sdt = data.sdt || '';
   const dc = data.diaChi || '';
@@ -819,7 +828,6 @@ ${tongDong}
 
   document.getElementById('zaloContent').textContent = text;
 
-  // Reset copy button
   const btn = document.getElementById('btnCopyZalo');
   btn.textContent = '📋 Copy Zalo';
   btn.classList.remove('copied');
@@ -837,7 +845,6 @@ function copyZaloText() {
       btn.classList.remove('copied');
     }, 2500);
   }).catch(() => {
-    // Fallback
     const ta = document.createElement('textarea');
     ta.value = text;
     ta.style.position = 'fixed'; ta.style.opacity = '0';
@@ -1349,7 +1356,6 @@ function generateTamUng(data, dot) {
 
 // Print
 function printDoc(targetId) {
-  // Xác định tab tương ứng với tài liệu cần in
   const tabMap = {
     'quotePaper':    'previewBaoGia',
     'xuatKhoPaper':  'previewXuatKho',
@@ -1360,13 +1366,11 @@ function printDoc(targetId) {
   if (!paper || paper.innerHTML.includes('Nhập thông tin')) {
     alert('Vui lòng tạo tài liệu trước!'); return;
   }
-  // Chuyển sang đúng tab cần in (để .panel.active đúng với @media print)
   switchTab(tabMap[targetId]);
-  // Gọi print — @media print sẽ ẩn mọi thứ chỉ giữ lại .panel.active
   window.print();
 }
 
-// Export Word (.doc) — không cần thư viện ngoài, dùng MIME Word XML
+// Export Word (.doc)
 function exportWord(targetId, prefix) {
   const paper = document.getElementById(targetId);
   if (!paper || paper.innerHTML.includes('Nhập thông tin')) {
@@ -1377,7 +1381,6 @@ function exportWord(targetId, prefix) {
   const ng = (document.getElementById('ngayKy').value || '').replace(/-/g, '');
   const filename = `${prefix}_${kh}_${ng}.doc`;
 
-  // Inline-style all elements so Word renders correctly
   const wordCSS = `
     body { font-family: Arial, sans-serif; font-size: 12pt; color: #1a1a1a; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 10pt; }
@@ -1435,20 +1438,16 @@ function exportWord(targetId, prefix) {
     .tdl-logo-text { font-size: 22pt; font-weight: 900; color: #E87722; font-family: Arial Black, Arial, sans-serif; }
   `;
 
-  // Clone and clean up HTML for Word
   const clone = paper.cloneNode(true);
-  // Replace SVG logo images with text
   clone.querySelectorAll('img[alt="TDL"]').forEach(img => {
     const span = document.createElement('span');
     span.className = 'tdl-logo-text';
     span.textContent = 'TDL';
     img.parentNode.replaceChild(span, img);
   });
-  // Remove remaining images
   clone.querySelectorAll('img').forEach(img => img.remove());
 
   const innerHtml = clone.innerHTML;
-
   const wordHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
     xmlns:w="urn:schemas-microsoft-com:office:word"
     xmlns="http://www.w3.org/TR/REC-html40">
@@ -1479,15 +1478,11 @@ function exportWord(targetId, prefix) {
   <body>${innerHtml}</body>
   </html>`;
 
-  const blob = new Blob(['\ufeff' + wordHtml], {
-    type: 'application/msword;charset=utf-8'
-  });
+  const blob = new Blob(['\ufeff' + wordHtml], { type: 'application/msword;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
@@ -1579,8 +1574,8 @@ function downloadDoc(targetId, prefix) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-// ===== GOOGLE SHEET INTEGRATION =====
 
+// ===== GOOGLE SHEET INTEGRATION =====
 function getGsConfig() {
   return {
     url: localStorage.getItem('gs_url') || '',
@@ -1656,7 +1651,7 @@ async function lookupKhachByPhone() {
   const digits = raw.replace(/\D/g, '');
 
   if (digits.length < 9) { box.className = 'kh-lookup'; box.innerHTML = ''; return; }
-  if (raw === lastLookupSdt) return; // đã tra rồi, không gọi lại
+  if (raw === lastLookupSdt) return;
 
   const cfg = getGsConfig();
   if (!cfg.url) { box.className = 'kh-lookup'; box.innerHTML = ''; return; }
@@ -1671,7 +1666,7 @@ async function lookupKhachByPhone() {
       body: JSON.stringify({ action: 'traCuu', data: { q: raw } })
     });
     const json = await res.json();
-    if (raw !== document.getElementById('sdt').value.trim()) return; // người dùng đã gõ số khác trong lúc chờ
+    if (raw !== document.getElementById('sdt').value.trim()) return;
 
     const kh = (json.khachHang && json.khachHang[0]) || null;
     const soDon = kh ? (kh.soDon || 0) : 0;
@@ -1692,13 +1687,13 @@ async function lookupKhachByPhone() {
     html += '<div class="kl-row"><b>' + (kh.ten||'') + '</b></div>';
     if (soDon > 0) {
       html += '<div class="kl-row">🛒 Đã mua <b>' + soDon + ' đơn</b> — tổng <b>' + fmtCurLookup(kh.tongDoanhThu) + '</b>' +
-              (kh.ngayMuaGanNhat ? ', gần nhất ' + fmtDateLookup(kh.ngayMuaGanNhat) : '') + '</div>';
+             (kh.ngayMuaGanNhat ? ', gần nhất ' + fmtDateLookup(kh.ngayMuaGanNhat) : '') + '</div>';
     } else {
       html += '<div class="kl-row">🛒 Chưa mua đơn nào</div>';
     }
     if (soBaoGia > 0) {
       html += '<div class="kl-row">📄 Đã báo giá <b>' + soBaoGia + ' lần</b>' +
-              (bgCuoi ? ', gần nhất ' + fmtDateLookup(bgCuoi.ngayKy || bgCuoi.timestamp) : '') + '</div>';
+             (bgCuoi ? ', gần nhất ' + fmtDateLookup(bgCuoi.ngayKy || bgCuoi.timestamp) : '') + '</div>';
     }
     if (kh.nguoiLienHe) html += '<div class="kl-row">☎️ Người liên hệ: <b>' + kh.nguoiLienHe + '</b></div>';
     if (kh.nhanVien) html += '<div class="kl-row">👤 Phụ trách: <b>' + kh.nhanVien + '</b></div>';
@@ -1717,8 +1712,6 @@ function dienLaiTuLichSu() {
   const bgSorted = (lastLookupData.baoGia || []).slice().sort((a,b) => new Date(a.ngayKy||a.timestamp||0) - new Date(b.ngayKy||b.timestamp||0));
   const bgCuoi = bgSorted[bgSorted.length - 1];
   if (!bgCuoi) return;
-  // Chỉ điền lại thông tin ĐỊNH DANH khách hàng — KHÔNG điền soHopDong/ngayKy,
-  // vì đây là báo giá MỚI, không phải sửa lại báo giá cũ.
   ['khachHang','mst','diaChi','nguoiLienHe','daiDien','chucVu','stk','nganhang'].forEach(id => {
     const el = document.getElementById(id);
     if (el && bgCuoi[id]) el.value = bgCuoi[id];
@@ -1776,6 +1769,72 @@ function fillFormData(data) {
   updateSummary();
 }
 
+// ===== TRẠNG THÁI SỬA & GHI ĐÈ =====
+let editingOriginalSoHopDong = null;
+
+function showEditModeBanner(ten, soHD) {
+  document.getElementById('editModeText').textContent = '✏ Đang SỬA báo giá: ' + (ten||'') + ' — HĐ ' + (soHD||'');
+  document.getElementById('editModeBanner').style.display = 'flex';
+  document.getElementById('btnSaveSheet').textContent = '☁ Cập nhật báo giá';
+}
+function hideEditModeBanner() {
+  document.getElementById('editModeBanner').style.display = 'none';
+  document.getElementById('btnSaveSheet').textContent = '☁ Lưu lên Google Sheet';
+}
+function cancelEditMode() {
+  editingOriginalSoHopDong = null;
+  hideEditModeBanner();
+}
+
+function editRow(idx) {
+  const row = window._historyOriginal && window._historyOriginal[idx];
+  if (!row) return;
+  if (!confirm('Sửa báo giá của "' + row.khachHang + '"? Khi bấm "Cập nhật báo giá" nó sẽ ghi đè đúng báo giá này (không tạo bản mới).')) return;
+  fillFormData(row);
+  editingOriginalSoHopDong = row.soHopDong || null;
+  showEditModeBanner(row.khachHang, row.soHopDong);
+  switchTab('form');
+}
+
+function duplicateRow(idx) {
+  const row = window._historyOriginal && window._historyOriginal[idx];
+  if (!row) return;
+  if (!confirm('Nhân bản báo giá của "' + row.khachHang + '" để tạo báo giá MỚI?')) return;
+  const clone = Object.assign({}, row);
+  delete clone.soHopDong; delete clone.soPhieuXuat; delete clone.timestamp;
+  fillFormData(clone);
+
+  const now = new Date();
+  document.getElementById('ngayKy').value = now.toISOString().split('T')[0];
+  document.getElementById('ngayXuatKho').value = now.toISOString().split('T')[0];
+  const stamp = String(now.getDate()).padStart(2,'0') + String(now.getMonth()+1).padStart(2,'0') + String(now.getFullYear()).slice(-2);
+  document.getElementById('soHopDong').value = 'HDTDL-' + stamp;
+  document.getElementById('soPhieuXuat').value = 'PXK-' + stamp;
+
+  editingOriginalSoHopDong = null;
+  hideEditModeBanner();
+  switchTab('form');
+}
+
+async function deleteHistoryRow(idx) {
+  const row = window._historyOriginal && window._historyOriginal[idx];
+  if (!row) return;
+  if (!confirm('Xoá vĩnh viễn báo giá "' + (row.khachHang||'') + '" — HĐ ' + (row.soHopDong||'') + '?\nKhông thể hoàn tác!')) return;
+  const cfg = getGsConfig();
+  if (!cfg.url) { alert('Chưa cài Google Sheet.'); return; }
+  try {
+    const res = await fetch(cfg.url, {
+      method: 'POST',
+      body: JSON.stringify({ action:'deleteBaoGia', data:{ soHopDong: row.soHopDong } })
+    });
+    const json = await res.json();
+    if (json.success) { loadHistory(); }
+    else throw new Error(json.error || 'Xoá thất bại');
+  } catch(e) {
+    alert('❌ Lỗi xoá: ' + e.message);
+  }
+}
+
 async function saveToSheet() {
   const cfg = getGsConfig();
   if (!cfg.url) {
@@ -1786,27 +1845,35 @@ async function saveToSheet() {
   if (!kh) { alert('Vui lòng nhập tên khách hàng!'); return; }
 
   const btn = document.getElementById('btnSaveSheet');
-  btn.textContent = '⏳ Đang lưu...';
+  const isEditing = !!editingOriginalSoHopDong;
+  btn.textContent = isEditing ? '⏳ Đang cập nhật...' : '⏳ Đang lưu...';
   btn.disabled = true;
 
   try {
     const payload = collectFormData();
     payload.sheet = cfg.sheet;
+    if (isEditing) payload._originalSoHopDong = editingOriginalSoHopDong;
+
     const res = await fetch(cfg.url, {
       method: 'POST',
-      body: JSON.stringify({action: 'save', data: payload})
+      body: JSON.stringify({action: isEditing ? 'updateBaoGia' : 'save', data: payload})
     });
     const json = await res.json();
     if (json.success) {
-      btn.textContent = '✅ Đã lưu!';
-      setTimeout(() => { btn.textContent = '☁ Lưu lên Google Sheet'; btn.disabled = false; }, 2000);
-      alert('✅ Đã lưu báo giá "' + payload.khachHang + '" lên Google Sheet!');
+      alert((isEditing ? '✅ Đã cập nhật báo giá "' : '✅ Đã lưu báo giá "') + payload.khachHang + '"!');
+      if (isEditing) {
+        editingOriginalSoHopDong = null;
+        hideEditModeBanner();
+      } else {
+        btn.textContent = '☁ Lưu lên Google Sheet';
+      }
+      btn.disabled = false;
     } else {
       throw new Error(json.error || 'Lưu thất bại');
     }
   } catch(e) {
-    alert('❌ Lỗi lưu: ' + e.message + '\n\nKiểm tra lại URL và cài đặt Google Sheet.');
-    btn.textContent = '☁ Lưu lên Google Sheet';
+    alert('❌ Lỗi: ' + e.message);
+    btn.textContent = isEditing ? '☁ Cập nhật báo giá' : '☁ Lưu lên Google Sheet';
     btn.disabled = false;
   }
 }
@@ -1835,7 +1902,6 @@ async function loadHistory() {
 }
 
 function renderHistory(rows) {
-  // Giữ nguyên thứ tự gốc từ sheet để loadRow luôn tra đúng dòng, kể cả khi đang lọc
   window._historyOriginal = rows ? rows.slice() : [];
   applyHistoryFilter();
 }
@@ -1862,34 +1928,30 @@ function applyHistoryFilter() {
   }
 
   listEl.innerHTML = filtered.slice().reverse().map(({row: d, origIdx}) => {
-    const ngay = d.ngayKy ? fmtDate(d.ngayKy) : (d.timestamp||'').slice(0,10);
+    const ngayS = d.ngayKy ? fmtDate(d.ngayKy) : (d.timestamp||'').slice(0,10);
     const tong = d.tongTien ? fmt(Number(d.tongTien)) + ' VNĐ' : '—';
     const soHD = d.soHopDong || '—';
-    return `<div class="history-item" onclick="loadRow(${origIdx})">
+    return `<div class="history-item">
       <div class="history-item-top">
         <div class="history-item-name">🏢 ${d.khachHang||'—'}</div>
-        <div class="history-item-date">${ngay}</div>
+        <div class="history-item-date">${ngayS}</div>
       </div>
       <div class="history-item-meta">HĐ: ${soHD} &nbsp;|&nbsp; SĐT: ${d.sdt||'—'}</div>
       <div class="history-item-total">💰 ${tong}</div>
+      <div class="history-item-actions">
+        <button type="button" class="history-action-btn edit" onclick="editRow(${origIdx})">✏ Sửa</button>
+        <button type="button" class="history-action-btn dup" onclick="duplicateRow(${origIdx})">📋 Nhân bản</button>
+        <button type="button" class="history-action-btn del" onclick="deleteHistoryRow(${origIdx})">🗑 Xoá</button>
+      </div>
     </div>`;
   }).join('');
 }
 
-function loadRow(idx) {
-  const row = window._historyOriginal && window._historyOriginal[idx];
-  if (!row) return;
-  if (!confirm('Tải báo giá của "' + row.khachHang + '" vào form? Dữ liệu hiện tại sẽ bị thay thế.')) return;
-  fillFormData(row);
-  switchTab('form');
-}
-
-// Pre-configured URL — không cần cài đặt
+// Pre-configured URL
 const DEFAULT_GS_URL = 'https://script.google.com/macros/s/AKfycbymFG3K-ypuv475xRs6L_vOLqTfZgJtPsIwNcD10klgP_OXuchYfs7eDGkcxf9he9aHWg/exec';
 const DEFAULT_GS_SHEET = 'BaoGia';
 
 window.addEventListener('DOMContentLoaded', () => {
-  // Nếu chưa có URL trong localStorage thì tự điền mặc định
   if (!localStorage.getItem('gs_url')) {
     localStorage.setItem('gs_url', DEFAULT_GS_URL);
     localStorage.setItem('gs_sheet', DEFAULT_GS_SHEET);
@@ -1897,7 +1959,6 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('gsConnectBanner').style.display = 'none';
 });
 
-// Close modal when click outside
 document.getElementById('gsModal').addEventListener('click', function(e) {
   if (e.target === this) closeGsModal();
 });

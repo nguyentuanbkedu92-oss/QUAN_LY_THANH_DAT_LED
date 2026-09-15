@@ -52,14 +52,23 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--te
 .section-title:first-child{margin-top:0}
 .field{margin-bottom:12px}
 label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}
-input[type=text],input[type=date],input[type=number],textarea,select{
+input[type=text],input[type=tel],input[type=date],input[type=number],textarea,select{
   width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);
   border-radius:10px;color:var(--text);font-family:inherit;font-size:14px;
-  outline:none;transition:border-color .2s;-webkit-appearance:none
+  outline:none;transition:border-color .2s,background .2s;-webkit-appearance:none
 }
 input:focus,textarea:focus,select:focus{border-color:var(--accent)}
 input::placeholder,textarea::placeholder{color:var(--muted)}
 textarea{resize:vertical;min-height:80px}
+/* Ô bắt buộc bị bỏ trống / sai định dạng — dùng chung tông màu đỏ của theme, không tự vẽ khung cứng */
+input.invalid{border-color:var(--red);background:rgba(239,68,68,.06)}
+.field-err{
+  display:none;align-items:flex-start;gap:6px;margin-top:7px;padding:8px 10px;
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:8px;
+  font-size:11.5px;line-height:1.5;color:#fca5a5
+}
+.field-err.show{display:flex}
+.field-err b{color:#fecaca}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 
@@ -321,9 +330,9 @@ textarea{resize:vertical;min-height:80px}
     </div>
     <div class="field">
       <label>Số điện thoại</label>
-      <input type="tel" inputmode="numeric" id="sdt" placeholder="0xxx xxx xxx (bắt buộc)" required
-             onblur="lookupKhachByPhone(); kiemTraSdt();" oninput="kiemTraSdt()">
-      <div id="sdt-loi" style="display:none;font-size:11.5px;color:#dc2626;margin-top:4px">⚠ Cần SĐT đúng 10 số (VD 0986474671) — thiếu SĐT là khách không vào được CRM.</div>
+      <input type="tel" inputmode="numeric" id="sdt" placeholder="VD: 0986474671 (bắt buộc)" required
+             onblur="lookupKhachByPhone(); kiemTraSdt(true);" oninput="kiemTraSdt()">
+      <div id="sdt-loi" class="field-err"><span>⚠️</span><span><b>Cần SĐT đúng 10 số</b> (VD 0986474671) — thiếu SĐT là khách không vào được CRM.</span></div>
     </div>
   </div>
   <div id="khLookupBox" class="kh-lookup"></div>
@@ -1579,14 +1588,18 @@ function downloadDoc(targetId, prefix) {
 }
 
 // ===== GOOGLE SHEET INTEGRATION =====
-function kiemTraSdt() {
+function kiemTraSdt(bietDaCham) {
   const el = document.getElementById('sdt');
   const loi = document.getElementById('sdt-loi');
   if (!el || !loi) return true;
   const v = el.value.trim();
   const ok = v === '' ? false : (window.TDL ? TDL.hopLeSdt(v) : /^0\d{9}$/.test(v.replace(/\D/g, '')));
-  loi.style.display = ok ? 'none' : 'block';
-  el.style.borderColor = ok ? '' : '#dc2626';
+  // Ô còn trống và người dùng CHƯA từng chạm vào (chưa gõ, chưa rời khỏi ô, chưa bấm Lưu)
+  // thì không báo đỏ ngay khi vừa mở trang — chỉ báo khi có tương tác hoặc khi cố Lưu.
+  const daCham = bietDaCham || el.dataset.touched === '1' || v !== '';
+  el.classList.toggle('invalid', !ok && daCham);
+  loi.classList.toggle('show', !ok && daCham);
+  if (v !== '') el.dataset.touched = '1';
   return ok;
 }
 
@@ -1863,7 +1876,7 @@ async function saveToSheet() {
   const elSdt = document.getElementById('sdt');
   const sdtOk = window.TDL ? TDL.hopLeSdt(elSdt.value) : /^0\d{9}$/.test(elSdt.value.replace(/\D/g, ''));
   if (!sdtOk) {
-    kiemTraSdt();
+    kiemTraSdt(true);
     elSdt.focus();
     alert('⚠ Thiếu hoặc sai số điện thoại!\n\nBáo giá không có SĐT sẽ không tạo được khách hàng trong CRM, ' +
           'không có nhắc chăm sóc và coi như mất lead.\n\nNhập SĐT 10 số rồi lưu lại.');

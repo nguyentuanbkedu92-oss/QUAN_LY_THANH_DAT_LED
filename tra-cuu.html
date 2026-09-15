@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra Cứu Kiến Thức & Hướng Dẫn - TDL</title>
+    <script src="tdl-config.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 14px; }
+        .wrap { max-width: 860px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 16px; }
+        header h1 { font-size: 20px; color: #38bdf8; text-transform: uppercase; }
+        header a { color: #94a3b8; font-size: 12px; text-decoration: none; }
+
+        .banner { display: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; }
+        .banner.ok { background: #052e1c; color: #4ade80; border: 1px solid #14532d; }
+        .banner.err { background: #3a0d0d; color: #fca5a5; border: 1px solid #7f1d1d; }
+
+        section { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px; margin-bottom: 18px; }
+        section h2 { font-size: 14px; color: #e87722; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid #334155; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .search-box { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px 14px; color: #f8fafc; font-size: 14px; margin-bottom: 12px; outline: none; }
+        .search-box:focus { border-color: #38bdf8; }
+
+        .faq-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        .faq-q { font-weight: bold; font-size: 14px; color: #38bdf8; margin-bottom: 6px; display: flex; justify-content: space-between; }
+        .faq-tag { font-size: 10px; background: #0c4a6e; color: #7dd3fc; padding: 2px 8px; border-radius: 20px; height: fit-content; }
+        .faq-a { font-size: 13px; color: #cbd5e1; line-height: 1.5; white-space: pre-wrap; }
+
+        /* Khung đóng góp câu hỏi mới nếu không tìm thấy */
+        .missing-box { background: #0f172a; border: 1px dashed #e87722; border-radius: 8px; padding: 14px; margin-top: 15px; text-align: center; }
+        .missing-box p { font-size: 12px; color: #fdba74; margin-bottom: 8px; }
+        .missing-input { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 8px; color: #fff; font-size: 12px; margin-bottom: 8px; outline: none; }
+        .btn-submit { background: #e87722; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .btn-submit:active { background: #c25e10; }
+        .empty { color: #64748b; font-size: 13px; text-align: center; padding: 20px 0; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <h1>Tra Cứu Thông Tin & Hỏi Đáp - TDL</h1>
+        <a href="index.html">&larr; Về trang chính</a>
+    </header>
+
+    <div id="banner" class="banner"></div>
+
+    <section>
+        <h2>Tìm kiếm nhanh câu hỏi, thông số, loại đèn</h2>
+        <input type="text" id="search-input" class="search-box" placeholder="🔍 Nhập từ khóa (vd: chip led, sân pickleball, bảo hành, công suất...)" oninput="filterFaq()">
+        
+        <div id="faq-list"><div class="empty">Đang tải dữ liệu...</div></div>
+
+        <!-- Form gửi câu hỏi mới nếu không có kết quả -->
+        <div id="missing-section" class="missing-box" style="display:none;">
+            <p>🤔 Không tìm thấy câu trả lời bạn cần?</p>
+            <input type="text" id="new-question" class="missing-input" placeholder="Nhập câu hỏi của bạn vào đây để gửi cho quản lý...">
+            <button class="btn-submit" onclick="submitMissingQuestion()">📤 Gửi câu hỏi mới</button>
+        </div>
+    </section>
+</div>
+
+<script>
+let faqData = [];
+
+function showBanner(type, msg) {
+    const b = document.getElementById('banner');
+    b.innerHTML = msg; b.className = 'banner ' + type; b.style.display = 'block';
+    if(type === 'ok') setTimeout(() => b.style.display = 'none', 3000);
+}
+
+// Tải dữ liệu từ API (action: getFaq)
+function loadFaq() {
+    TDL.live('getFaq', {}, (res) => {
+        faqData = res.faq || [];
+        renderFaq(faqData);
+    }, (e) => {
+        document.getElementById('faq-list').innerHTML = '<div class="empty">Không tải được dữ liệu tra cứu.</div>';
+    });
+}
+
+function renderFaq(list) {
+    const el = document.getElementById('faq-list');
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    const missingSec = document.getElementById('missing-section');
+
+    if (!list.length) {
+        el.innerHTML = '<div class="empty">Chưa có dữ liệu câu hỏi trong hệ thống.</div>';
+        missingSec.style.display = 'block';
+        return;
+    }
+
+    if (query && list.length === 0) {
+        missingSec.style.display = 'block';
+    } else if (query && list.length > 0) {
+        missingSec.style.display = 'block'; // Luôn cho phép gửi nếu không ưng ý
+    } else {
+        missingSec.style.display = 'none';
+    }
+
+    el.innerHTML = list.map(item => `
+        <div class="faq-item">
+            <div class="faq-q">
+                <span>💡 ${item.cauHoi}</span>
+                <span class="faq-tag">${item.danhMuc || 'Chung'}</span>
+            </div>
+            <div class="faq-a">${item.traLoi}</div>
+        </div>
+    `).join('');
+}
+
+function filterFaq() {
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    if (!query) {
+        renderFaq(faqData);
+        return;
+    }
+    const filtered = faqData.filter(item => 
+        (item.cauHoi && item.cauHoi.toLowerCase().includes(query)) ||
+        (item.traLoi && item.traLoi.toLowerCase().includes(query)) ||
+        (item.danhMuc && item.danhMuc.toLowerCase().includes(query))
+    );
+    renderFaq(filtered);
+}
+
+async function submitMissingQuestion() {
+    const input = document.getElementById('new-question');
+    const cauHoi = input.value.trim();
+    if (!cauHoi) {
+        showBanner('err', '❌ Vui lòng nhập nội dung câu hỏi!');
+        return;
+    }
+
+    try {
+        const res = await TDL.api('saveMissingQuestion', { cauHoi });
+        if (res.status !== 'ok') throw new Error(res.msg);
+        showBanner('ok', '✅ Đã gửi câu hỏi thành công! Quản lý sẽ cập nhật câu trả lời sớm.');
+        input.value = '';
+        loadFaq();
+    } catch (e) {
+        showBanner('err', '❌ Lỗi: ' + e.message);
+    }
+}
+
+loadFaq();
+</script>
+</body>
+</html>

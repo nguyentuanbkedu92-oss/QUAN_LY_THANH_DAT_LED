@@ -283,6 +283,7 @@ textarea{resize:vertical;min-height:80px}
   <button class="tab-btn" onclick="switchTab('previewBaoGia')">📄 Báo giá</button>
   <button class="tab-btn" onclick="switchTab('previewXuatKho')">📦 Xuất kho</button>
   <button class="tab-btn" onclick="switchTab('previewHopDong')">📋 Hợp đồng</button>
+  <button class="tab-btn" onclick="switchTab('previewTamUng')">💵 Tạm ứng</button>
   <button class="tab-btn" onclick="switchTab('history')" id="tabHistory">📁 Lịch sử</button>
 </div>
 
@@ -359,7 +360,7 @@ textarea{resize:vertical;min-height:80px}
   <button class="btn btn-add" onclick="addProduct()">＋ Thêm sản phẩm</button>
 
   <div class="section-title" style="margin-top:24px">🧾 Thuế & Chiết khấu</div>
-  <div class="row2">
+  <div class="row3">
     <div class="field">
       <label>VAT (%)</label>
       <select id="vatRate">
@@ -372,6 +373,10 @@ textarea{resize:vertical;min-height:80px}
       <label>Chiết khấu (%)</label>
       <input type="number" id="discount" placeholder="0" min="0" max="100" step="0.1" value="0">
     </div>
+    <div class="field">
+      <label>% Tạm ứng (đặt cọc)</label>
+      <input type="number" id="tamUngPct" placeholder="30" min="0" max="100" step="1" value="30" oninput="updateSummary()">
+    </div>
   </div>
 
   <div class="summary-box">
@@ -379,6 +384,8 @@ textarea{resize:vertical;min-height:80px}
     <div class="sum-row" id="discountRow" style="display:none"><span class="sum-label">Chiết khấu</span><span class="sum-value" id="sumDiscount" style="color:var(--red)">0 VNĐ</span></div>
     <div class="sum-row" id="vatRow"><span class="sum-label">VAT (8%)</span><span class="sum-value" id="sumVat">0 VNĐ</span></div>
     <div class="sum-row sum-total"><span class="sum-label">TỔNG THANH TOÁN</span><span class="sum-value" id="sumTotal">0 VNĐ</span></div>
+    <div class="sum-row"><span class="sum-label" id="sumTamUngLabel">Tạm ứng (30%)</span><span class="sum-value" id="sumTamUng" style="color:var(--accent2)">0 VNĐ</span></div>
+    <div class="sum-row"><span class="sum-label">Còn lại phải trả</span><span class="sum-value" id="sumConLai">0 VNĐ</span></div>
   </div>
 
   <button class="btn btn-primary" onclick="generateAll()">▶ Tạo Báo Giá · Xuất Kho · Hợp Đồng →</button>
@@ -485,11 +492,28 @@ textarea{resize:vertical;min-height:80px}
     <button class="btn btn-word" onclick="exportWord('contractPaper','HopDong')">📄 Xuất Word</button>
     <button class="btn btn-purple" onclick="downloadDoc('contractPaper','HopDong')">⬇ Tải HTML</button>
     <button class="btn btn-blue" onclick="switchTab('previewBaoGia')">📄 ← Xem BG</button>
+    <button class="btn btn-blue" onclick="switchTab('previewTamUng')">💵 Tạm ứng →</button>
     <button class="btn" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);flex:0 0 60px" onclick="switchTab('form')">✏ Sửa</button>
   </div>
   <div class="contract-paper" id="contractPaper">
     <div style="color:#aaa;text-align:center;padding:40px;font-size:14px">
       Nhập thông tin và nhấn <strong>"Tạo Báo Giá & Hợp Đồng"</strong>.
+    </div>
+  </div>
+</div>
+
+<!-- ===== PHIẾU TẠM ỨNG PANEL ===== -->
+<div id="previewTamUngPanel" class="panel">
+  <div class="preview-controls">
+    <button class="btn btn-green" onclick="printDoc('tamUngPaper')">🖨 In Tạm Ứng</button>
+    <button class="btn btn-word" onclick="exportWord('tamUngPaper','TamUng')">📄 Xuất Word</button>
+    <button class="btn btn-purple" onclick="downloadDoc('tamUngPaper','TamUng')">⬇ Tải HTML</button>
+    <button class="btn btn-blue" onclick="switchTab('previewHopDong')">📋 ← Xem HĐ</button>
+    <button class="btn" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);flex:0 0 60px" onclick="switchTab('form')">✏ Sửa</button>
+  </div>
+  <div class="contract-paper" id="tamUngPaper">
+    <div style="color:#aaa;text-align:center;padding:40px;font-size:14px">
+      Nhập thông tin và nhấn <strong>"Tạo Báo Giá · Xuất Kho · Hợp Đồng"</strong>.
     </div>
   </div>
 </div>
@@ -561,7 +585,7 @@ addProduct();
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  const map = {form:0, previewBaoGia:1, previewXuatKho:2, previewHopDong:3, history:4};
+  const map = {form:0, previewBaoGia:1, previewXuatKho:2, previewHopDong:3, previewTamUng:4, history:5};
   document.querySelectorAll('.tab-btn')[map[tab]].classList.add('active');
   document.getElementById(tab+'Panel').classList.add('active');
 
@@ -623,13 +647,19 @@ function updateSummary() {
   const sub = products.reduce((s,p) => s+(parseFloat(p.don_gia)||0)*(parseFloat(p.so_luong)||0), 0);
   const discPct = parseFloat(document.getElementById('discount').value)||0;
   const vatPct = parseFloat(document.getElementById('vatRate').value)||0;
+  const tamUngPct = parseFloat(document.getElementById('tamUngPct').value)||0;
   const discAmt = sub*discPct/100;
   const base = sub - discAmt;
   const vat = base*vatPct/100;
   const total = base+vat;
+  const tamUng = Math.round(total*tamUngPct/100);
+  const conLai = total-tamUng;
   document.getElementById('sumSubtotal').textContent = fmt(sub)+' VNĐ';
   document.getElementById('sumVat').textContent = fmt(vat)+' VNĐ';
   document.getElementById('sumTotal').textContent = fmt(total)+' VNĐ';
+  document.getElementById('sumTamUngLabel').textContent = `Tạm ứng (${tamUngPct}%)`;
+  document.getElementById('sumTamUng').textContent = fmt(tamUng)+' VNĐ';
+  document.getElementById('sumConLai').textContent = fmt(conLai)+' VNĐ';
   document.getElementById('vatRow').querySelector('.sum-label').textContent = `VAT (${vatPct}%)`;
   if(discPct>0) { document.getElementById('discountRow').style.display='flex'; document.getElementById('sumDiscount').textContent='-'+fmt(discAmt)+' VNĐ'; }
   else document.getElementById('discountRow').style.display='none';
@@ -675,13 +705,14 @@ function calcTotals() {
   const sub = products.reduce((s,p) => s+(parseFloat(p.don_gia)||0)*(parseFloat(p.so_luong)||0), 0);
   const discPct = parseFloat(document.getElementById('discount').value)||0;
   const vatPct = parseFloat(document.getElementById('vatRate').value)||0;
+  const tamUngPct = parseFloat(document.getElementById('tamUngPct').value)||0;
   const discAmt = sub*discPct/100;
   const base = sub-discAmt;
   const vat = base*vatPct/100;
   const total = base+vat;
-  const deposit = Math.round(total*0.3);
+  const deposit = Math.round(total*tamUngPct/100);
   const remain = total-deposit;
-  return {sub,discPct,discAmt,vatPct,vat,base,total,deposit,remain};
+  return {sub,discPct,discAmt,vatPct,vat,base,total,tamUngPct,deposit,remain};
 }
 
 function generateAll() {
@@ -709,6 +740,7 @@ function generateAll() {
   generateQuote(data);
   generateXuatKho(data);
   generateContract(data);
+  generateTamUng(data);
   generateZaloText(data);
   switchTab('previewBaoGia');
 }
@@ -855,7 +887,7 @@ function generateQuote(data) {
           <div class="q-footer-body">
             • Báo giá có hiệu lực 15 ngày kể từ ngày gửi.<br>
             • Hàng hóa mới 100%, chưa qua sử dụng.<br>
-            • Thanh toán: Đặt cọc 30%, thanh toán 70% trước giao hàng.<br>
+            • Thanh toán: Đặt cọc ${t.tamUngPct}%, thanh toán ${100-t.tamUngPct}% trước giao hàng.<br>
             • Giá ${t.vatPct>0?`đã bao gồm VAT ${t.vatPct}%`:'chưa bao gồm VAT'}.<br>
             • Giao hàng: trong vòng ${data.tgGiaoHang} ngày làm việc sau đặt cọc.
           </div>
@@ -1117,8 +1149,8 @@ function generateContract(data) {
       <div class="c-body">
         <p><strong>3.1.</strong> Hình thức: Chuyển khoản qua tài khoản ngân hàng của Bên Bán.</p>
         <p><strong>3.2.</strong> Tổng giá trị: <strong>${fmt(t.total)} đ</strong>. Chia làm 02 đợt:</p>
-        <p class="indent">• <strong>Đợt 1 (Tạm ứng 30%):</strong> Trong vòng 01 ngày kể từ ngày ký, Bên A thanh toán <strong>${fmt(t.deposit)} đ</strong> (${capitalize(soToText(t.deposit))}).</p>
-        <p class="indent">• <strong>Đợt 2 (Thanh toán nốt 70%):</strong> Trước khi giao hàng, Bên A thanh toán <strong>${fmt(t.remain)} đ</strong> (${capitalize(soToText(t.remain))}).</p>
+        <p class="indent">• <strong>Đợt 1 (Tạm ứng ${t.tamUngPct}%):</strong> Trong vòng 01 ngày kể từ ngày ký, Bên A thanh toán <strong>${fmt(t.deposit)} đ</strong> (${capitalize(soToText(t.deposit))}).</p>
+        <p class="indent">• <strong>Đợt 2 (Thanh toán nốt ${100-t.tamUngPct}%):</strong> Trước khi giao hàng, Bên A thanh toán <strong>${fmt(t.remain)} đ</strong> (${capitalize(soToText(t.remain))}).</p>
         <p><strong>3.3.</strong> Hồ sơ kèm hàng: Giấy bảo hành (01), Phiếu xuất kho (01).</p>
       </div>
     </div>
@@ -1179,13 +1211,96 @@ function generateContract(data) {
   `;
 }
 
+function generateTamUng(data) {
+  const t = calcTotals();
+  document.getElementById('tamUngPaper').innerHTML = `
+    <div class="c-header-nation">CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+    <div class="c-header-slogan">ĐỘC LẬP — TỰ DO — HẠNH PHÚC</div>
+    <div class="c-divider">— ✦ —</div>
+    <div style="text-align:center;margin-bottom:4px">
+      <img src="${LOGO_DATA}" alt="TDL" style="height:50px">
+    </div>
+    <div class="c-title">PHIẾU TẠM ỨNG / ĐỀ NGHỊ THANH TOÁN ĐỢT 1</div>
+    <div class="c-subtitle">Thuộc Hợp đồng số: ${data.soHopDong} — Ngày ${data.ngayKyStr}</div>
+
+    <div class="c-parties">
+      <div class="c-party-box">
+        <div class="c-party-title">BÊN TẠM ỨNG (BÊN A)</div>
+        <div class="c-party-info">
+          <strong>${data.khachHang}</strong><br>
+          ${data.mst?`Mã số thuế: <strong>${data.mst}</strong><br>`:''}
+          ${data.diaChi?`Địa chỉ: ${data.diaChi}<br>`:''}
+          ${data.sdt?`Điện thoại: <strong>${data.sdt}</strong><br>`:''}
+          Đại diện: <strong>${data.daiDien}</strong><br>
+          Chức vụ: ${data.chucVu}
+        </div>
+      </div>
+      <div class="c-party-box">
+        <div class="c-party-title">BÊN NHẬN TẠM ỨNG (BÊN B)</div>
+        <div class="c-party-info">
+          <strong>CÔNG TY TNHH TM & DV THÀNH ĐẠT LED</strong><br>
+          Mã số thuế: <strong>0109594143</strong><br>
+          Địa chỉ: 938 Quang Trung, Yên Nghĩa, Hà Nội<br>
+          Hotline: <strong>0986.474.671</strong><br>
+          STK: <strong>1020594263</strong><br>
+          Ngân hàng: Vietcombank CN Tây Hà Nội
+        </div>
+      </div>
+    </div>
+
+    <div class="c-section">
+      <div class="c-section-title">NỘI DUNG TẠM ỨNG</div>
+      <div class="c-body">
+        <p>Căn cứ Hợp đồng mua bán số <strong>${data.soHopDong}</strong> ký ngày <strong>${data.ngayKyStr}</strong> giữa Bên A và Bên B về việc cung cấp thiết bị điện chiếu sáng, Bên A thực hiện tạm ứng (đặt cọc) Đợt 1 cho Bên B như sau:</p>
+      </div>
+      <div class="c-totals">
+        <div class="c-total-row"><span>Tổng giá trị hợp đồng:</span><span>${fmt(t.total)} đ</span></div>
+        <div class="c-total-row"><span>Tỷ lệ tạm ứng:</span><span>${t.tamUngPct}%</span></div>
+        <div class="c-total-row"><span>SỐ TIỀN TẠM ỨNG (ĐỢT 1):</span><span>${fmt(t.deposit)} đ</span></div>
+      </div>
+      <div class="c-body">
+        <p><em>(Bằng chữ: ${capitalize(soToText(t.deposit))})</em></p>
+        <p class="indent">- Hình thức thanh toán: Chuyển khoản vào tài khoản của Bên B nêu trên.</p>
+        <p class="indent">- Số tiền còn lại phải thanh toán (Đợt 2 — ${100-t.tamUngPct}%): <strong>${fmt(t.remain)} đ</strong> (${capitalize(soToText(t.remain))}), thanh toán trước khi giao hàng theo Điều 3 Hợp đồng.</p>
+        <p class="indent">- Sau khi nhận đủ số tiền tạm ứng, Bên B tiến hành sản xuất/chuẩn bị hàng và giao hàng theo đúng tiến độ đã cam kết trong hợp đồng.</p>
+      </div>
+    </div>
+
+    <table class="c-sign-table">
+      <tr>
+        <td>
+          <div class="c-sign-title">Đại diện Bên A (Bên tạm ứng)</div>
+          <div class="c-sign-name">${data.khachHang}</div>
+          <div class="c-sign-line">${data.daiDien}</div>
+          <div class="c-note">${data.chucVu}</div>
+        </td>
+        <td>
+          <div class="c-sign-title">Đại diện Bên B (Bên nhận tạm ứng)</div>
+          <div class="c-sign-name">CÔNG TY TNHH TM & DV THÀNH ĐẠT LED</div>
+          <div class="c-sign-line">Nguyễn Văn Tuấn</div>
+          <div class="c-note">Giám đốc</div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="c-footer-line">
+      <div class="c-footer-contact">
+        938 Quang Trung, Yên Nghĩa, Hà Nội &nbsp;|&nbsp; MST: 0109594143<br>
+        <span class="c-footer-hotline">Hotline: 0986.474.671</span>
+      </div>
+      <img src="${LOGO_DATA}" alt="TDL" style="height:36px">
+    </div>
+  `;
+}
+
 // Print
 function printDoc(targetId) {
   // Xác định tab tương ứng với tài liệu cần in
   const tabMap = {
     'quotePaper':    'previewBaoGia',
     'xuatKhoPaper':  'previewXuatKho',
-    'contractPaper': 'previewHopDong'
+    'contractPaper': 'previewHopDong',
+    'tamUngPaper':   'previewTamUng'
   };
   const paper = document.getElementById(targetId);
   if (!paper || paper.innerHTML.includes('Nhập thông tin')) {
@@ -1575,6 +1690,7 @@ function collectFormData() {
     tgGiaoHang: document.getElementById('tgGiaoHang').value,
     vatRate: document.getElementById('vatRate').value,
     discount: document.getElementById('discount').value,
+    tamUngPct: document.getElementById('tamUngPct').value,
     soPhieuXuat: document.getElementById('soPhieuXuat').value.trim(),
     ngayXuatKho: document.getElementById('ngayXuatKho').value,
     khoXuat: document.getElementById('khoXuat').value.trim(),
@@ -1591,7 +1707,7 @@ function collectFormData() {
 
 function fillFormData(data) {
   const fields = ['soHopDong','ngayKy','khachHang','mst','sdt','diaChi','nguoiLienHe','nhanVienTuVan','daiDien','chucVu',
-    'stk','nganhang','tgGiaoHang','discount','soPhieuXuat','ngayXuatKho','khoXuat',
+    'stk','nganhang','tgGiaoHang','discount','tamUngPct','soPhieuXuat','ngayXuatKho','khoXuat',
     'diaDiemGiao','nguoiGiao','phuongTien','nguoiNhan','thuKho','ghiChuXuat'];
   fields.forEach(id => {
     const el = document.getElementById(id);

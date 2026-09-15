@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Thành Đạt LED — Báo Giá & Hợp Đồng</title>
+<script src="tdl-config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 
 <style>
@@ -320,7 +321,9 @@ textarea{resize:vertical;min-height:80px}
     </div>
     <div class="field">
       <label>Số điện thoại</label>
-      <input type="text" id="sdt" placeholder="0xxx.xxx.xxx" onblur="lookupKhachByPhone()">
+      <input type="tel" inputmode="numeric" id="sdt" placeholder="0xxx xxx xxx (bắt buộc)" required
+             onblur="lookupKhachByPhone(); kiemTraSdt();" oninput="kiemTraSdt()">
+      <div id="sdt-loi" style="display:none;font-size:11.5px;color:#dc2626;margin-top:4px">⚠ Cần SĐT đúng 10 số (VD 0986474671) — thiếu SĐT là khách không vào được CRM.</div>
     </div>
   </div>
   <div id="khLookupBox" class="kh-lookup"></div>
@@ -1576,9 +1579,21 @@ function downloadDoc(targetId, prefix) {
 }
 
 // ===== GOOGLE SHEET INTEGRATION =====
+function kiemTraSdt() {
+  const el = document.getElementById('sdt');
+  const loi = document.getElementById('sdt-loi');
+  if (!el || !loi) return true;
+  const v = el.value.trim();
+  const ok = v === '' ? false : (window.TDL ? TDL.hopLeSdt(v) : /^0\d{9}$/.test(v.replace(/\D/g, '')));
+  loi.style.display = ok ? 'none' : 'block';
+  el.style.borderColor = ok ? '' : '#dc2626';
+  return ok;
+}
+
 function getGsConfig() {
   return {
-    url: localStorage.getItem('gs_url') || '',
+    // ưu tiên URL riêng của trang, nếu trống thì lấy URL dùng chung trong tdl-config.js
+    url: localStorage.getItem('gs_url') || (window.TDL ? TDL.url : ''),
     sheet: localStorage.getItem('gs_sheet') || 'BaoGia'
   };
 }
@@ -1843,6 +1858,19 @@ async function saveToSheet() {
   }
   const kh = document.getElementById('khachHang').value.trim();
   if (!kh) { alert('Vui lòng nhập tên khách hàng!'); return; }
+
+  // ===== SĐT BẮT BUỘC: không có SĐT thì báo giá không thể vào CRM =====
+  const elSdt = document.getElementById('sdt');
+  const sdtOk = window.TDL ? TDL.hopLeSdt(elSdt.value) : /^0\d{9}$/.test(elSdt.value.replace(/\D/g, ''));
+  if (!sdtOk) {
+    kiemTraSdt();
+    elSdt.focus();
+    alert('⚠ Thiếu hoặc sai số điện thoại!\n\nBáo giá không có SĐT sẽ không tạo được khách hàng trong CRM, ' +
+          'không có nhắc chăm sóc và coi như mất lead.\n\nNhập SĐT 10 số rồi lưu lại.');
+    return;
+  }
+  // chuẩn hoá luôn về dạng 10 số trước khi lưu
+  if (window.TDL) elSdt.value = TDL.sdt(elSdt.value);
 
   const btn = document.getElementById('btnSaveSheet');
   const isEditing = !!editingOriginalSoHopDong;

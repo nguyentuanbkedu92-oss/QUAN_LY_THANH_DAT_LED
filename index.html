@@ -33,7 +33,7 @@
         .cs-badge .arrow { color: #fdba74; font-weight: normal; }
         .cs-badge.empty { border-color: #334155; background: #1e293b; color: #64748b; font-weight: normal; }
 
-        /* VÙNG 1: 4 CỘT CỐ ĐỊNH */
+        /* VÙNG LƯỚI NÚT CHỨC NĂNG (4 cột) */
         .file-grid { 
             display: grid; 
             grid-template-columns: repeat(4, 1fr); 
@@ -41,16 +41,6 @@
             width: 100%; 
             max-width: 600px; 
             margin-bottom: 15px; 
-        }
-
-        /* VÙNG 2: NÚT TÍNH ĐÈN RIÊNG BIỆT (Để đảm bảo luôn hiện) */
-        .calc-area {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr); /* Giữ đúng tỉ lệ 4 cột */
-            gap: 10px;
-            width: 100%;
-            max-width: 600px;
-            margin-bottom: 25px;
         }
 
         .file-card { 
@@ -70,14 +60,8 @@
         .file-card:active { background: #334155; transform: scale(0.95); }
         .file-card span { display: block; font-size: 24px; margin-bottom: 5px; }
         
-        /* Highlight nút tính đèn */
-        .btn-calc { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
-
-        /* Highlight nút công nợ */
-        .btn-no { border-color: #f87171; background: rgba(248, 113, 113, 0.1); }
-
-        /* Highlight nút chăm sóc khách hàng */
-        .btn-cham-soc { border-color: #e87722; background: rgba(232, 119, 34, 0.1); }
+        /* Highlight riêng cho nút Tra cứu */
+        .btn-tracuu { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
 
         /* Lưới Copy Chính sách */
         .copy-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 600px; }
@@ -98,6 +82,13 @@
     <header>
         <h1>THÀNH ĐẠT LED - TDL</h1>
     </header>
+
+    <!-- Thêm Badge thông báo chăm sóc KH nếu có -->
+    <a href="cham-soc.html" id="cs-badge" class="cs-badge">
+        <span id="cs-text">Đang tải thông tin chăm sóc...</span>
+        <span class="arrow">&rarr;</span>
+    </a>
+
     <div class="file-grid">
         <a href="phieu-xuat-xuong.html" target="_blank" class="file-card"><span>📜</span>XUẤT XƯỞNG</a>
         <a href="bao-hanh.html" target="_blank" class="file-card"><span>🛡️</span>BẢO HÀNH</a>
@@ -108,7 +99,8 @@
         <a href="cham-soc.html" target="_blank" class="file-card"><span>🔔</span>CHĂM SÓC KH</a>
         <a href="cong-no.html" target="_blank" class="file-card"><span>💰</span>CÔNG NỢ</a>
         <a href="phieu-giao-hang.html" target="_blank" class="file-card"><span>🚚</span>PHIẾU GIAO HÀNG</a>
-        
+        <!-- NÚT TRA CỨU MỚI THÊM VÀO ĐÂY -->
+        <a href="tra-cuu.html" target="_blank" class="file-card btn-tracuu"><span>🔍</span>TRA CỨU</a>
     </div>
 
     <div class="copy-grid">
@@ -124,7 +116,7 @@
 3. Thanh toán qua Tài khoản Công ty (Xuất hóa đơn VAT):
 - Quý khách thanh toán 100% trước khi giao hàng.
 - Đơn vị thụ hưởng: CÔNG TY TNHH TM & DV THÀNH ĐẠT LED.</pre>
-            <button class="btn-copy" onclick="copy('q_dinh')">COPY QUY ĐỊNH</button>
+            <button class="btn-copy" onclick="copy('q_dinn')">COPY QUY ĐỊNH</button>
         </div>
 
         <div class="copy-card">
@@ -157,11 +149,6 @@ Ngân hàng: Techcombank</pre>
             });
         }
 
-        // ============================================================
-        // BADGE: việc cần chăm sóc + công nợ — lấy từ 1 request bootstrap.
-        // Có cache nên lần vào sau hiện ra ngay, không phải chờ Apps Script.
-        // URL API nằm trong tdl-config.js (sửa 1 chỗ, áp dụng mọi trang).
-        // ============================================================
         function loadCareBadge() {
             const badge = document.getElementById('cs-badge');
             const text = document.getElementById('cs-text');

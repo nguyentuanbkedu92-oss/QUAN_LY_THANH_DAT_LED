@@ -78,6 +78,16 @@ textarea{resize:vertical;min-height:80px}
 .btn-green{background:linear-gradient(135deg,#16A34A,#15803D);color:#fff;margin-top:10px;box-shadow:0 4px 15px rgba(22,163,74,.4)}
 .btn-purple{background:linear-gradient(135deg,#7C3AED,#6D28D9);color:#fff;margin-top:10px;box-shadow:0 4px 15px rgba(124,58,237,.4)}
 .btn-word{background:linear-gradient(135deg,#2563EB,#1e40af);color:#fff;margin-top:10px;box-shadow:0 4px 15px rgba(37,99,235,.4)}
+.kh-lookup{margin-top:8px;border-radius:10px;padding:12px 14px;font-size:12.5px;display:none}
+.kh-lookup.show{display:block}
+.kh-lookup.loading{background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+.kh-lookup.found{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.35)}
+.kh-lookup.new{background:rgba(232,119,34,.08);border:1px solid rgba(232,119,34,.3)}
+.kh-lookup .kl-title{font-weight:800;font-size:13px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.kh-lookup .kl-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--surface2);color:var(--text)}
+.kh-lookup .kl-row{color:var(--muted);line-height:1.7}
+.kh-lookup .kl-row b{color:var(--text)}
+.kh-lookup .kl-fill{margin-top:8px;background:none;border:1px solid rgba(34,197,94,.5);color:var(--green);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer}
 
 /* SUMMARY */
 .summary-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:16px}
@@ -291,16 +301,25 @@ textarea{resize:vertical;min-height:80px}
     </div>
     <div class="field">
       <label>Số điện thoại</label>
-      <input type="text" id="sdt" placeholder="0xxx.xxx.xxx">
+      <input type="text" id="sdt" placeholder="0xxx.xxx.xxx" onblur="lookupKhachByPhone()">
     </div>
   </div>
+  <div id="khLookupBox" class="kh-lookup"></div>
   <div class="field">
     <label>Địa chỉ khách hàng</label>
     <input type="text" id="diaChi" placeholder="Địa chỉ khách hàng">
   </div>
+  <div class="field">
+    <label>Người liên hệ (nếu khác người đại diện ký HĐ)</label>
+    <input type="text" id="nguoiLienHe" placeholder="VD: Chị Thu - 0934xxxxxx (người trực tiếp đặt hàng)">
+  </div>
+  <div class="field">
+    <label>Nhân viên tư vấn</label>
+    <input type="text" id="nhanVienTuVan" placeholder="Tên nhân viên báo giá/chốt đơn">
+  </div>
   <div class="row2">
     <div class="field">
-      <label>Người đại diện</label>
+      <label>Người đại diện (ký hợp đồng)</label>
       <input type="text" id="daiDien" placeholder="Nguyễn Văn A">
     </div>
     <div class="field">
@@ -675,6 +694,8 @@ function generateAll() {
     mst: document.getElementById('mst').value.trim(),
     sdt: document.getElementById('sdt').value.trim(),
     diaChi: document.getElementById('diaChi').value.trim(),
+    nguoiLienHe: document.getElementById('nguoiLienHe').value.trim(),
+    nhanVienTuVan: document.getElementById('nhanVienTuVan').value.trim(),
     daiDien: document.getElementById('daiDien').value.trim()||'Ông/Bà ___________',
     chucVu: document.getElementById('chucVu').value.trim()||'Giám đốc',
     stk: document.getElementById('stk').value.trim(),
@@ -1444,6 +1465,97 @@ async function testGsConnection() {
   }
 }
 
+// ===== TRA CỨU KHÁCH HÀNG THEO SỐ ĐIỆN THOẠI =====
+let lastLookupSdt = '';
+let lastLookupData = null;
+
+function fmtCurLookup(n) {
+  n = Number(n) || 0;
+  if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'') + ' tr';
+  return Math.round(n).toLocaleString('vi-VN') + ' đ';
+}
+function fmtDateLookup(s) {
+  if (!s) return '';
+  const d = new Date(s);
+  if (isNaN(d)) return '';
+  return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+}
+
+async function lookupKhachByPhone() {
+  const raw = document.getElementById('sdt').value.trim();
+  const box = document.getElementById('khLookupBox');
+  const digits = raw.replace(/\D/g, '');
+
+  if (digits.length < 9) { box.className = 'kh-lookup'; box.innerHTML = ''; return; }
+  if (raw === lastLookupSdt) return; // đã tra rồi, không gọi lại
+
+  const cfg = getGsConfig();
+  if (!cfg.url) { box.className = 'kh-lookup'; box.innerHTML = ''; return; }
+
+  lastLookupSdt = raw;
+  box.className = 'kh-lookup loading show';
+  box.innerHTML = '⏳ Đang kiểm tra lịch sử khách hàng...';
+
+  try {
+    const res = await fetch(cfg.url, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'traCuu', data: { q: raw } })
+    });
+    const json = await res.json();
+    if (raw !== document.getElementById('sdt').value.trim()) return; // người dùng đã gõ số khác trong lúc chờ
+
+    const kh = (json.khachHang && json.khachHang[0]) || null;
+    const soDon = kh ? (kh.soDon || 0) : 0;
+    const soBaoGia = (json.baoGia || []).length;
+
+    if (!kh || (soDon === 0 && soBaoGia === 0)) {
+      lastLookupData = null;
+      box.className = 'kh-lookup new show';
+      box.innerHTML = '<div class="kl-title">🆕 Khách hàng mới</div><div class="kl-row">Số này chưa có trong hệ thống — đây sẽ là lần đầu giao dịch.</div>';
+      return;
+    }
+
+    lastLookupData = json;
+    const bgSorted = (json.baoGia || []).slice().sort((a,b) => new Date(a.ngayKy||a.timestamp||0) - new Date(b.ngayKy||b.timestamp||0));
+    const bgCuoi = bgSorted[bgSorted.length - 1];
+
+    let html = '<div class="kl-title">✅ Khách đã có trong hệ thống <span class="kl-badge">' + (kh.phanLoai||'') + '</span></div>';
+    html += '<div class="kl-row"><b>' + (kh.ten||'') + '</b></div>';
+    if (soDon > 0) {
+      html += '<div class="kl-row">🛒 Đã mua <b>' + soDon + ' đơn</b> — tổng <b>' + fmtCurLookup(kh.tongDoanhThu) + '</b>' +
+              (kh.ngayMuaGanNhat ? ', gần nhất ' + fmtDateLookup(kh.ngayMuaGanNhat) : '') + '</div>';
+    } else {
+      html += '<div class="kl-row">🛒 Chưa mua đơn nào</div>';
+    }
+    if (soBaoGia > 0) {
+      html += '<div class="kl-row">📄 Đã báo giá <b>' + soBaoGia + ' lần</b>' +
+              (bgCuoi ? ', gần nhất ' + fmtDateLookup(bgCuoi.ngayKy || bgCuoi.timestamp) : '') + '</div>';
+    }
+    if (kh.nguoiLienHe) html += '<div class="kl-row">☎️ Người liên hệ: <b>' + kh.nguoiLienHe + '</b></div>';
+    if (kh.nhanVien) html += '<div class="kl-row">👤 Phụ trách: <b>' + kh.nhanVien + '</b></div>';
+    if (bgCuoi) html += '<button type="button" class="kl-fill" onclick="dienLaiTuLichSu()">📋 Điền lại thông tin từ báo giá gần nhất</button>';
+
+    box.className = 'kh-lookup found show';
+    box.innerHTML = html;
+  } catch (e) {
+    box.className = 'kh-lookup loading show';
+    box.innerHTML = '⚠ Không tra cứu được (kiểm tra kết nối mạng).';
+  }
+}
+
+function dienLaiTuLichSu() {
+  if (!lastLookupData) return;
+  const bgSorted = (lastLookupData.baoGia || []).slice().sort((a,b) => new Date(a.ngayKy||a.timestamp||0) - new Date(b.ngayKy||b.timestamp||0));
+  const bgCuoi = bgSorted[bgSorted.length - 1];
+  if (!bgCuoi) return;
+  // Chỉ điền lại thông tin ĐỊNH DANH khách hàng — KHÔNG điền soHopDong/ngayKy,
+  // vì đây là báo giá MỚI, không phải sửa lại báo giá cũ.
+  ['khachHang','mst','diaChi','nguoiLienHe','daiDien','chucVu','stk','nganhang'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && bgCuoi[id]) el.value = bgCuoi[id];
+  });
+}
+
 function collectFormData() {
   const t = calcTotals();
   return {
@@ -1454,6 +1566,8 @@ function collectFormData() {
     mst: document.getElementById('mst').value.trim(),
     sdt: document.getElementById('sdt').value.trim(),
     diaChi: document.getElementById('diaChi').value.trim(),
+    nguoiLienHe: document.getElementById('nguoiLienHe').value.trim(),
+    nhanVienTuVan: document.getElementById('nhanVienTuVan').value.trim(),
     daiDien: document.getElementById('daiDien').value.trim(),
     chucVu: document.getElementById('chucVu').value.trim(),
     stk: document.getElementById('stk').value.trim(),
@@ -1476,7 +1590,7 @@ function collectFormData() {
 }
 
 function fillFormData(data) {
-  const fields = ['soHopDong','ngayKy','khachHang','mst','sdt','diaChi','daiDien','chucVu',
+  const fields = ['soHopDong','ngayKy','khachHang','mst','sdt','diaChi','nguoiLienHe','nhanVienTuVan','daiDien','chucVu',
     'stk','nganhang','tgGiaoHang','discount','soPhieuXuat','ngayXuatKho','khoXuat',
     'diaDiemGiao','nguoiGiao','phuongTien','nguoiNhan','thuKho','ghiChuXuat'];
   fields.forEach(id => {

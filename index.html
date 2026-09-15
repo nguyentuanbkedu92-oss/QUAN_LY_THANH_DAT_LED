@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thành Đạt LED - Management</title>
+    <script src="tdl-config.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 15px; display: flex; flex-direction: column; align-items: center; }
@@ -72,6 +73,9 @@
         /* Highlight nút tính đèn */
         .btn-calc { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
 
+        /* Highlight nút công nợ */
+        .btn-no { border-color: #f87171; background: rgba(248, 113, 113, 0.1); }
+
         /* Highlight nút chăm sóc khách hàng */
         .btn-cham-soc { border-color: #e87722; background: rgba(232, 119, 34, 0.1); }
 
@@ -123,6 +127,10 @@
      <a href="cham-soc.html" target="_blank" class="file-card btn-cham-soc">
         <span>🔔</span>CHĂM SÓC KH
     </a>
+
+     <a href="cong-no.html" target="_blank" class="file-card btn-no">
+        <span>💰</span>CÔNG NỢ
+    </a>
 </div>
 
     <div class="copy-grid">
@@ -172,34 +180,29 @@ Ngân hàng: Techcombank</pre>
         }
 
         // ============================================================
-        // BADGE CHĂM SÓC KHÁCH HÀNG — lấy số việc cần làm từ CRM_Sync
+        // BADGE: việc cần chăm sóc + công nợ — lấy từ 1 request bootstrap.
+        // Có cache nên lần vào sau hiện ra ngay, không phải chờ Apps Script.
+        // URL API nằm trong tdl-config.js (sửa 1 chỗ, áp dụng mọi trang).
         // ============================================================
-        const CRM_API_URL = localStorage.getItem('tdlcrm_api_url') ||
-            'https://script.google.com/macros/s/AKfycbx11aX_eBt4qI7Ip9LyUye6G6UP_IkaoFghkAoALX6kNrHNileXqdxXNjm-J13pHTyY/exec';
-
-        async function loadCareBadge() {
+        function loadCareBadge() {
             const badge = document.getElementById('cs-badge');
             const text = document.getElementById('cs-text');
-            try {
-                const resp = await fetch(CRM_API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'getChamSoc', data: { chuaXuLy: true } })
-                });
-                const res = await resp.json();
-                if (res.status !== 'ok') throw new Error(res.msg || 'Lỗi API');
-                const count = (res.chamSoc || []).length;
+            TDL.live('bootstrap', {}, (res) => {
+                const count = (res.tasks || []).length;
+                const no = (res.congNo || {}).tong || 0;
                 badge.style.display = 'flex';
                 if (count > 0) {
                     badge.classList.remove('empty');
-                    text.textContent = '🔔 ' + count + ' việc cần chăm sóc hôm nay';
+                    text.textContent = '🔔 ' + count + ' việc cần chăm sóc hôm nay'
+                        + (no ? ' · 💰 nợ ' + TDL.tien(no) : '');
                 } else {
                     badge.classList.add('empty');
-                    text.textContent = '✅ Không có việc cần chăm sóc hôm nay';
+                    text.textContent = '✅ Không có việc cần chăm sóc hôm nay'
+                        + (no ? ' · 💰 nợ ' + TDL.tien(no) : '');
                 }
-            } catch (e) {
-                // Lỗi kết nối thì ẩn badge, không làm phiền trang chính
-                badge.style.display = 'none';
-            }
+            }, (e, coCache) => {
+                if (!coCache) badge.style.display = 'none';
+            });
         }
         loadCareBadge();
     </script>

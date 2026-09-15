@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chăm Sóc Khách Hàng - Thành Đạt LED</title>
+<script src="tdl-config.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Segoe UI', Arial, sans-serif; background:#0f172a; color:#f8fafc; padding:14px; }
@@ -44,6 +45,15 @@
   .btn-call { background:#334155; color:#fff; }
   .btn-done { background:#22c55e; color:#052e1c; }
   .empty { color:#64748b; font-size:13px; text-align:center; padding:20px 0; }
+  .task.ut1 { border-left-color:#f87171; }
+  .task.ut2 { border-left-color:#e87722; }
+  .task.ut3 { border-left-color:#475569; }
+  .task-meta { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:5px; }
+  .chip { font-size:10px; padding:2px 7px; border-radius:20px; background:#1e293b; color:#94a3b8; border:1px solid #334155; }
+  .chip.hot { background:#7f1d1d; color:#fca5a5; border-color:#7f1d1d; }
+  .chip.vip { background:#4c1d95; color:#d8b4fe; border-color:#4c1d95; }
+  .queue { font-size:11.5px; color:#64748b; text-align:center; padding:8px 0 0; }
+  .stale { font-size:11px; color:#fcd34d; text-align:right; margin-bottom:6px; }
 
   .tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
   .tab-btn { background:#0f172a; border:1px solid #334155; color:#94a3b8; padding:6px 12px; border-radius:20px; font-size:11px; cursor:pointer; }
@@ -83,16 +93,19 @@
 
   <div id="banner" class="banner"></div>
 
+  <div id="stale" class="stale"></div>
+
   <div class="stats">
     <div class="stat-card"><div class="num" id="s-tasks">-</div><div class="lbl">Cần làm hôm nay</div></div>
     <div class="stat-card"><div class="num" id="s-total">-</div><div class="lbl">Tổng khách</div></div>
-    <div class="stat-card"><div class="num" id="s-mualai">-</div><div class="lbl">Mua lại</div></div>
     <div class="stat-card"><div class="num" id="s-vip">-</div><div class="lbl">VIP / NPP</div></div>
+    <div class="stat-card"><div class="num" id="s-no" style="color:#f87171">-</div><div class="lbl">Công nợ</div></div>
   </div>
 
   <section>
-    <h2>Việc cần làm hôm nay <button class="refresh-btn" onclick="loadAll()">🔄 Tải lại</button></h2>
+    <h2>Việc cần làm hôm nay <button class="refresh-btn" onclick="loadAll(true)">🔄 Tải lại</button></h2>
     <div id="task-list"><div class="empty">Đang tải...</div></div>
+    <div class="queue" id="queue-note"></div>
   </section>
 
   <section>
@@ -103,16 +116,14 @@
   </section>
 
   <div class="cfg">
-    URL API CRM &nbsp;
+    URL API CRM (dùng chung cho mọi trang) &nbsp;
     <div><input id="api-url-input" placeholder="https://script.google.com/macros/s/.../exec"><button onclick="saveUrl()">Lưu</button></div>
   </div>
 </div>
 
 <script>
-let apiUrl = localStorage.getItem('tdlcrm_api_url') || 'https://script.google.com/macros/s/AKfycbymFG3K-ypuv475xRs6L_vOLqTfZgJtPsIwNcD10klgP_OXuchYfs7eDGkcxf9he9aHWg/exec';
-let khachHang = [];
-let tasks = [];
-let currentFilter = 'all';
+/* ===== Chăm sóc KH v2: 1 request bootstrap + cache, việc lọc theo ngày ===== */
+let khachHang = [], tasks = [], tongViec = 0, currentFilter = 'all';
 
 const FILTERS = [
   { key:'all', label:'Tất cả' },
@@ -127,101 +138,89 @@ const BADGE_CLASS = {
   'Lâu chưa mua':'b-lauchua', 'VIP / NPP':'b-vip'
 };
 
-document.getElementById('api-url-input').value = apiUrl;
-
-async function apiCall(action, data) {
-  const resp = await fetch(apiUrl, { method:'POST', body: JSON.stringify({ action, data: data||{} }) });
-  if (!resp.ok) throw new Error('HTTP ' + resp.status);
-  return resp.json();
-}
+document.getElementById('api-url-input').value = TDL.url;
 
 function showBanner(type, msg) {
   const b = document.getElementById('banner');
-  b.textContent = msg; b.className = 'banner ' + type; b.style.display = 'block';
+  b.innerHTML = msg; b.className = 'banner ' + type; b.style.display = 'block';
 }
 function hideBanner() { document.getElementById('banner').style.display = 'none'; }
 
-// Hàm tự động chuẩn hóa số điện thoại (bổ sung số 0 nếu bị mất số đầu)
-function fmtPhone(s) {
-  let cleanS = String(s || '').trim();
-  if (cleanS.length === 9 && !cleanS.startsWith('0')) {
-    cleanS = '0' + cleanS;
-  }
-  return cleanS;
-}
-
-function fmtCur(n) {
-  n = n || 0;
-  if (Math.abs(n) >= 1e9) return (n/1e9).toFixed(2).replace(/\.?0+$/,'') + ' tỷ';
-  if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(2).replace(/\.?0+$/,'') + ' tr';
-  return Math.round(n).toLocaleString('vi-VN') + ' đ';
-}
-
-function fmtDate(s) {
-  if (!s) return '-';
-  const d = new Date(s);
-  if (isNaN(d)) return s;
-  return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
-}
-
-async function loadAll() {
-  document.getElementById('task-list').innerHTML = '<div class="empty">Đang tải...</div>';
-  document.getElementById('kh-list').innerHTML = '<div class="empty">Đang tải...</div>';
-  try {
-    const [r1, r2] = await Promise.all([
-      apiCall('getChamSoc', { chuaXuLy:true }),
-      apiCall('getKhachHang')
-    ]);
-    if (r1.status !== 'ok') throw new Error(r1.msg);
-    if (r2.status !== 'ok') throw new Error(r2.msg);
-    tasks = r1.chamSoc || [];
-    khachHang = r2.khachHang || [];
+function loadAll(force) {
+  if (force) TDL.xoaCache();
+  TDL.live('bootstrap', {}, (res, laCache, tuoi) => {
+    tasks     = res.tasks || [];
+    khachHang = res.khachHang || [];
+    tongViec  = res.tongViecChuaXuLy || tasks.length;
+    document.getElementById('stale').textContent = laCache
+      ? '⏳ số liệu lưu sẵn ' + tuoi + 's trước — đang làm mới...'
+      : 'cập nhật ' + (res.serverTime || '') + (res.cache ? ' (cache máy chủ)' : '');
+    document.getElementById('s-no').textContent = TDL.tien((res.congNo || {}).tong || 0);
     hideBanner();
-    renderStats();
-    renderTasks();
-    renderTabs();
-    renderKhach();
-  } catch (e) {
-    showBanner('err', '❌ Không kết nối được API: ' + e.message);
-    document.getElementById('task-list').innerHTML = '<div class="empty">Không tải được dữ liệu</div>';
-    document.getElementById('kh-list').innerHTML = '';
-  }
+    renderStats(); renderTasks(); renderTabs(); renderKhach();
+  }, (e, coCache) => {
+    if (coCache) showBanner('warn', '⚠️ Không tải được bản mới, đang xem dữ liệu đã lưu.');
+    else {
+      showBanner('err', '❌ Không kết nối được API: ' + e.message +
+        '<br><small>Nếu bạn vừa deploy lại, dán URL mới vào ô cuối trang.</small>');
+      document.getElementById('task-list').innerHTML = '<div class="empty">Không tải được dữ liệu</div>';
+      document.getElementById('kh-list').innerHTML = '';
+    }
+  });
 }
 
 function renderStats() {
   document.getElementById('s-tasks').textContent = tasks.length;
   document.getElementById('s-total').textContent = khachHang.length;
-  document.getElementById('s-mualai').textContent = khachHang.filter(k => k.phanLoai === 'Khách mua lại').length;
   document.getElementById('s-vip').textContent = khachHang.filter(k => k.phanLoai === 'VIP / NPP').length;
 }
 
 function renderTasks() {
   const el = document.getElementById('task-list');
-  if (!tasks.length) { el.innerHTML = '<div class="empty">✅ Không có việc nào cần làm hôm nay</div>'; return; }
-  el.innerHTML = tasks.map(t => `
-    <div class="task" id="task-${t.id}">
+  const note = document.getElementById('queue-note');
+  const conLai = Math.max(0, tongViec - tasks.length);
+  note.textContent = conLai ? '📅 Còn ' + conLai + ' việc đã xếp cho các ngày sau — cứ làm hết hôm nay là đủ.' : '';
+
+  if (!tasks.length) {
+    el.innerHTML = '<div class="empty">✅ Hết việc hôm nay, nghỉ tay được rồi</div>';
+    return;
+  }
+  el.innerHTML = tasks.map(t => {
+    const sdt = TDL.sdt(t.sdt);
+    return `
+    <div class="task ut${t.uuTien || 3}" id="task-${t.id}">
       <div class="task-top">
-        <div>
-          <div class="task-name">${t.ten || fmtPhone(t.sdt)}</div>
-          <div class="task-note">📞 ${fmtPhone(t.sdt)} — ${t.ghiChu || ''}</div>
+        <div style="min-width:0">
+          <div class="task-name">${t.ten || sdt || '(chưa có tên)'}</div>
+          <div class="task-note">📞 ${sdt || 'chưa có SĐT'} — ${t.ghiChu || ''}</div>
+          <div class="task-meta">
+            ${t.uuTien === 1 ? '<span class="chip vip">Ưu tiên cao</span>' : ''}
+            ${t.treHan > 0 ? `<span class="chip hot">trễ ${t.treHan} ngày</span>` : ''}
+            ${t.doanhThu ? `<span class="chip">${TDL.tien(t.doanhThu)}</span>` : ''}
+            ${t.phanLoai ? `<span class="chip">${t.phanLoai}</span>` : ''}
+          </div>
         </div>
-        <span class="task-tag ${t.loaiViec==='Gợi ý mua lại'?'buy':''}">${t.loaiViec}</span>
+        <span class="task-tag ${t.loaiViec === 'Gợi ý mua lại' ? 'buy' : ''}">${t.loaiViec}</span>
       </div>
       <div class="task-actions">
-        <a class="btn-sm btn-call" href="tel:${fmtPhone(t.sdt)}">📞 Gọi ngay</a>
+        ${sdt ? `<a class="btn-sm btn-call" href="tel:${sdt}">📞 Gọi ngay</a>`
+              : `<span class="btn-sm btn-call" style="opacity:.5">Chưa có SĐT</span>`}
         <button class="btn-sm btn-done" onclick="markDone('${t.id}')">✅ Đã xử lý</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 async function markDone(id) {
   const card = document.getElementById('task-' + id);
   if (card) card.classList.add('done');
   try {
-    const res = await apiCall('markDone', { id });
+    const res = await TDL.api('markDone', { id });
     if (res.status !== 'ok') throw new Error(res.msg);
     tasks = tasks.filter(t => t.id !== id);
-    setTimeout(() => { renderStats(); renderTasks(); }, 400);
+    tongViec = Math.max(0, tongViec - 1);
+    TDL.xoaCache();
+    setTimeout(() => { renderStats(); renderTasks(); }, 300);
   } catch (e) {
     showBanner('err', '❌ Lỗi cập nhật: ' + e.message);
     if (card) card.classList.remove('done');
@@ -230,57 +229,44 @@ async function markDone(id) {
 
 function renderTabs() {
   document.getElementById('tabs').innerHTML = FILTERS.map(f =>
-    `<button class="tab-btn ${currentFilter===f.key?'active':''}" onclick="setFilter('${f.key}')">${f.label}</button>`
+    `<button class="tab-btn ${currentFilter === f.key ? 'active' : ''}" onclick="setFilter('${f.key}')">${f.label}</button>`
   ).join('');
 }
-
 function setFilter(key) { currentFilter = key; renderTabs(); renderKhach(); }
 
 function renderKhach() {
   const el = document.getElementById('kh-list');
-  const query = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase().trim() : '';
-  
-  let list = currentFilter === 'all' ? khachHang : khachHang.filter(k => k.phanLoai === currentFilter);
-  
-  // Lọc theo từ khóa tìm kiếm (Tên, SĐT, Sản phẩm)
-  if (query) {
-    list = list.filter(k => 
-      (k.ten && k.ten.toLowerCase().includes(query)) ||
-      (k.sdt && String(k.sdt).toLowerCase().includes(query)) ||
-      (k.nhuCauChinh && k.nhuCauChinh.toLowerCase().includes(query))
-    );
-  }
+  const inp = document.getElementById('search-input');
+  const query = inp ? inp.value.toLowerCase().trim() : '';
 
-  list = list.slice().sort((a,b) => (b.tongDoanhThu||0) - (a.tongDoanhThu||0));
-  
+  let list = currentFilter === 'all' ? khachHang : khachHang.filter(k => k.phanLoai === currentFilter);
+  if (query) {
+    list = list.filter(k =>
+      (k.ten && k.ten.toLowerCase().includes(query)) ||
+      (k.sdt && String(k.sdt).includes(query)) ||
+      (k.nhuCauChinh && k.nhuCauChinh.toLowerCase().includes(query)));
+  }
+  list = list.slice().sort((a, b) => (b.tongDoanhThu || 0) - (a.tongDoanhThu || 0));
+
   if (!list.length) { el.innerHTML = '<div class="empty">Không tìm thấy khách hàng nào</div>'; return; }
-  
+
   el.innerHTML = list.map(k => `
     <div class="kh-row">
       <div class="kh-info">
-        <div class="kh-name">${k.ten || fmtPhone(k.sdt)}</div>
-        <div class="kh-sub">📞 ${fmtPhone(k.sdt)} · Mua gần nhất: ${fmtDate(k.ngayMuaGanNhat)}</div>
-        
-        <!-- HIỂN THỊ CHI TIẾT SẢN PHẨM, SỐ LƯỢNG, ĐƠN GIÁ -->
+        <div class="kh-name">${k.ten || TDL.sdt(k.sdt)}</div>
+        <div class="kh-sub">📞 ${TDL.sdt(k.sdt)} · Mua gần nhất: ${TDL.ngay(k.ngayMuaGanNhat)}</div>
         <div class="kh-product-info">
-          📦 ${k.nhuCauChinh ? k.nhuCauChinh : '<span style="color:#f59e0b">Chưa cập nhật sản phẩm</span>'} 
+          📦 ${k.nhuCauChinh ? k.nhuCauChinh : '<span style="color:#f59e0b">Chưa cập nhật sản phẩm</span>'}
           ${k.soLuong ? '— SL: <b>' + k.soLuong + '</b>' : ''}
-          ${k.donGia ? '— Giá: <b>' + fmtCur(k.donGia) + '</b>' : ''}
+          ${k.donGia ? '— Giá: <b>' + TDL.tien(k.donGia) + '</b>' : ''}
         </div>
-        
-        <!-- NGƯỜI LIÊN HỆ THỰC TẾ (khác người đại diện ký HĐ, chỉ hiện nếu có) -->
         ${k.nguoiLienHe ? `<div class="kh-staff-info">☎️ Liên hệ: <b>${k.nguoiLienHe}</b></div>` : ''}
-
-        <!-- NHÂN VIÊN PHỤ TRÁCH -->
-        <div class="kh-staff-info">
-          👤 Phụ trách: ${k.nhanVien || 'Kinh doanh TDL'}
-        </div>
-
-        <div><span class="kh-badge ${BADGE_CLASS[k.phanLoai]||'b-tiemnang'}">${k.phanLoai}</span></div>
+        <div class="kh-staff-info">👤 Phụ trách: ${k.nhanVien || 'Kinh doanh TDL'}</div>
+        <div><span class="kh-badge ${BADGE_CLASS[k.phanLoai] || 'b-tiemnang'}">${k.phanLoai}</span></div>
       </div>
       <div class="kh-money">
-        <div>${fmtCur(k.tongDoanhThu)}</div>
-        <div class="lbl">${k.soDon||0} đơn</div>
+        <div>${TDL.tien(k.tongDoanhThu)}</div>
+        <div class="lbl">${k.soDon || 0} đơn</div>
       </div>
     </div>`).join('');
 }
@@ -288,10 +274,9 @@ function renderKhach() {
 function saveUrl() {
   const v = document.getElementById('api-url-input').value.trim();
   if (!v) return;
-  apiUrl = v;
-  localStorage.setItem('tdlcrm_api_url', v);
-  showBanner('ok', '✅ Đã lưu URL, đang tải lại...');
-  loadAll();
+  TDL.setUrl(v);
+  showBanner('ok', '✅ Đã lưu URL cho tất cả các trang, đang tải lại...');
+  loadAll(true);
 }
 
 loadAll();

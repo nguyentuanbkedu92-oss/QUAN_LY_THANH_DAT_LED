@@ -247,6 +247,11 @@ textarea{resize:vertical;min-height:80px}
 .gs-top-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .gs-top-bar .btn{margin:0;flex:1;min-width:120px;padding:10px;font-size:13px}
 
+/* TẠM ỨNG DOT TOGGLE */
+.tu-toggle{display:flex;gap:8px;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+.tu-toggle-btn{flex:1;padding:11px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:inherit;font-weight:700;cursor:pointer;font-size:13px;transition:all .2s}
+.tu-toggle-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 12px rgba(232,119,34,.35)}
+
 @media print {
   @page { size: A4; margin: 15mm 12mm; }
   body { background: #fff !important; }
@@ -502,14 +507,18 @@ textarea{resize:vertical;min-height:80px}
   </div>
 </div>
 
-<!-- ===== PHIẾU TẠM ỨNG PANEL ===== -->
+<!-- ===== PHIẾU TẠM ỨNG / THANH TOÁN PANEL ===== -->
 <div id="previewTamUngPanel" class="panel">
   <div class="preview-controls">
-    <button class="btn btn-green" onclick="printDoc('tamUngPaper')">🖨 In Tạm Ứng</button>
-    <button class="btn btn-word" onclick="exportWord('tamUngPaper','TamUng')">📄 Xuất Word</button>
-    <button class="btn btn-purple" onclick="downloadDoc('tamUngPaper','TamUng')">⬇ Tải HTML</button>
+    <button class="btn btn-green" onclick="printDoc('tamUngPaper')">🖨 In</button>
+    <button class="btn btn-word" onclick="exportTamUng()">📄 Xuất Word</button>
+    <button class="btn btn-purple" onclick="downloadTamUng()">⬇ Tải HTML</button>
     <button class="btn btn-blue" onclick="switchTab('previewHopDong')">📋 ← Xem HĐ</button>
     <button class="btn" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);flex:0 0 60px" onclick="switchTab('form')">✏ Sửa</button>
+  </div>
+  <div class="tu-toggle">
+    <button class="tu-toggle-btn active" id="tuDotBtn1" onclick="switchTamUngDot(1)">💰 Đợt 1 — Tạm ứng</button>
+    <button class="tu-toggle-btn" id="tuDotBtn2" onclick="switchTamUngDot(2)">✅ Đợt 2 — Thanh toán nốt</button>
   </div>
   <div class="contract-paper" id="tamUngPaper">
     <div style="color:#aaa;text-align:center;padding:40px;font-size:14px">
@@ -573,6 +582,7 @@ const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 95">
 const LOGO_DATA = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(LOGO_SVG)));
 
 let products = [], productId = 0;
+let currentDot = 1; // 1 = Đợt 1 (Tạm ứng), 2 = Đợt 2 (Thanh toán nốt)
 const today = new Date();
 document.getElementById('ngayKy').value = today.toISOString().split('T')[0];
 // Auto generate contract number
@@ -737,12 +747,33 @@ function generateAll() {
     ngayKyStr: fmtDate(document.getElementById('ngayKy').value),
   };
 
+  window._genData = data;
+  currentDot = 1;
+
   generateQuote(data);
   generateXuatKho(data);
   generateContract(data);
-  generateTamUng(data);
+  generateTamUng(data, currentDot);
   generateZaloText(data);
+
+  const b1 = document.getElementById('tuDotBtn1'), b2 = document.getElementById('tuDotBtn2');
+  if (b1 && b2) { b1.classList.add('active'); b2.classList.remove('active'); }
+
   switchTab('previewBaoGia');
+}
+
+function switchTamUngDot(dot) {
+  currentDot = dot;
+  document.getElementById('tuDotBtn1').classList.toggle('active', dot === 1);
+  document.getElementById('tuDotBtn2').classList.toggle('active', dot === 2);
+  if (window._genData) generateTamUng(window._genData, dot);
+}
+
+function exportTamUng() {
+  exportWord('tamUngPaper', currentDot === 1 ? 'TamUngDot1' : 'ThanhToanDot2');
+}
+function downloadTamUng() {
+  downloadDoc('tamUngPaper', currentDot === 1 ? 'TamUngDot1' : 'ThanhToanDot2');
 }
 
 function generateZaloText(data) {
@@ -1211,8 +1242,31 @@ function generateContract(data) {
   `;
 }
 
-function generateTamUng(data) {
+function generateTamUng(data, dot) {
+  dot = dot || 1;
   const t = calcTotals();
+
+  const isDot1 = dot === 1;
+  const soTien = isDot1 ? t.deposit : t.remain;
+  const tyLe = isDot1 ? t.tamUngPct : (100 - t.tamUngPct);
+  const tieuDe = isDot1
+    ? 'PHIẾU TẠM ỨNG / ĐỀ NGHỊ THANH TOÁN ĐỢT 1'
+    : 'PHIẾU ĐỀ NGHỊ THANH TOÁN ĐỢT 2 (THANH TOÁN NỐT)';
+  const nhanDe = isDot1 ? 'BÊN TẠM ỨNG (BÊN A)' : 'BÊN THANH TOÁN (BÊN A)';
+  const nhanNhan = isDot1 ? 'BÊN NHẬN TẠM ỨNG (BÊN B)' : 'BÊN NHẬN THANH TOÁN (BÊN B)';
+  const kyHieuSoTien = isDot1 ? 'SỐ TIỀN TẠM ỨNG (ĐỢT 1)' : 'SỐ TIỀN THANH TOÁN NỐT (ĐỢT 2)';
+  const noiDungMoDau = isDot1
+    ? `Căn cứ Hợp đồng mua bán số <strong>${data.soHopDong}</strong> ký ngày <strong>${data.ngayKyStr}</strong> giữa Bên A và Bên B về việc cung cấp thiết bị điện chiếu sáng, Bên A thực hiện tạm ứng (đặt cọc) Đợt 1 cho Bên B như sau:`
+    : `Căn cứ Hợp đồng mua bán số <strong>${data.soHopDong}</strong> ký ngày <strong>${data.ngayKyStr}</strong>, Bên A đã tạm ứng Đợt 1 và nay thực hiện thanh toán nốt Đợt 2 (số tiền còn lại) cho Bên B trước khi nhận hàng, cụ thể như sau:`;
+  const dongDaThanhToan = isDot1
+    ? `<div class="c-total-row"><span>Đã thanh toán trước đó:</span><span>0 đ</span></div>`
+    : `<div class="c-total-row"><span>Đã tạm ứng Đợt 1 (${t.tamUngPct}%):</span><span>${fmt(t.deposit)} đ</span></div>`;
+  const ghiChuThem = isDot1
+    ? `<p class="indent">- Số tiền còn lại phải thanh toán (Đợt 2 — ${100-t.tamUngPct}%): <strong>${fmt(t.remain)} đ</strong> (${capitalize(soToText(t.remain))}), thanh toán trước khi giao hàng theo Điều 3 Hợp đồng.</p>
+       <p class="indent">- Sau khi nhận đủ số tiền tạm ứng, Bên B tiến hành sản xuất/chuẩn bị hàng và giao hàng theo đúng tiến độ đã cam kết trong hợp đồng.</p>`
+    : `<p class="indent">- Sau khi Bên B nhận đủ số tiền thanh toán Đợt 2, hai Bên coi như đã hoàn tất nghĩa vụ thanh toán theo Hợp đồng số ${data.soHopDong}.</p>
+       <p class="indent">- Bên B tiến hành giao hàng/bàn giao đầy đủ cho Bên A ngay sau khi xác nhận đã nhận đủ tiền.</p>`;
+
   document.getElementById('tamUngPaper').innerHTML = `
     <div class="c-header-nation">CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
     <div class="c-header-slogan">ĐỘC LẬP — TỰ DO — HẠNH PHÚC</div>
@@ -1220,12 +1274,12 @@ function generateTamUng(data) {
     <div style="text-align:center;margin-bottom:4px">
       <img src="${LOGO_DATA}" alt="TDL" style="height:50px">
     </div>
-    <div class="c-title">PHIẾU TẠM ỨNG / ĐỀ NGHỊ THANH TOÁN ĐỢT 1</div>
+    <div class="c-title">${tieuDe}</div>
     <div class="c-subtitle">Thuộc Hợp đồng số: ${data.soHopDong} — Ngày ${data.ngayKyStr}</div>
 
     <div class="c-parties">
       <div class="c-party-box">
-        <div class="c-party-title">BÊN TẠM ỨNG (BÊN A)</div>
+        <div class="c-party-title">${nhanDe}</div>
         <div class="c-party-info">
           <strong>${data.khachHang}</strong><br>
           ${data.mst?`Mã số thuế: <strong>${data.mst}</strong><br>`:''}
@@ -1236,7 +1290,7 @@ function generateTamUng(data) {
         </div>
       </div>
       <div class="c-party-box">
-        <div class="c-party-title">BÊN NHẬN TẠM ỨNG (BÊN B)</div>
+        <div class="c-party-title">${nhanNhan}</div>
         <div class="c-party-info">
           <strong>CÔNG TY TNHH TM & DV THÀNH ĐẠT LED</strong><br>
           Mã số thuế: <strong>0109594143</strong><br>
@@ -1249,33 +1303,33 @@ function generateTamUng(data) {
     </div>
 
     <div class="c-section">
-      <div class="c-section-title">NỘI DUNG TẠM ỨNG</div>
+      <div class="c-section-title">${isDot1 ? 'NỘI DUNG TẠM ỨNG' : 'NỘI DUNG THANH TOÁN'}</div>
       <div class="c-body">
-        <p>Căn cứ Hợp đồng mua bán số <strong>${data.soHopDong}</strong> ký ngày <strong>${data.ngayKyStr}</strong> giữa Bên A và Bên B về việc cung cấp thiết bị điện chiếu sáng, Bên A thực hiện tạm ứng (đặt cọc) Đợt 1 cho Bên B như sau:</p>
+        <p>${noiDungMoDau}</p>
       </div>
       <div class="c-totals">
         <div class="c-total-row"><span>Tổng giá trị hợp đồng:</span><span>${fmt(t.total)} đ</span></div>
-        <div class="c-total-row"><span>Tỷ lệ tạm ứng:</span><span>${t.tamUngPct}%</span></div>
-        <div class="c-total-row"><span>SỐ TIỀN TẠM ỨNG (ĐỢT 1):</span><span>${fmt(t.deposit)} đ</span></div>
+        ${dongDaThanhToan}
+        <div class="c-total-row"><span>Tỷ lệ lần này:</span><span>${tyLe}%</span></div>
+        <div class="c-total-row"><span>${kyHieuSoTien}:</span><span>${fmt(soTien)} đ</span></div>
       </div>
       <div class="c-body">
-        <p><em>(Bằng chữ: ${capitalize(soToText(t.deposit))})</em></p>
+        <p><em>(Bằng chữ: ${capitalize(soToText(soTien))})</em></p>
         <p class="indent">- Hình thức thanh toán: Chuyển khoản vào tài khoản của Bên B nêu trên.</p>
-        <p class="indent">- Số tiền còn lại phải thanh toán (Đợt 2 — ${100-t.tamUngPct}%): <strong>${fmt(t.remain)} đ</strong> (${capitalize(soToText(t.remain))}), thanh toán trước khi giao hàng theo Điều 3 Hợp đồng.</p>
-        <p class="indent">- Sau khi nhận đủ số tiền tạm ứng, Bên B tiến hành sản xuất/chuẩn bị hàng và giao hàng theo đúng tiến độ đã cam kết trong hợp đồng.</p>
+        ${ghiChuThem}
       </div>
     </div>
 
     <table class="c-sign-table">
       <tr>
         <td>
-          <div class="c-sign-title">Đại diện Bên A (Bên tạm ứng)</div>
+          <div class="c-sign-title">Đại diện Bên A</div>
           <div class="c-sign-name">${data.khachHang}</div>
           <div class="c-sign-line">${data.daiDien}</div>
           <div class="c-note">${data.chucVu}</div>
         </td>
         <td>
-          <div class="c-sign-title">Đại diện Bên B (Bên nhận tạm ứng)</div>
+          <div class="c-sign-title">Đại diện Bên B</div>
           <div class="c-sign-name">CÔNG TY TNHH TM & DV THÀNH ĐẠT LED</div>
           <div class="c-sign-line">Nguyễn Văn Tuấn</div>
           <div class="c-note">Giám đốc</div>

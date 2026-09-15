@@ -643,6 +643,10 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
         <div class="form-row full">
           <div class="form-group"><label class="form-label">Địa chỉ giao hàng</label><input class="form-input" id="f-ban-diachi" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành..."></div>
         </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Người liên hệ (nếu khác tên KH)</label><input class="form-input" id="f-ban-nguoilienhe" placeholder="VD: Chị Thu - 0934xxxxxx"></div>
+          <div class="form-group"><label class="form-label">Nhân viên tư vấn</label><input class="form-input" id="f-ban-nvtuvan" placeholder="Tên nhân viên chốt đơn"></div>
+        </div>
         <div class="divider"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <div class="section-label" style="margin:0">📦 Sản phẩm — chọn từ đơn Nhập hàng</div>
@@ -733,7 +737,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 // STATE
 // ============================================================
 let orders = [];
-let apiUrl = localStorage.getItem('orderpro_api_url') || 'https://script.google.com/macros/s/AKfycbyTXvd7m_-3sQZwmgcbV9mhrp7XPlEgUVdYGqBEOPuiLBvyqEfMrw3XJMXnEWPR3psCUQ/exec';
+let apiUrl = localStorage.getItem('orderpro_api_url') || 'https://script.google.com/macros/s/AKfycbymFG3K-ypuv475xRs6L_vOLqTfZgJtPsIwNcD10klgP_OXuchYfs7eDGkcxf9he9aHWg/exec';
 let currentMonth = new Date().getMonth();
 let currentYear  = new Date().getFullYear();
 let currentType  = 'nhap';
@@ -1024,7 +1028,7 @@ function setType(type, el) {
 
 function resetForm() {
   ['f-nhap-ten','f-nhap-ncc','f-nhap-note','f-nhap-total',
-   'f-ban-kh','f-ban-sdt','f-ban-diachi','f-ban-coc','f-ban-dt','f-ban-ln','f-ban-conlai','f-ban-kenh','f-ban-note',
+   'f-ban-kh','f-ban-sdt','f-ban-diachi','f-ban-nguoilienhe','f-ban-nvtuvan','f-ban-coc','f-ban-dt','f-ban-ln','f-ban-conlai','f-ban-kenh','f-ban-note',
    'f-tra-goc','f-tra-lydo','f-cp-note'
   ].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
   ['f-nhap-sl','f-nhap-gia','f-tra-tien','f-cp-tien'].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
@@ -1184,6 +1188,8 @@ async function saveOrder() {
       kh:document.getElementById('f-ban-kh').value,
       sdt:document.getElementById('f-ban-sdt').value,
       diachi:document.getElementById('f-ban-diachi').value,
+      nguoiLienHe:document.getElementById('f-ban-nguoilienhe').value,
+      nhanVienTuVan:document.getElementById('f-ban-nvtuvan').value,
       sl:products.reduce((s,p)=>s+p.sl,0),
       gia:products[0].gia, von:products[0].von||0,
       dt:totalDt, ln:totalLn, coc, conlai:Math.max(0,totalDt-coc),
@@ -1282,6 +1288,8 @@ function editOrder(id) {
     document.getElementById('f-ban-kh').value=o.kh||'';
     document.getElementById('f-ban-sdt').value=o.sdt||'';
     document.getElementById('f-ban-diachi').value=o.diachi||'';
+    document.getElementById('f-ban-nguoilienhe').value=o.nguoiLienHe||'';
+    document.getElementById('f-ban-nvtuvan').value=o.nhanVienTuVan||'';
     document.getElementById('f-ban-coc').value=o.coc||'';
     document.getElementById('f-ban-kenh').value=o.kenh||'';
     document.getElementById('f-ban-ngay').value=o.ngay||'';

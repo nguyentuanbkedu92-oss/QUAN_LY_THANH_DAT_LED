@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Công Nợ - Thành Đạt LED</title>
+<script src="tdl-config.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:#0f172a; color:#f8fafc; padding:14px; }
+  .wrap { max-width:860px; margin:0 auto; }
+  header { text-align:center; margin-bottom:16px; }
+  header h1 { font-size:20px; color:#38bdf8; text-transform:uppercase; }
+  header a { color:#94a3b8; font-size:12px; text-decoration:none; }
+
+  .banner { display:none; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:14px; }
+  .banner.ok { background:#052e1c; color:#4ade80; border:1px solid #14532d; }
+  .banner.err { background:#3a0d0d; color:#fca5a5; border:1px solid #7f1d1d; }
+  .banner.warn { background:#3a2a0d; color:#fcd34d; border:1px solid #78350f; }
+
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+  .stat-card { background:#1e293b; border:1px solid #334155; border-radius:10px; padding:12px 6px; text-align:center; }
+  .stat-card .num { font-size:19px; font-weight:bold; color:#f87171; }
+  .stat-card .num.ok { color:#38bdf8; }
+  .stat-card .lbl { font-size:10px; color:#94a3b8; text-transform:uppercase; margin-top:2px; }
+
+  section { background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px; }
+  section h2 { font-size:14px; color:#e87722; text-transform:uppercase; margin-bottom:12px;
+               border-bottom:1px solid #334155; padding-bottom:6px; display:flex;
+               justify-content:space-between; align-items:center; }
+  .refresh-btn { background:none; border:1px solid #334155; color:#94a3b8; border-radius:6px;
+                 padding:4px 10px; font-size:11px; cursor:pointer; text-transform:none; }
+  .search-box { width:100%; background:#0f172a; border:1px solid #334155; border-radius:8px;
+                padding:10px 14px; color:#f8fafc; font-size:13px; margin-bottom:12px; outline:none; }
+  .search-box:focus { border-color:#38bdf8; }
+
+  .tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  .tab-btn { background:#0f172a; border:1px solid #334155; color:#94a3b8; padding:6px 12px;
+             border-radius:20px; font-size:11px; cursor:pointer; }
+  .tab-btn.active { background:#38bdf8; color:#0f172a; border-color:#38bdf8; font-weight:bold; }
+
+  .row { background:#0f172a; border:1px solid #334155; border-left:3px solid #f87171;
+         border-radius:8px; padding:10px 12px; margin-bottom:8px; }
+  .row.age0 { border-left-color:#fbbf24; }
+  .row.paid { opacity:.4; border-left-color:#22c55e; }
+  .row-top { display:flex; justify-content:space-between; gap:10px; }
+  .kh { font-weight:bold; font-size:14px; }
+  .sub { font-size:11.5px; color:#94a3b8; margin-top:3px; }
+  .no { text-align:right; white-space:nowrap; }
+  .no b { color:#f87171; font-size:15px; }
+  .no .d { font-size:10.5px; color:#64748b; }
+  .acts { display:flex; gap:6px; margin-top:9px; }
+  .btn-sm { flex:1; padding:7px; border:none; border-radius:6px; font-size:12px; font-weight:bold;
+            cursor:pointer; text-align:center; text-decoration:none; }
+  .btn-call { background:#334155; color:#fff; }
+  .btn-thu  { background:#22c55e; color:#052e1c; }
+  .age { font-size:10px; padding:2px 7px; border-radius:20px; background:#7c2d12; color:#fdba74; }
+  .age.warn { background:#7f1d1d; color:#fca5a5; }
+  .empty { color:#64748b; font-size:13px; text-align:center; padding:20px 0; }
+  .note { font-size:11px; color:#64748b; margin-top:14px; text-align:center; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Công nợ phải thu - TDL</h1>
+    <a href="index.html">&larr; Về trang chính</a>
+  </header>
+
+  <div id="banner" class="banner"></div>
+
+  <div class="stats">
+    <div class="stat-card"><div class="num" id="s-tong">-</div><div class="lbl">Tổng phải thu</div></div>
+    <div class="stat-card"><div class="num ok" id="s-don">-</div><div class="lbl">Đơn còn nợ</div></div>
+    <div class="stat-card"><div class="num" id="s-qua">-</div><div class="lbl">Quá 30 ngày</div></div>
+  </div>
+
+  <section>
+    <h2>Danh sách còn nợ <button class="refresh-btn" onclick="tai(true)">🔄 Tải lại</button></h2>
+    <input type="text" id="q" class="search-box" placeholder="🔍 Tìm theo khách hàng, SĐT, mã đơn..." oninput="ve()">
+    <div class="tabs" id="tabs"></div>
+    <div id="list"><div class="empty">Đang tải...</div></div>
+  </section>
+
+  <div class="note">
+    Số liệu tính theo <b>còn lại = doanh thu − đã thu</b>.<br>
+    Mỗi lần khách trả tiền, bấm <b>Thu tiền</b> để đơn tự trừ nợ và biến mất khỏi danh sách khi thu đủ.
+  </div>
+</div>
+
+<script>
+let dsNo = [], loc = 'all';
+const LOC = [
+  { k:'all',  l:'Tất cả' },
+  { k:'30',   l:'Quá 30 ngày' },
+  { k:'60',   l:'Quá 60 ngày' },
+  { k:'big',  l:'Trên 20 triệu' }
+];
+
+function banner(type, msg) {
+  const b = document.getElementById('banner');
+  b.textContent = msg; b.className = 'banner ' + type; b.style.display = 'block';
+  if (type === 'ok') setTimeout(() => b.style.display = 'none', 2500);
+}
+
+function tai(force) {
+  if (force) TDL.xoaCache();
+  TDL.live('getCongNo', {}, (res, laCache, tuoi) => {
+    dsNo = res.congNo || [];
+    document.getElementById('s-tong').textContent = TDL.tien(res.tong);
+    document.getElementById('s-don').textContent = res.soDon || 0;
+    document.getElementById('s-qua').textContent = dsNo.filter(x => (+x.soNgay || 0) > 30).length;
+    veTabs(); ve();
+    if (laCache) banner('warn', '⏳ Đang hiện số liệu lưu sẵn (' + tuoi + 's trước), đang tải bản mới...');
+    else document.getElementById('banner').style.display = 'none';
+  }, (e, coCache) => {
+    if (coCache) banner('warn', '⚠️ Không tải được bản mới, đang xem dữ liệu cũ.');
+    else {
+      banner('err', '❌ Không kết nối được API: ' + e.message);
+      document.getElementById('list').innerHTML = '<div class="empty">Không tải được dữ liệu</div>';
+    }
+  });
+}
+
+function veTabs() {
+  document.getElementById('tabs').innerHTML = LOC.map(f =>
+    `<button class="tab-btn ${loc === f.k ? 'active' : ''}" onclick="datLoc('${f.k}')">${f.l}</button>`
+  ).join('');
+}
+function datLoc(k) { loc = k; veTabs(); ve(); }
+
+function ve() {
+  const q = (document.getElementById('q').value || '').toLowerCase().trim();
+  let ds = dsNo.slice();
+  if (loc === '30')  ds = ds.filter(x => (+x.soNgay || 0) > 30);
+  if (loc === '60')  ds = ds.filter(x => (+x.soNgay || 0) > 60);
+  if (loc === 'big') ds = ds.filter(x => x.conlai >= 20e6);
+  if (q) ds = ds.filter(x =>
+    (x.kh || '').toLowerCase().includes(q) ||
+    (x.sdt || '').includes(q) ||
+    (x.id || '').toLowerCase().includes(q) ||
+    (x.ten || '').toLowerCase().includes(q));
+
+  const el = document.getElementById('list');
+  if (!ds.length) { el.innerHTML = '<div class="empty">Không có đơn nào 🎉</div>'; return; }
+
+  el.innerHTML = ds.map(x => {
+    const ngay = +x.soNgay || 0;
+    return `
+    <div class="row ${ngay > 30 ? '' : 'age0'}" id="no-${x.id}">
+      <div class="row-top">
+        <div style="min-width:0">
+          <div class="kh">${x.kh || '(chưa có tên)'}</div>
+          <div class="sub">📦 ${x.ten || '-'}</div>
+          <div class="sub">🧾 ${x.id} · ${TDL.ngay(x.ngay)}
+            ${ngay ? `<span class="age ${ngay > 30 ? 'warn' : ''}">${ngay} ngày</span>` : ''}</div>
+        </div>
+        <div class="no">
+          <b>${TDL.tien(x.conlai)}</b>
+          <div class="d">đã thu ${TDL.tien(x.daThu)} / ${TDL.tien(x.dt)}</div>
+        </div>
+      </div>
+      <div class="acts">
+        ${x.sdt ? `<a class="btn-sm btn-call" href="tel:${x.sdt}">📞 ${x.sdt}</a>`
+                 : `<span class="btn-sm btn-call" style="opacity:.5">Chưa có SĐT</span>`}
+        <button class="btn-sm btn-thu" onclick="thuTien('${x.id}', ${x.conlai})">💰 Thu tiền</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function thuTien(id, conlai) {
+  const nhap = prompt('Số tiền vừa thu của đơn ' + id +
+    '\nCòn nợ: ' + conlai.toLocaleString('vi-VN') + ' đ' +
+    '\n\n(Để trống = thu đủ toàn bộ)', '');
+  if (nhap === null) return;
+  const soTien = nhap.trim() === '' ? conlai : Number(nhap.replace(/[^\d]/g, ''));
+  if (!soTien || soTien <= 0) { banner('err', 'Số tiền không hợp lệ'); return; }
+
+  const card = document.getElementById('no-' + id);
+  if (card) card.classList.add('paid');
+  try {
+    const res = await TDL.api('thuTien', { id, soTien, ghiChu: 'thu tại trang Công nợ' });
+    if (res.status !== 'ok') throw new Error(res.msg);
+    TDL.xoaCache();
+    banner('ok', '✅ Đã ghi nhận ' + TDL.tien(soTien) + '. Còn lại ' + TDL.tien(res.conlai));
+    tai(true);
+  } catch (e) {
+    if (card) card.classList.remove('paid');
+    banner('err', '❌ Lỗi ghi nhận: ' + e.message);
+  }
+}
+
+tai();
+</script>
+</body>
+</html>

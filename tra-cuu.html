@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tra Cứu Kiến Thức & Hướng Dẫn - TDL</title>
+    <title>Tra Cứu Kiến Thức & Hướng Dẫn - Thành Đạt LED</title>
     <script src="tdl-config.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,16 +23,17 @@
         .search-box { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px 14px; color: #f8fafc; font-size: 14px; margin-bottom: 12px; outline: none; }
         .search-box:focus { border-color: #38bdf8; }
 
-        .faq-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-        .faq-q { font-weight: bold; font-size: 14px; color: #38bdf8; margin-bottom: 6px; display: flex; justify-content: space-between; }
-        .faq-tag { font-size: 10px; background: #0c4a6e; color: #7dd3fc; padding: 2px 8px; border-radius: 20px; height: fit-content; }
+        .faq-item { background: #0f172a; border: 1px solid #334155; border-left: 3px solid #38bdf8; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        .faq-q { font-weight: bold; font-size: 14px; color: #38bdf8; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .faq-tag { font-size: 10px; background: #0c4a6e; color: #7dd3fc; padding: 2px 8px; border-radius: 20px; white-space: nowrap; height: fit-content; }
         .faq-a { font-size: 13px; color: #cbd5e1; line-height: 1.5; white-space: pre-wrap; }
 
-        /* Khung đóng góp câu hỏi mới nếu không tìm thấy */
+        /* Khung gửi câu hỏi mới nếu không tìm thấy */
         .missing-box { background: #0f172a; border: 1px dashed #e87722; border-radius: 8px; padding: 14px; margin-top: 15px; text-align: center; }
         .missing-box p { font-size: 12px; color: #fdba74; margin-bottom: 8px; }
-        .missing-input { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 8px; color: #fff; font-size: 12px; margin-bottom: 8px; outline: none; }
-        .btn-submit { background: #e87722; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .missing-input { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 10px; color: #fff; font-size: 12px; margin-bottom: 8px; outline: none; }
+        .missing-input:focus { border-color: #e87722; }
+        .btn-submit { background: #e87722; color: #fff; border: none; padding: 9px 18px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; }
         .btn-submit:active { background: #c25e10; }
         .empty { color: #64748b; font-size: 13px; text-align: center; padding: 20px 0; }
     </style>
@@ -47,15 +48,15 @@
     <div id="banner" class="banner"></div>
 
     <section>
-        <h2>Tìm kiếm nhanh câu hỏi, thông số, loại đèn</h2>
-        <input type="text" id="search-input" class="search-box" placeholder="🔍 Nhập từ khóa (vd: chip led, sân pickleball, bảo hành, công suất...)" oninput="filterFaq()">
+        <h2>Tìm kiếm nhanh thông số, câu hỏi, chính sách</h2>
+        <input type="text" id="search-input" class="search-box" placeholder="🔍 Nhập từ khóa (vd: đèn pha 200W, bảo hành, thanh toán...)" oninput="filterFaq()">
         
-        <div id="faq-list"><div class="empty">Đang tải dữ liệu...</div></div>
+        <div id="faq-list"><div class="empty">Đang tải dữ liệu từ hệ thống...</div></div>
 
         <!-- Form gửi câu hỏi mới nếu không có kết quả -->
         <div id="missing-section" class="missing-box" style="display:none;">
-            <p>🤔 Không tìm thấy câu trả lời bạn cần?</p>
-            <input type="text" id="new-question" class="missing-input" placeholder="Nhập câu hỏi của bạn vào đây để gửi cho quản lý...">
+            <p>🤔 Không tìm thấy thông tin bạn cần? Hãy gửi câu hỏi để quản lý cập nhật.</p>
+            <input type="text" id="new-question" class="missing-input" placeholder="Nhập câu hỏi hoặc yêu cầu cần tra cứu...">
             <button class="btn-submit" onclick="submitMissingQuestion()">📤 Gửi câu hỏi mới</button>
         </div>
     </section>
@@ -64,48 +65,53 @@
 <script>
 let faqData = [];
 
+// URL Web App độc lập của bạn
+const FAQ_API_URL = 'https://script.google.com/macros/s/AKfycbwSQjnbLutLN4RMU7Cp3IZLWlyiOVBIZANRcSDq-wfEoEnhJW4eV1QZkDTTnkp0JnjPpQ/exec';
+
 function showBanner(type, msg) {
     const b = document.getElementById('banner');
     b.innerHTML = msg; b.className = 'banner ' + type; b.style.display = 'block';
     if(type === 'ok') setTimeout(() => b.style.display = 'none', 3000);
 }
 
-// Tải dữ liệu từ API (action: getFaq)
 function loadFaq() {
-    TDL.live('getFaq', {}, (res) => {
-        faqData = res.faq || [];
-        renderFaq(faqData);
-    }, (e) => {
-        document.getElementById('faq-list').innerHTML = '<div class="empty">Không tải được dữ liệu tra cứu.</div>';
+    const el = document.getElementById('faq-list');
+    fetch(FAQ_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'getFaq' })
+    })
+    .then(response => response.json())
+    .then(res => {
+        if (res.status === 'ok') {
+            faqData = res.faq || [];
+            renderFaq(faqData);
+        } else {
+            throw new Error(res.msg || 'Lỗi dữ liệu từ server');
+        }
+    })
+    .catch(e => {
+        el.innerHTML = '<div class="empty">Không tải được dữ liệu tra cứu. Vui lòng kiểm tra lại kết nối.</div>';
     });
 }
 
 function renderFaq(list) {
     const el = document.getElementById('faq-list');
-    const query = document.getElementById('search-input').value.toLowerCase().trim();
     const missingSec = document.getElementById('missing-section');
+    missingSec.style.display = 'block'; // Luôn mở khung gợi ý gửi câu hỏi nếu không thấy
 
     if (!list.length) {
-        el.innerHTML = '<div class="empty">Chưa có dữ liệu câu hỏi trong hệ thống.</div>';
-        missingSec.style.display = 'block';
+        el.innerHTML = '<div class="empty">Chưa có dữ liệu trong kho kiến thức.</div>';
         return;
-    }
-
-    if (query && list.length === 0) {
-        missingSec.style.display = 'block';
-    } else if (query && list.length > 0) {
-        missingSec.style.display = 'block'; // Luôn cho phép gửi nếu không ưng ý
-    } else {
-        missingSec.style.display = 'none';
     }
 
     el.innerHTML = list.map(item => `
         <div class="faq-item">
             <div class="faq-q">
-                <span>💡 ${item.cauHoi}</span>
-                <span class="faq-tag">${item.danhMuc || 'Chung'}</span>
+                <span>💡 ${escapeHtml(item.cauHoi)}</span>
+                <span class="faq-tag">${escapeHtml(item.danhMuc)}</span>
             </div>
-            <div class="faq-a">${item.traLoi}</div>
+            <div class="faq-a">${escapeHtml(item.traLoi)}</div>
         </div>
     `).join('');
 }
@@ -133,16 +139,34 @@ async function submitMissingQuestion() {
     }
 
     try {
-        const res = await TDL.api('saveMissingQuestion', { cauHoi });
+        const response = await fetch(FAQ_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'saveMissingQuestion', cauHoi: cauHoi })
+        });
+        const res = await response.json();
         if (res.status !== 'ok') throw new Error(res.msg);
+
         showBanner('ok', '✅ Đã gửi câu hỏi thành công! Quản lý sẽ cập nhật câu trả lời sớm.');
         input.value = '';
         loadFaq();
     } catch (e) {
-        showBanner('err', '❌ Lỗi: ' + e.message);
+        showBanner('err', '❌ Lỗi gửi câu hỏi: ' + e.message);
     }
 }
 
+// Hàm chống lỗi hiển thị ký tự HTML đặc biệt
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Tự động tải dữ liệu khi mở trang
 loadFaq();
 </script>
 </body>

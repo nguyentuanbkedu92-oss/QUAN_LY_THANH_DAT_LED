@@ -172,7 +172,7 @@ function iconOf(danhMuc) {
 }
 
 const CACHE_KEY = 'tdl_faq_cache_v1';
-const FETCH_TIMEOUT_MS = 12000;
+const FETCH_TIMEOUT_MS = 20000;
 
 // ============ STATE ============
 let faqData = [];
@@ -217,7 +217,7 @@ function fetchWithTimeout(url, options, timeout) {
         .finally(() => clearTimeout(id));
 }
 
-function loadFaq(forceRefresh) {
+function loadFaq(forceRefresh, isAutoRetry) {
     const cache = forceRefresh ? null : readCache();
 
     if (cache) {
@@ -247,6 +247,13 @@ function loadFaq(forceRefresh) {
         if (forceRefresh) showBanner('ok', '✅ Đã cập nhật dữ liệu mới nhất.');
     })
     .catch(e => {
+        // Apps Script đôi khi "khởi động nguội" chậm ở lần gọi đầu tiên trong ngày.
+        // Tự động thử lại âm thầm 1 lần trước khi báo lỗi cho nhân viên, để họ không phải tự bấm "Thử lại".
+        if (!isAutoRetry && !cache) {
+            setUpdating(true);
+            loadFaq(forceRefresh, true);
+            return;
+        }
         setUpdating(false);
         const reason = (e && e.name === 'AbortError') ? 'kết nối quá chậm' : (e.message || 'lỗi kết nối');
         if (cache) {

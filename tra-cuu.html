@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tra Cứu Kiến Thức & Hướng Dẫn - Thành Đạt LED</title>
+    <link rel="preconnect" href="https://script.google.com">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 14px; }
@@ -15,19 +16,30 @@
         .banner { display: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; }
         .banner.ok { background: #052e1c; color: #4ade80; border: 1px solid #14532d; }
         .banner.err { background: #3a0d0d; color: #fca5a5; border: 1px solid #7f1d1d; }
+        .banner.info { background: #0c2a3a; color: #7dd3fc; border: 1px solid #164e63; }
+
+        /* Search bar sticky để nhân viên vừa cuộn vừa gõ tìm kiếm khi đang tư vấn */
+        .search-sticky { position: sticky; top: 0; z-index: 20; background: #0f172a; padding-bottom: 8px; margin-bottom: 4px; }
 
         section { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px; margin-bottom: 18px; }
         section h2 { font-size: 14px; color: #e87722; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid #334155; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-refresh { background: none; border: 1px solid #334155; color: #94a3b8; font-size: 11px; padding: 4px 10px; border-radius: 20px; cursor: pointer; text-transform: none; letter-spacing: normal; }
+        .btn-refresh:hover { border-color: #38bdf8; color: #7dd3fc; }
+        .btn-refresh:active { transform: scale(0.97); }
 
-        .search-box { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px 14px; color: #f8fafc; font-size: 14px; margin-bottom: 12px; outline: none; }
+        .search-box-row { position: relative; margin-bottom: 12px; }
+        .search-box { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px 38px 12px 14px; color: #f8fafc; font-size: 14px; outline: none; }
         .search-box:focus { border-color: #38bdf8; }
+        .search-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; font-size: 16px; cursor: pointer; display: none; padding: 4px 8px; }
+        .search-clear:hover { color: #f8fafc; }
 
         .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
         .chip { background: #0f172a; border: 1px solid #334155; color: #94a3b8; font-size: 12px; padding: 6px 12px; border-radius: 20px; cursor: pointer; user-select: none; }
         .chip.active { background: #0c4a6e; border-color: #38bdf8; color: #7dd3fc; }
         .chip .count { opacity: .7; margin-left: 4px; }
 
-        .result-meta { font-size: 11px; color: #64748b; margin-bottom: 10px; }
+        .result-meta { font-size: 11px; color: #64748b; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .updating-tag { color: #7dd3fc; font-size: 11px; }
 
         .faq-item { background: #0f172a; border: 1px solid #334155; border-left: 3px solid #38bdf8; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
         .faq-q { font-weight: bold; font-size: 14px; color: #38bdf8; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
@@ -35,10 +47,20 @@
         .faq-a { font-size: 13px; color: #cbd5e1; line-height: 1.5; white-space: pre-wrap; margin-bottom: 8px; }
         mark { background: #e87722; color: #0f172a; border-radius: 3px; padding: 0 2px; }
 
-        .faq-actions { display: flex; justify-content: flex-end; }
+        .faq-actions { display: flex; justify-content: flex-end; gap: 8px; }
         .btn-copy { background: #1e293b; border: 1px solid #334155; color: #7dd3fc; font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
         .btn-copy:hover { border-color: #38bdf8; }
         .btn-copy.copied { color: #4ade80; border-color: #14532d; }
+        .btn-copy-a { background: #1e293b; border: 1px solid #334155; color: #94a3b8; font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+        .btn-copy-a:hover { border-color: #e87722; color: #fdba74; }
+
+        /* Skeleton khi tải lần đầu, chưa có cache */
+        .skeleton-item { background: #0f172a; border: 1px solid #334155; border-left: 3px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        .sk-line { height: 12px; border-radius: 4px; background: linear-gradient(90deg, #1e293b 25%, #334155 37%, #1e293b 63%); background-size: 400% 100%; animation: sk 1.4s ease infinite; margin-bottom: 8px; }
+        .sk-line.w60 { width: 60%; height: 14px; }
+        .sk-line.w90 { width: 90%; }
+        .sk-line.w75 { width: 75%; }
+        @keyframes sk { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
 
         .missing-box { background: #0f172a; border: 1px dashed #e87722; border-radius: 8px; padding: 14px; margin-top: 15px; text-align: center; }
         .missing-box p { font-size: 12px; color: #fdba74; margin-bottom: 8px; }
@@ -48,6 +70,15 @@
         .btn-submit:disabled { opacity: .5; cursor: default; }
         .btn-submit:active:not(:disabled) { background: #c25e10; }
         .empty { color: #64748b; font-size: 13px; text-align: center; padding: 20px 0; }
+
+        /* Overlay copy thủ công - dùng khi trình duyệt chặn copy tự động */
+        .copy-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+        .copy-modal-overlay.show { display: flex; }
+        .copy-modal { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 16px; max-width: 480px; width: 100%; }
+        .copy-modal p { font-size: 12px; color: #fdba74; margin-bottom: 8px; }
+        .copy-modal textarea { width: 100%; height: 140px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 12px; padding: 10px; resize: vertical; }
+        .copy-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+        .copy-modal-actions button { background: #334155; border: none; color: #f8fafc; padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -60,13 +91,21 @@
     <div id="banner" class="banner"></div>
 
     <section>
-        <h2>Tìm kiếm nhanh thông số, câu hỏi, chính sách</h2>
-        <input type="text" id="search-input" class="search-box" placeholder="🔍 Nhập từ khóa (vd: đèn pha 200W, bảo hành, thanh toán...)">
+        <h2>
+            <span>Tìm kiếm nhanh thông số, câu hỏi, chính sách</span>
+            <button class="btn-refresh" id="btn-refresh" onclick="loadFaq(true)" title="Tải lại dữ liệu mới nhất">↻ Làm mới</button>
+        </h2>
 
-        <div id="chip-bar" class="chips"></div>
-        <div id="result-meta" class="result-meta"></div>
+        <div class="search-sticky">
+            <div class="search-box-row">
+                <input type="text" id="search-input" class="search-box" placeholder="🔍 Nhập từ khóa (vd: đèn pha 200W, bảo hành, thanh toán...)" autocomplete="off">
+                <button class="search-clear" id="search-clear" title="Xoá tìm kiếm">✕</button>
+            </div>
+            <div id="chip-bar" class="chips"></div>
+            <div id="result-meta" class="result-meta"></div>
+        </div>
 
-        <div id="faq-list"><div class="empty">Đang tải dữ liệu từ hệ thống...</div></div>
+        <div id="faq-list"></div>
 
         <div id="missing-section" class="missing-box" style="display:none;">
             <p>🤔 Không tìm thấy thông tin bạn cần? Hãy gửi câu hỏi để quản lý cập nhật.</p>
@@ -79,12 +118,20 @@
     </section>
 </div>
 
+<div class="copy-modal-overlay" id="copy-modal-overlay">
+    <div class="copy-modal">
+        <p>⚠️ Trình duyệt chặn copy tự động. Bấm vào ô bên dưới rồi nhấn Ctrl+C (hoặc Cmd+C) để sao chép:</p>
+        <textarea id="copy-modal-text" readonly></textarea>
+        <div class="copy-modal-actions">
+            <button onclick="closeCopyModal()">Đóng</button>
+        </div>
+    </div>
+</div>
+
 <script>
 // ============ CẤU HÌNH ============
-// URL Web App độc lập của bạn
 const FAQ_API_URL = 'https://script.google.com/macros/s/AKfycbwSQjnbLutLN4RMU7Cp3IZLWlyiOVBIZANRcSDq-wfEoEnhJW4eV1QZkDTTnkp0JnjPpQ/exec';
 
-// (Tuỳ chọn) Đổi tên hiển thị đẹp hơn cho tên tab kỹ thuật. Không khai báo = giữ nguyên tên tab.
 const DANH_MUC_LABELS = {
     'Faq': 'Câu hỏi chung',
     'DenPha': 'Đèn pha LED',
@@ -92,42 +139,119 @@ const DANH_MUC_LABELS = {
     'ChinhSach': 'Chính sách'
 };
 
+const CACHE_KEY = 'tdl_faq_cache_v1';
+const FETCH_TIMEOUT_MS = 12000;
+
 // ============ STATE ============
 let faqData = [];
+let currentList = [];       // danh sách đang hiển thị (sau lọc), để nút copy tra theo index - tránh lỗi chèn text vào HTML
 let activeCategory = '';
 let searchDebounce = null;
+let hasRenderedOnce = false;
 
 function labelOf(danhMuc) {
     return DANH_MUC_LABELS[danhMuc] || danhMuc;
 }
 
-function showBanner(type, msg) {
+function showBanner(type, msg, autoHide) {
     const b = document.getElementById('banner');
     b.innerHTML = msg; b.className = 'banner ' + type; b.style.display = 'block';
-    if (type === 'ok') setTimeout(() => b.style.display = 'none', 3000);
+    if (autoHide !== false && type === 'ok') setTimeout(() => { b.style.display = 'none'; }, 3000);
+}
+function hideBanner() {
+    document.getElementById('banner').style.display = 'none';
 }
 
-function loadFaq() {
-    const el = document.getElementById('faq-list');
-    fetch(FAQ_API_URL, {
+/* ============ TẢI DỮ LIỆU (có cache để mở trang nhanh) ============ */
+
+function readCache() {
+    try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.data) && parsed.data.length) return parsed;
+    } catch (e) {}
+    return null;
+}
+
+function writeCache(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (e) {}
+}
+
+function fetchWithTimeout(url, options, timeout) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    return fetch(url, Object.assign({}, options, { signal: controller.signal }))
+        .finally(() => clearTimeout(id));
+}
+
+function loadFaq(forceRefresh) {
+    const cache = forceRefresh ? null : readCache();
+
+    if (cache) {
+        faqData = cache.data;
+        buildChipBar();
+        renderFaq();
+        setUpdating(true);
+    } else if (!hasRenderedOnce) {
+        renderSkeleton();
+    } else {
+        setUpdating(true);
+    }
+
+    fetchWithTimeout(FAQ_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: 'getFaq' })
-    })
+    }, FETCH_TIMEOUT_MS)
     .then(response => response.json())
     .then(res => {
-        if (res.status === 'ok') {
-            faqData = res.faq || [];
-            buildChipBar();
-            renderFaq();
-        } else {
-            throw new Error(res.msg || 'Lỗi dữ liệu từ server');
-        }
+        if (res.status !== 'ok') throw new Error(res.msg || 'Lỗi dữ liệu từ server');
+        faqData = res.faq || [];
+        writeCache(faqData);
+        setUpdating(false);
+        buildChipBar();
+        renderFaq();
+        if (forceRefresh) showBanner('ok', '✅ Đã cập nhật dữ liệu mới nhất.');
     })
     .catch(e => {
-        el.innerHTML = '<div class="empty">Không tải được dữ liệu tra cứu. Vui lòng kiểm tra lại kết nối.<br>(' + escapeHtml(e.message) + ')</div>';
+        setUpdating(false);
+        const reason = (e && e.name === 'AbortError') ? 'kết nối quá chậm' : (e.message || 'lỗi kết nối');
+        if (cache) {
+            // Đã có dữ liệu cũ hiển thị sẵn, chỉ báo nhẹ chứ không chặn màn hình
+            showBanner('info', 'ℹ️ Không tải được dữ liệu mới nhất (' + escapeHtml(reason) + '). Đang hiển thị dữ liệu đã lưu gần nhất.', false);
+        } else {
+            document.getElementById('faq-list').innerHTML =
+                '<div class="empty">Không tải được dữ liệu tra cứu (' + escapeHtml(reason) + ').<br><br>' +
+                '<button class="btn-submit" onclick="loadFaq(true)">🔄 Thử lại</button></div>';
+        }
     });
 }
+
+function setUpdating(on) {
+    const meta = document.getElementById('result-meta');
+    if (!meta) return;
+    const tag = meta.querySelector('.updating-tag');
+    if (on && !tag) {
+        const span = document.createElement('span');
+        span.className = 'updating-tag';
+        span.textContent = '⏳ Đang cập nhật...';
+        meta.appendChild(span);
+    } else if (!on && tag) {
+        tag.remove();
+    }
+}
+
+function renderSkeleton() {
+    const el = document.getElementById('faq-list');
+    let html = '';
+    for (let i = 0; i < 4; i++) {
+        html += '<div class="skeleton-item"><div class="sk-line w60"></div><div class="sk-line w90"></div><div class="sk-line w75"></div></div>';
+    }
+    el.innerHTML = html;
+}
+
+/* ============ HIỂN THỊ ============ */
 
 function buildChipBar() {
     const counts = {};
@@ -135,23 +259,27 @@ function buildChipBar() {
     const categories = Object.keys(counts).sort();
 
     const bar = document.getElementById('chip-bar');
-    let html = `<div class="chip ${activeCategory === '' ? 'active' : ''}" onclick="setCategory('')">Tất cả <span class="count">${faqData.length}</span></div>`;
+    let html = `<div class="chip ${activeCategory === '' ? 'active' : ''}" data-cat="">Tất cả <span class="count">${faqData.length}</span></div>`;
     categories.forEach(cat => {
-        html += `<div class="chip ${activeCategory === cat ? 'active' : ''}" onclick="setCategory('${escapeHtml(cat).replace(/'/g, "\\'")}')">${escapeHtml(labelOf(cat))} <span class="count">${counts[cat]}</span></div>`;
+        html += `<div class="chip ${activeCategory === cat ? 'active' : ''}" data-cat="${escapeHtml(cat)}">${escapeHtml(labelOf(cat))} <span class="count">${counts[cat]}</span></div>`;
     });
     bar.innerHTML = html;
 
-    // đồng bộ danh sách danh mục cho khung gửi câu hỏi mới
     const sel = document.getElementById('new-category');
+    const prevVal = sel.value;
     sel.innerHTML = '<option value="">-- Chọn danh mục liên quan (không bắt buộc) --</option>' +
         categories.map(cat => `<option value="${escapeHtml(cat)}">${escapeHtml(labelOf(cat))}</option>`).join('');
+    sel.value = prevVal;
 }
 
-function setCategory(cat) {
-    activeCategory = cat;
+// Event delegation cho chip danh mục - tránh nhúng text người dùng vào thuộc tính onclick
+document.getElementById('chip-bar').addEventListener('click', function (e) {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    activeCategory = chip.dataset.cat || '';
     buildChipBar();
     renderFaq();
-}
+});
 
 function getFilteredList() {
     const query = document.getElementById('search-input').value.toLowerCase().trim();
@@ -176,22 +304,27 @@ function renderFaq() {
     const meta = document.getElementById('result-meta');
     const query = document.getElementById('search-input').value.toLowerCase().trim();
     missingSec.style.display = 'block';
+    hasRenderedOnce = true;
+
+    document.getElementById('search-clear').style.display = query ? 'block' : 'none';
 
     if (!faqData.length) {
         el.innerHTML = '<div class="empty">Chưa có dữ liệu trong kho kiến thức.</div>';
-        meta.textContent = '';
+        meta.innerHTML = '';
         return;
     }
 
-    const list = getFilteredList();
-    meta.textContent = `Đang hiển thị ${list.length}/${faqData.length} mục`;
+    currentList = getFilteredList();
+    meta.innerHTML = `<span>Đang hiển thị ${currentList.length}/${faqData.length} mục</span>`;
 
-    if (!list.length) {
+    if (!currentList.length) {
         el.innerHTML = '<div class="empty">Không tìm thấy kết quả phù hợp. Hãy gửi câu hỏi bên dưới.</div>';
         return;
     }
 
-    el.innerHTML = list.map(item => `
+    // Dùng data-idx để nút copy tra lại nội dung qua mảng currentList,
+    // KHÔNG nhúng trực tiếp câu hỏi/câu trả lời vào thuộc tính onclick (tránh lỗi vỡ HTML khi có dấu ngoặc kép).
+    el.innerHTML = currentList.map((item, idx) => `
         <div class="faq-item">
             <div class="faq-q">
                 <span>💡 ${highlight(item.cauHoi, query)}</span>
@@ -199,42 +332,83 @@ function renderFaq() {
             </div>
             <div class="faq-a">${highlight(item.traLoi, query)}</div>
             <div class="faq-actions">
-                <button class="btn-copy" onclick="copyItem(this, ${JSON.stringify(item.cauHoi)}, ${JSON.stringify(item.traLoi)})">📋 Copy tư vấn</button>
+                <button class="btn-copy-a" data-idx="${idx}" data-mode="answer" title="Chỉ copy câu trả lời">📄 Copy đáp án</button>
+                <button class="btn-copy" data-idx="${idx}" data-mode="full" title="Copy cả câu hỏi và câu trả lời">📋 Copy tư vấn</button>
             </div>
         </div>
     `).join('');
 }
 
-function copyItem(btn, cauHoi, traLoi) {
-    const text = `❓ ${cauHoi}\n\n💬 ${traLoi}`;
+// Event delegation cho toàn bộ nút copy trong danh sách
+document.getElementById('faq-list').addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-idx]');
+    if (!btn) return;
+    const item = currentList[Number(btn.dataset.idx)];
+    if (!item) return;
+    const text = btn.dataset.mode === 'answer' ? item.traLoi : `❓ ${item.cauHoi}\n\n💬 ${item.traLoi}`;
+    copyText(text, btn);
+});
+
+/* ============ COPY (nhiều tầng dự phòng) ============ */
+
+function copyText(text, btn) {
     const done = () => {
+        if (!btn) return;
         const old = btn.textContent;
         btn.textContent = '✅ Đã copy';
         btn.classList.add('copied');
         setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1800);
     };
+    const manual = () => openCopyModal(text);
+
     if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+        navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done, manual));
     } else {
-        fallbackCopy(text, done);
+        fallbackCopy(text, done, manual);
     }
 }
 
-function fallbackCopy(text, done) {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand('copy'); done(); } catch (e) { showBanner('err', '❌ Không copy được, hãy copy thủ công.'); }
-    document.body.removeChild(ta);
+function fallbackCopy(text, done, manual) {
+    try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) done(); else manual();
+    } catch (e) {
+        manual();
+    }
 }
+
+function openCopyModal(text) {
+    document.getElementById('copy-modal-text').value = text;
+    document.getElementById('copy-modal-overlay').classList.add('show');
+    const ta = document.getElementById('copy-modal-text');
+    setTimeout(() => { ta.focus(); ta.select(); }, 50);
+}
+function closeCopyModal() {
+    document.getElementById('copy-modal-overlay').classList.remove('show');
+}
+
+/* ============ TÌM KIẾM ============ */
 
 document.getElementById('search-input').addEventListener('input', function () {
     clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(renderFaq, 250);
+    searchDebounce = setTimeout(renderFaq, 200);
 });
+document.getElementById('search-clear').addEventListener('click', function () {
+    const input = document.getElementById('search-input');
+    input.value = '';
+    input.focus();
+    renderFaq();
+});
+
+/* ============ GỬI CÂU HỎI MỚI ============ */
 
 async function submitMissingQuestion() {
     const input = document.getElementById('new-question');
@@ -250,11 +424,11 @@ async function submitMissingQuestion() {
     btn.disabled = true;
     btn.textContent = 'Đang gửi...';
     try {
-        const response = await fetch(FAQ_API_URL, {
+        const response = await fetchWithTimeout(FAQ_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ action: 'saveMissingQuestion', cauHoi: cauHoi, danhMuc: danhMuc })
-        });
+        }, FETCH_TIMEOUT_MS);
         const res = await response.json();
         if (res.status !== 'ok') throw new Error(res.msg);
 
@@ -262,7 +436,7 @@ async function submitMissingQuestion() {
         input.value = '';
         sel.value = '';
     } catch (e) {
-        showBanner('err', '❌ Lỗi gửi câu hỏi: ' + e.message);
+        showBanner('err', '❌ Lỗi gửi câu hỏi: ' + (e.message || 'kết nối quá chậm, thử lại sau'));
     } finally {
         btn.disabled = false;
         btn.textContent = '📤 Gửi câu hỏi mới';
@@ -279,7 +453,7 @@ function escapeHtml(str) {
         .replace(/'/g, "&#039;");
 }
 
-loadFaq();
+loadFaq(false);
 </script>
 </body>
 </html>

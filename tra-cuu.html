@@ -33,10 +33,20 @@
         .search-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; font-size: 16px; cursor: pointer; display: none; padding: 4px 8px; }
         .search-clear:hover { color: #f8fafc; }
 
-        .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-        .chip { background: #0f172a; border: 1px solid #334155; color: #94a3b8; font-size: 12px; padding: 6px 12px; border-radius: 20px; cursor: pointer; user-select: none; }
-        .chip.active { background: #0c4a6e; border-color: #38bdf8; color: #7dd3fc; }
-        .chip .count { opacity: .7; margin-left: 4px; }
+        /* Lưới danh mục lớn, dễ nhìn - để nhân viên chưa biết hỏi gì vẫn bấm vào tìm hiểu được */
+        .category-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; margin-bottom: 16px; }
+        .category-card { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; user-select: none; transition: border-color .15s, background .15s, transform .1s; }
+        .category-card:hover { border-color: #38bdf8; }
+        .category-card:active { transform: scale(0.97); }
+        .category-card.active { background: #0c4a6e; border-color: #38bdf8; }
+        .category-card .cat-icon { font-size: 22px; line-height: 1; display: block; margin-bottom: 6px; }
+        .category-card .cat-name { font-size: 12px; color: #e2e8f0; font-weight: 600; line-height: 1.3; display: block; }
+        .category-card.active .cat-name { color: #7dd3fc; }
+        .category-card .cat-count { font-size: 10.5px; color: #64748b; display: block; margin-top: 2px; }
+        .category-card.active .cat-count { color: #93c5fd; }
+
+        .active-cat-tag { font-size: 11px; color: #7dd3fc; background: #0c4a6e; padding: 3px 10px; border-radius: 20px; }
 
         .result-meta { font-size: 11px; color: #64748b; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
         .updating-tag { color: #7dd3fc; font-size: 11px; }
@@ -96,12 +106,14 @@
             <button class="btn-refresh" id="btn-refresh" onclick="loadFaq(true)" title="Tải lại dữ liệu mới nhất">↻ Làm mới</button>
         </h2>
 
+        <div class="category-label">📂 Chưa biết tìm gì? Bấm vào một danh mục bên dưới để xem toàn bộ nội dung:</div>
+        <div id="category-grid" class="category-grid"></div>
+
         <div class="search-sticky">
             <div class="search-box-row">
-                <input type="text" id="search-input" class="search-box" placeholder="🔍 Nhập từ khóa (vd: đèn pha 200W, bảo hành, thanh toán...)" autocomplete="off">
+                <input type="text" id="search-input" class="search-box" placeholder="🔍 Hoặc gõ từ khóa (vd: đèn pha 200W, bảo hành, thanh toán...)" autocomplete="off">
                 <button class="search-clear" id="search-clear" title="Xoá tìm kiếm">✕</button>
             </div>
-            <div id="chip-bar" class="chips"></div>
             <div id="result-meta" class="result-meta"></div>
         </div>
 
@@ -138,6 +150,26 @@ const DANH_MUC_LABELS = {
     'DenDuong': 'Đèn đường LED',
     'ChinhSach': 'Chính sách'
 };
+
+// Icon hiển thị cho từng danh mục (theo tên tab). Danh mục nào không có trong danh sách
+// sẽ tự dùng icon mặc định 📁 - không cần khai báo hết, thêm tab mới vẫn chạy bình thường.
+const DANH_MUC_ICONS = {
+    'Faq': '❓',
+    'ChinhSach': '📜',
+    'DenPha': '🔦',
+    'DenDuong': '🛣️',
+    'DenNhaXuong': '🏭',
+    'DenSanVuon': '🌳',
+    'DenNangLuong': '☀️',
+    'DenTennis': '🎾',
+    'DenPickleball': '🏓',
+    'SanBongChuyen': '🏐',
+    'SanBongDa': '⚽',
+    'KienThucAnhSang': '💡'
+};
+function iconOf(danhMuc) {
+    return DANH_MUC_ICONS[danhMuc] || '📁';
+}
 
 const CACHE_KEY = 'tdl_faq_cache_v1';
 const FETCH_TIMEOUT_MS = 12000;
@@ -190,7 +222,7 @@ function loadFaq(forceRefresh) {
 
     if (cache) {
         faqData = cache.data;
-        buildChipBar();
+        buildCategoryGrid();
         renderFaq();
         setUpdating(true);
     } else if (!hasRenderedOnce) {
@@ -210,7 +242,7 @@ function loadFaq(forceRefresh) {
         faqData = res.faq || [];
         writeCache(faqData);
         setUpdating(false);
-        buildChipBar();
+        buildCategoryGrid();
         renderFaq();
         if (forceRefresh) showBanner('ok', '✅ Đã cập nhật dữ liệu mới nhất.');
     })
@@ -253,17 +285,27 @@ function renderSkeleton() {
 
 /* ============ HIỂN THỊ ============ */
 
-function buildChipBar() {
+function buildCategoryGrid() {
     const counts = {};
     faqData.forEach(item => { counts[item.danhMuc] = (counts[item.danhMuc] || 0) + 1; });
     const categories = Object.keys(counts).sort();
 
-    const bar = document.getElementById('chip-bar');
-    let html = `<div class="chip ${activeCategory === '' ? 'active' : ''}" data-cat="">Tất cả <span class="count">${faqData.length}</span></div>`;
+    const grid = document.getElementById('category-grid');
+    let html = `
+        <div class="category-card ${activeCategory === '' ? 'active' : ''}" data-cat="">
+            <span class="cat-icon">📚</span>
+            <span class="cat-name">Tất cả</span>
+            <span class="cat-count">${faqData.length} mục</span>
+        </div>`;
     categories.forEach(cat => {
-        html += `<div class="chip ${activeCategory === cat ? 'active' : ''}" data-cat="${escapeHtml(cat)}">${escapeHtml(labelOf(cat))} <span class="count">${counts[cat]}</span></div>`;
+        html += `
+        <div class="category-card ${activeCategory === cat ? 'active' : ''}" data-cat="${escapeHtml(cat)}">
+            <span class="cat-icon">${iconOf(cat)}</span>
+            <span class="cat-name">${escapeHtml(labelOf(cat))}</span>
+            <span class="cat-count">${counts[cat]} mục</span>
+        </div>`;
     });
-    bar.innerHTML = html;
+    grid.innerHTML = html;
 
     const sel = document.getElementById('new-category');
     const prevVal = sel.value;
@@ -272,13 +314,15 @@ function buildChipBar() {
     sel.value = prevVal;
 }
 
-// Event delegation cho chip danh mục - tránh nhúng text người dùng vào thuộc tính onclick
-document.getElementById('chip-bar').addEventListener('click', function (e) {
-    const chip = e.target.closest('.chip');
-    if (!chip) return;
-    activeCategory = chip.dataset.cat || '';
-    buildChipBar();
+// Event delegation cho lưới danh mục - tránh nhúng text người dùng vào thuộc tính onclick
+document.getElementById('category-grid').addEventListener('click', function (e) {
+    const card = e.target.closest('.category-card');
+    if (!card) return;
+    activeCategory = card.dataset.cat || '';
+    buildCategoryGrid();
     renderFaq();
+    // cuộn nhẹ tới kết quả để nhân viên thấy ngay danh sách vừa lọc
+    document.getElementById('result-meta').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 });
 
 function getFilteredList() {
@@ -315,7 +359,8 @@ function renderFaq() {
     }
 
     currentList = getFilteredList();
-    meta.innerHTML = `<span>Đang hiển thị ${currentList.length}/${faqData.length} mục</span>`;
+    const catTag = activeCategory ? `<span class="active-cat-tag">${iconOf(activeCategory)} ${escapeHtml(labelOf(activeCategory))}</span>` : '';
+    meta.innerHTML = `<span>Đang hiển thị ${currentList.length}/${faqData.length} mục</span>${catTag}`;
 
     if (!currentList.length) {
         el.innerHTML = '<div class="empty">Không tìm thấy kết quả phù hợp. Hãy gửi câu hỏi bên dưới.</div>';

@@ -174,6 +174,47 @@ function iconOf(danhMuc) {
 const CACHE_KEY = 'tdl_faq_cache_v1';
 const FETCH_TIMEOUT_MS = 20000;
 
+/* ============ CHUẨN HOÁ TIẾNG VIỆT CHO TÌM KIẾM ============
+   Bỏ dấu + viết thường, để nhân viên gõ có dấu hay không dấu,
+   hoa hay thường đều tìm ra kết quả như nhau (vd "cong suat" = "công suất"). */
+function normalizeVN(str) {
+    return String(str || '')
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+// Gắn sẵn bản chuẩn hoá của từng mục để tìm kiếm nhanh, không phải tính lại mỗi lần gõ phím
+function attachOne(item) {
+    item._s = {
+        cauHoi: normalizeVN(item.cauHoi),
+        traLoi: normalizeVN(item.traLoi),
+        tuKhoa: normalizeVN(item.tuKhoa),
+        danhMuc: normalizeVN(item.danhMuc)
+    };
+    return item._s;
+}
+function attachSearchIndex(list) {
+    list.forEach(attachOne);
+}
+
+// Ghi lại (âm thầm, không chặn UI) các lượt tìm KHÔNG ra kết quả, để biết
+// thực tế nhân viên/khách hay hỏi gì mà kho dữ liệu chưa có - dùng để bổ sung dần.
+let lastLoggedQuery = '';
+function maybeLogZeroResult(rawQuery, count) {
+    const q = (rawQuery || '').trim();
+    if (count > 0 || q.length < 2 || q === lastLoggedQuery) return;
+    lastLoggedQuery = q;
+    fetch(FAQ_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'search', query: q })
+    }).catch(() => {});
+}
+
 // ============ STATE ============
 let faqData = [];
 let currentList = [];       // danh sách đang hiển thị (sau lọc), để nút copy tra theo index - tránh lỗi chèn text vào HTML
@@ -222,6 +263,7 @@ function loadFaq(forceRefresh, isAutoRetry) {
 
     if (cache) {
         faqData = cache.data;
+        attachSearchIndex(faqData);
         buildCategoryGrid();
         renderFaq();
         setUpdating(true);
@@ -241,6 +283,7 @@ function loadFaq(forceRefresh, isAutoRetry) {
         if (res.status !== 'ok') throw new Error(res.msg || 'Lỗi dữ liệu từ server');
         faqData = res.faq || [];
         writeCache(faqData);
+        attachSearchIndex(faqData);
         setUpdating(false);
         buildCategoryGrid();
         renderFaq();
@@ -333,13 +376,34 @@ document.getElementById('category-grid').addEventListener('click', function (e) 
 });
 
 function getFilteredList() {
-    const query = document.getElementById('search-input').value.toLowerCase().trim();
-    return faqData.filter(item => {
-        if (activeCategory && item.danhMuc !== activeCategory) return false;
-        if (!query) return true;
-        const haystack = [item.cauHoi, item.traLoi, item.danhMuc, item.tuKhoa].join(' ').toLowerCase();
-        return haystack.includes(query);
+    const rawQuery = document.getElementById('search-input').value.trim();
+    let list = faqData;
+    if (activeCategory) list = list.filter(item => item.danhMuc === activeCategory);
+
+    const query = normalizeVN(rawQuery);
+    if (!query) return list;
+
+    // Yêu cầu MỌI từ trong câu tìm đều xuất hiện đâu đó (không cần đúng thứ tự, không cần liền nhau),
+    // và xếp hạng: khớp trong câu hỏi > từ khóa > câu trả lời > danh mục.
+    const words = query.split(' ').filter(Boolean);
+    const scored = [];
+    list.forEach(item => {
+        const s = item._s || attachOne(item);
+        let score = 0;
+        let allFound = true;
+        words.forEach(w => {
+            let wScore = 0;
+            if (s.cauHoi.includes(w)) wScore += 5;
+            if (s.tuKhoa.includes(w)) wScore += 3;
+            if (s.traLoi.includes(w)) wScore += 1;
+            if (s.danhMuc.includes(w)) wScore += 1;
+            if (wScore === 0) allFound = false;
+            score += wScore;
+        });
+        if (allFound) scored.push({ item, score });
     });
+    scored.sort((a, b) => b.score - a.score);
+    return scored.map(x => x.item);
 }
 
 function highlight(text, query) {
@@ -366,6 +430,7 @@ function renderFaq() {
     }
 
     currentList = getFilteredList();
+    maybeLogZeroResult(document.getElementById('search-input').value, currentList.length);
     const catTag = activeCategory ? `<span class="active-cat-tag">${iconOf(activeCategory)} ${escapeHtml(labelOf(activeCategory))}</span>` : '';
     meta.innerHTML = `<span>Đang hiển thị ${currentList.length}/${faqData.length} mục</span>${catTag}`;
 

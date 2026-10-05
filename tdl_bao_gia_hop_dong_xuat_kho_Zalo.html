@@ -70,6 +70,8 @@ input.invalid{border-color:var(--red);background:rgba(239,68,68,.06)}
 .field-err.show{display:flex}
 .field-err b{color:#fecaca}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+@media(max-width:600px){.row4{grid-template-columns:1fr 1fr}}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 
 /* PRODUCT */
@@ -369,8 +371,8 @@ input.invalid{border-color:var(--red);background:rgba(239,68,68,.06)}
     </div>
   </div>
 
-  <div class="section-title" style="margin-top:24px">📋 Thông tin hợp đồng</div>
-  <div class="row3">
+<div class="section-title" style="margin-top:24px">📋 Thông tin hợp đồng</div>
+  <div class="row4">
     <div class="field">
       <label>Số hợp đồng</label>
       <input type="text" id="soHopDong" placeholder="HDTDL-xxxxxx">
@@ -382,6 +384,10 @@ input.invalid{border-color:var(--red);background:rgba(239,68,68,.06)}
     <div class="field">
       <label>Thời gian giao hàng (ngày)</label>
       <input type="number" id="tgGiaoHang" placeholder="15" min="1" value="15">
+    </div>
+    <div class="field">
+      <label>Bảo hành (tháng)</label>
+      <input type="number" id="baoHanh" min="1" step="1" value="24" placeholder="24">
     </div>
   </div>
 
@@ -768,6 +774,7 @@ function generateAll() {
     soHopDong: document.getElementById('soHopDong').value.trim(),
     ngayKy: document.getElementById('ngayKy').value,
     tgGiaoHang: document.getElementById('tgGiaoHang').value||'15',
+    baoHanh: document.getElementById('baoHanh').value||'24',
     ngayKyStr: fmtDate(document.getElementById('ngayKy').value),
   };
 
@@ -835,7 +842,7 @@ ${tongDong}
 ──────────────────
 👤 ${kh}${sdt ? '\n📞 ' + sdt : ''}${dc ? '\n📍 ' + dc : ''}
 ──────────────────
-✅ Hàng mới 100% | Bảo hành chính hãng TDL
+✅ Hàng mới 100% | Bảo hành ${data.baoHanh} tháng chính hãng TDL
 🏠 THÀNH ĐẠT LED | ☎ 0986.474.671 - 0919.931.213 | 🌐 thanhdatled.com`;
 
   document.getElementById('zaloContent').textContent = text;
@@ -937,6 +944,7 @@ function generateQuote(data) {
           <div class="q-footer-body">
             • Báo giá có hiệu lực 15 ngày kể từ ngày gửi.<br>
             • Hàng hóa mới 100%, chưa qua sử dụng.<br>
+            • Bảo hành: ${data.baoHanh} tháng.<br>
             • Thanh toán: Đặt cọc ${t.tamUngPct}%, thanh toán ${100-t.tamUngPct}% trước giao hàng.<br>
             • Giá ${t.vatPct>0?`đã bao gồm VAT ${t.vatPct}%`:'chưa bao gồm VAT'}.<br>
             • Giao hàng: trong vòng ${data.tgGiaoHang} ngày làm việc sau đặt cọc.
@@ -1054,6 +1062,7 @@ function generateXuatKho(data) {
       <div class="xk-note-label">📋 Điều kiện xuất kho:</div>
       • Hàng hóa được kiểm tra trước khi xuất kho, đảm bảo đúng số lượng và chất lượng.<br>
       • Sau khi nhận hàng, bên nhận chịu trách nhiệm bảo quản và sử dụng.<br>
+      • Bảo hành: ${data.baoHanh} tháng kể từ ngày bàn giao theo Hợp đồng ${data.soHopDong}.<br>
       • Phiếu này có giá trị làm chứng từ kế toán khi có đủ chữ ký.
     </div>
 
@@ -1208,7 +1217,7 @@ function generateContract(data) {
     <div class="c-section">
       <div class="c-section-title">ĐIỀU 4. BẢO HÀNH</div>
       <div class="c-body">
-        <p>- Bảo hành sản phẩm trong vòng <strong>24 tháng</strong> (tại địa điểm Bên Bán) kể từ ngày ký biên bản nghiệm thu bàn giao.</p>
+        <p>- Bảo hành sản phẩm trong vòng <strong>${data.baoHanh} tháng</strong> (tại địa điểm Bên Bán) kể từ ngày ký biên bản nghiệm thu bàn giao.</p>
         <p>- Tiến độ bảo hành: trong vòng 5 ngày sau khi Bên Bán nhận được hàng cần bảo hành.</p>
         <p>- Nếu quá 05 ngày mà Bên Bán không thực hiện, Bên Mua có thể mời bên thứ ba sửa chữa, chi phí do Bên Bán chịu.</p>
         <p>- Đổi hàng mới trong 24 tiếng nếu hàng hỏng hóc khi nhận.</p>
@@ -1763,6 +1772,7 @@ function collectFormData() {
     stk: document.getElementById('stk').value.trim(),
     nganhang: document.getElementById('nganhang').value.trim(),
     tgGiaoHang: document.getElementById('tgGiaoHang').value,
+    baoHanh: document.getElementById('baoHanh').value,
     vatRate: document.getElementById('vatRate').value,
     discount: document.getElementById('discount').value,
     tamUngPct: document.getElementById('tamUngPct').value,
@@ -1782,12 +1792,13 @@ function collectFormData() {
 
 function fillFormData(data) {
   const fields = ['soHopDong','ngayKy','khachHang','mst','sdt','diaChi','nguoiLienHe','nhanVienTuVan','daiDien','chucVu',
-    'stk','nganhang','tgGiaoHang','discount','tamUngPct','soPhieuXuat','ngayXuatKho','khoXuat',
+    'stk','nganhang','tgGiaoHang','baoHanh','discount','tamUngPct','soPhieuXuat','ngayXuatKho','khoXuat',
     'diaDiemGiao','nguoiGiao','phuongTien','nguoiNhan','thuKho','ghiChuXuat'];
   fields.forEach(id => {
     const el = document.getElementById(id);
     if (el && data[id] !== undefined) el.value = data[id];
   });
+  if (data.baoHanh === undefined || data.baoHanh === '') document.getElementById('baoHanh').value = 24;
   if (data.vatRate) document.getElementById('vatRate').value = data.vatRate;
   if (data.products && data.products.length) {
     products = data.products.map((p, i) => ({...p, id: i+1}));

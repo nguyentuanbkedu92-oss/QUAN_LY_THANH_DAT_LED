@@ -106,9 +106,10 @@ function banner(type, msg) {
 function tai(force) {
   if (force) TDL.xoaCache();
   TDL.live('getCongNo', {}, (res, laCache, tuoi) => {
-    dsNo = res.congNo || [];
-    document.getElementById('s-tong').textContent = TDL.tien(res.tong);
-    document.getElementById('s-don').textContent = res.soDon || 0;
+    const TU_NGAY = '2026-08-01';   // cùng mốc với Dashboard
+    dsNo = (res.congNo || []).filter(x => x.ngay && x.ngay >= TU_NGAY);
+    document.getElementById('s-tong').textContent = TDL.tien(dsNo.reduce((s, x) => s + (+x.conlai || 0), 0));
+    document.getElementById('s-don').textContent = dsNo.length;
     document.getElementById('s-qua').textContent = dsNo.filter(x => (+x.soNgay || 0) > 30).length;
     veTabs(); ve();
     if (laCache) banner('warn', '⏳ Đang hiện số liệu lưu sẵn (' + tuoi + 's trước), đang tải bản mới...');

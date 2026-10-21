@@ -2161,5 +2161,37 @@ function opDecorateNhap() {
 const opOrigRender = renderTable;
 renderTable = function (kind) { opOrigRender(kind); if (kind === 'nhap') opDecorateNhap(); };
 </script>
+<script>
+// Quy ước đơn giản: Hoàn thành = đã thu đủ; đơn khác = chỉ tính tiền cọc.
+// Không theo dõi "khách còn nợ" (nhân viên tự theo dõi ngoài).
+function opThuEvents(o) {
+  const dt = Number(o.dt) || 0;
+  return [{ date: o.ngay, amt: o.tt === 'complete' ? dt : (Number(o.coc) || 0) }];
+}
+
+function renderKPI() {
+  const s = calcStats(getFilteredOrders(), getFilterRange()), d = calcDebt();
+  const bien = s.dt > 0 ? ((s.ln / s.dt) * 100).toFixed(1) : 0;
+  const set = (id, t, c) => { const e = document.getElementById(id); e.textContent = t; if (c) e.style.color = c; };
+  set('kpi-doanhthu', fmtCur(s.dt));
+  set('kpi-loinhuan', fmtCur(s.ln), s.ln >= 0 ? 'var(--green)' : 'var(--red)');
+  set('kpi-nhaphang', fmtCur(s.nh));
+  set('kpi-bien', bien + '%', bien >= 0 ? 'var(--green)' : 'var(--red)');
+  document.getElementById('kpi-loinhuan').nextElementSibling.textContent = 'Doanh thu − Giá vốn hàng bán − Chi phí − Trả khách';
+  document.getElementById('kpi-nhaphang').nextElementSibling.textContent = 'Tiền nhập phát sinh trong kỳ (không phải giá vốn)';
+  let ex = document.getElementById('kpi-extra');
+  if (!ex) { ex = document.createElement('div'); ex.id = 'kpi-extra'; ex.className = 'kpi-grid extra'; document.querySelector('.kpi-grid').after(ex); }
+  const coc = opSum(opScoped().filter(o => o.type === 'ban' && o.tt === 'pending'), o => o.coc);
+  ex.innerHTML =
+    extraCard('Giá vốn hàng đã bán', fmtCur(s.gv), 'Vốn của hàng bán ra trong kỳ', '#f472b6', '🏷️') +
+    extraCard('Tiền thu về', fmtCur(s.thu), 'Đơn hoàn thành: thu đủ · đơn chờ xử lý: chỉ cọc', '#4f8ef7', '💵') +
+    extraCard('Dòng tiền ròng', fmtCur(s.tien), 'Thu − đã trả NCC (theo ngày trả) − chi phí đã chi − trả khách', s.tien >= 0 ? '#22c55e' : '#ef4444', '🏦') +
+    extraCard('Chi phí đã chi', fmtCur(s.chiCP), 'Chi phí trạng thái "Đã thanh toán" trong kỳ', '#94a3b8', '🧾') +
+    extraCard('Còn nợ NCC (tất cả)', fmtCur(d.no), 'Đơn nhập chưa thanh toán, tính đến hiện tại', '#ef4444', '⚠️') +
+    extraCard('Đã bán, chưa trả NCC', fmtCur(d.noDaBan), 'Hàng đã bán xong nhưng chưa trả tiền NCC', '#fbbf24', '🔒') +
+    extraCard('Hàng tồn chưa bán', fmtCur(d.ton), 'Vốn trong hàng nhập chưa gắn đơn bán', '#a78bfa', '📦') +
+    extraCard('Cọc đơn chờ xử lý', fmtCur(coc), 'Tiền cọc của các đơn bán chưa hoàn thành', '#38bdf8', '📌');
+}
+</script>
 </body>
 </html>

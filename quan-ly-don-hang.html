@@ -1917,69 +1917,96 @@ function applyCustomRange() {
   updateFilterLabel(); renderKPI(); buildPieChart(); renderRecent();
 }
 </script>
-<!-- ===== ORDERPRO PATCH: dán NGUYÊN KHỐI này ngay trước thẻ </body> ===== -->
+<!-- ===== ORDERPRO PATCH FINAL (v2 + v3 gộp) ===== -->
 <style>
-.kpi-grid.extra{grid-template-columns:repeat(3,1fr)}
-@media(max-width:900px){.kpi-grid.extra{grid-template-columns:repeat(2,1fr)}}
+.kpi-grid.extra{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1200px){.kpi-grid.extra{grid-template-columns:repeat(2,1fr)}}
+.badge-click{cursor:pointer;user-select:none}
+.badge-click:hover{filter:brightness(1.25)}
+.pay-date{font-size:10.5px;color:var(--text3);margin-top:3px;white-space:nowrap}
 </style>
 <script>
-// ① MỐC TÍNH: chỉ lấy đơn từ ngày này trở đi (bỏ qua dữ liệu cũ). Muốn đổi thì sửa dòng này.
-const START_DATE = new Date(2026, 7, 1); // 01/08/2026 (tháng tính từ 0)
-const inScope = o => o.ngay && new Date(o.ngay) >= START_DATE;
-const scoped  = () => orders.filter(inScope);
+// ============ ① MỐC TÍNH & TIỆN ÍCH (đổi OP_START nếu muốn đổi mốc) ============
+const OP_START = new Date(2026, 7, 1); // 01/08/2026
+const opIn = o => o.ngay && new Date(o.ngay) >= OP_START;
+const opScoped = () => orders.filter(opIn);
+const opSum = (arr, f) => arr.reduce((s, o) => s + (Number(f(o)) || 0), 0);
+const opInRange = (s, r) => { if (!s) return false; const d = new Date(s); return d >= r.start && d <= r.end; };
+const opToInput = s => {
+  if (!s) return ''; const d = new Date(s); if (isNaN(d)) return '';
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+const opToday = () => opToInput(new Date());
+const opPayDate = o => o.ngay_tt_ncc || o.ngay;
 
 function getFilteredOrders() {
   const { start, end } = getFilterRange();
-  return scoped().filter(o => { const d = new Date(o.ngay); return d >= start && d <= end; })
-                 .sort((a, b) => new Date(b.ngay) - new Date(a.ngay));
+  return opScoped().filter(o => { const d = new Date(o.ngay); return d >= start && d <= end; })
+                   .sort((a, b) => new Date(b.ngay) - new Date(a.ngay));
 }
-function getMonthOrders() { return scoped().filter(o => isCurrentMonth(o.ngay)); }
+function getMonthOrders() { return opScoped().filter(o => isCurrentMonth(o.ngay)); }
 function getAvailableNhapOrders(cur) {
-  return scoped().filter(o => o.type === 'nhap' && o.tt !== 'cancel' && (!o.used || o.id === cur));
+  return opScoped().filter(o => o.type === 'nhap' && o.tt !== 'cancel' && (!o.used || o.id === cur));
 }
 
-// ② GIÁ VỐN & SỐ LIỆU
+// ============ ② SỐ LIỆU ============
 function cogsOf(o) {
   if (o.products && o.products.length) return o.products.reduce((s, p) => s + (p.sl || 0) * (p.von || 0), 0);
   return (o.sl || 0) * (o.von || 0);
 }
-const sumBy = (arr, f) => arr.reduce((s, o) => s + (f(o) || 0), 0);
+// Các lần khách trả tiền của 1 đơn bán: [{date, amt}]
+function opThuEvents(o) {
+  const dt = Number(o.dt) || 0;
+  const has = o.daThu !== undefined && o.daThu !== null && o.daThu !== '';
+  if (!has) return [{ date: o.ngay, amt: o.tt === 'complete' ? dt : (Number(o.coc) || 0) }];
+  const thu = Math.min(Number(o.daThu) || 0, dt);
+  const coc = Math.min(Number(o.coc) || 0, thu);
+  const ev = [{ date: o.ngay, amt: coc }];
+  if (thu > coc) ev.push({ date: o.ngayThuCuoi || o.ngay, amt: thu - coc });
+  return ev;
+}
+const opThuTong = o => opThuEvents(o).reduce((s, e) => s + e.amt, 0);
 
-function calcStats(list) {
+function calcStats(list, range) {
   const act = list.filter(o => o.tt !== 'cancel');
   const ban = act.filter(o => o.type === 'ban');
-  const dt  = sumBy(ban, o => o.dt);
-  const gv  = sumBy(ban, cogsOf);                                   // giá vốn hàng ĐÃ BÁN
-  const nh  = sumBy(act.filter(o => o.type === 'nhap'), o => o.total);
-  const cp  = sumBy(act.filter(o => o.type === 'chiphi'), o => o.tien);
-  const traKH = sumBy(list.filter(o => o.type === 'tra' && o.loai_tra !== 'ncc_tra'), o => o.tien);
-  const ln  = dt - traKH - gv - cp;                                 // LỢI NHUẬN RÒNG (kế toán)
-  // Dòng tiền thật
-  const thu    = sumBy(ban, o => o.tt === 'complete' ? o.dt : o.coc);
-  const chiNCC = sumBy(act.filter(o => o.type === 'nhap' && o.tt_ncc === 'daT'), o => o.total);
-  const chiCP  = sumBy(act.filter(o => o.type === 'chiphi' && o.tt === 'complete'), o => o.tien);
-  const tien   = thu - traKH - chiNCC - chiCP;
+  const dt = opSum(ban, o => o.dt);
+  const gv = opSum(ban, cogsOf);
+  const nh = opSum(act.filter(o => o.type === 'nhap'), o => o.total);
+  const cp = opSum(act.filter(o => o.type === 'chiphi'), o => o.tien);
+  const traKH = opSum(list.filter(o => o.type === 'tra' && o.loai_tra !== 'ncc_tra'), o => o.tien);
+  const ln = dt - traKH - gv - cp;
+  let thu = 0, chiNCC = 0, chiCP = 0, tien = 0;
+  if (range) {
+    const all = opScoped().filter(o => o.tt !== 'cancel');
+    thu = opSum(all.filter(o => o.type === 'ban'),
+      o => opThuEvents(o).filter(e => opInRange(e.date, range)).reduce((s, e) => s + e.amt, 0));
+    chiNCC = opSum(all.filter(o => o.type === 'nhap' && o.tt_ncc === 'daT' && opInRange(opPayDate(o), range)), o => o.total);
+    chiCP = opSum(all.filter(o => o.type === 'chiphi' && o.tt === 'complete' && opInRange(o.ngay, range)), o => o.tien);
+    tien = thu - traKH - chiNCC - chiCP;
+  }
   return { dt, gv, nh, cp, traKH, ln, thu, chiNCC, chiCP, tien };
 }
 
-// Công nợ & tồn kho: tính đến HIỆN TẠI (không phụ thuộc bộ lọc ngày)
 function calcDebt() {
-  const nh = scoped().filter(o => o.type === 'nhap' && o.tt !== 'cancel');
+  const nh = opScoped().filter(o => o.type === 'nhap' && o.tt !== 'cancel');
   const chuaTT = nh.filter(o => (o.tt_ncc || 'chuathanh') !== 'daT');
+  const ban = opScoped().filter(o => o.type === 'ban' && o.tt !== 'cancel');
   return {
-    no:     sumBy(chuaTT, o => o.total),                    // tổng còn nợ NCC
-    noDaBan: sumBy(chuaTT.filter(o => o.used), o => o.total), // nợ của hàng ĐÃ BÁN (tiền đã thu, chưa trả)
-    ton:    sumBy(nh.filter(o => !o.used), o => o.total)    // vốn hàng chưa bán
+    no: opSum(chuaTT, o => o.total),
+    noDaBan: opSum(chuaTT.filter(o => o.used), o => o.total),
+    ton: opSum(nh.filter(o => !o.used), o => o.total),
+    phaiThu: opSum(ban, o => Math.max(0, (Number(o.dt) || 0) - opThuTong(o)))
   };
 }
 
-// ③ KPI
+// ============ ③ KPI ============
 function extraCard(label, val, sub, color, icon) {
   return `<div class="kpi-card" style="--accent-color:${color}"><div class="kpi-label">${label}</div>
   <div class="kpi-value" style="color:${color}">${val}</div><div class="kpi-sub">${sub}</div><div class="kpi-icon">${icon}</div></div>`;
 }
 function renderKPI() {
-  const s = calcStats(getFilteredOrders()), d = calcDebt();
+  const s = calcStats(getFilteredOrders(), getFilterRange()), d = calcDebt();
   const bien = s.dt > 0 ? ((s.ln / s.dt) * 100).toFixed(1) : 0;
   const set = (id, t, c) => { const e = document.getElementById(id); e.textContent = t; if (c) e.style.color = c; };
   set('kpi-doanhthu', fmtCur(s.dt));
@@ -1988,42 +2015,40 @@ function renderKPI() {
   set('kpi-bien', bien + '%', bien >= 0 ? 'var(--green)' : 'var(--red)');
   document.getElementById('kpi-loinhuan').nextElementSibling.textContent = 'Doanh thu − Giá vốn hàng bán − Chi phí − Trả khách';
   document.getElementById('kpi-nhaphang').nextElementSibling.textContent = 'Tiền nhập phát sinh trong kỳ (không phải giá vốn)';
-
   let ex = document.getElementById('kpi-extra');
-  if (!ex) {
-    ex = document.createElement('div'); ex.id = 'kpi-extra'; ex.className = 'kpi-grid extra';
-    document.querySelector('.kpi-grid').after(ex);
-  }
+  if (!ex) { ex = document.createElement('div'); ex.id = 'kpi-extra'; ex.className = 'kpi-grid extra'; document.querySelector('.kpi-grid').after(ex); }
+  const net = d.phaiThu - d.no;
   ex.innerHTML =
     extraCard('Giá vốn hàng đã bán', fmtCur(s.gv), 'Vốn của hàng bán ra trong kỳ', '#f472b6', '🏷️') +
-    extraCard('Tiền thu về thực tế', fmtCur(s.thu), 'Đơn hoàn thành: thu đủ · chờ xử lý: chỉ cọc', '#4f8ef7', '💵') +
-    extraCard('Dòng tiền ròng', fmtCur(s.tien), 'Thu − đã trả NCC − chi phí đã chi − trả khách', s.tien >= 0 ? '#22c55e' : '#ef4444', '🏦') +
+    extraCard('Tiền thu về thực tế', fmtCur(s.thu), 'Cọc + các lần "Thu tiền", tính theo ngày thu', '#4f8ef7', '💵') +
+    extraCard('Dòng tiền ròng', fmtCur(s.tien), 'Thu − đã trả NCC (theo ngày trả) − chi phí đã chi − trả khách', s.tien >= 0 ? '#22c55e' : '#ef4444', '🏦') +
+    extraCard('Chi phí đã chi', fmtCur(s.chiCP), 'Chi phí trạng thái "Đã thanh toán" trong kỳ', '#94a3b8', '🧾') +
+    extraCard('Khách còn nợ mình', fmtCur(d.phaiThu), 'Đơn bán chưa thu đủ, tính đến hiện tại', '#fbbf24', '📥') +
     extraCard('Còn nợ NCC (tất cả)', fmtCur(d.no), 'Đơn nhập chưa thanh toán, tính đến hiện tại', '#ef4444', '⚠️') +
-    extraCard('Đã bán, chưa trả NCC', fmtCur(d.noDaBan), 'Tiền đã thu về, đang giữ hộ NCC — đừng tiêu', '#fbbf24', '🔒') +
-    extraCard('Hàng tồn chưa bán', fmtCur(d.ton), 'Vốn đang nằm trong hàng nhập chưa gắn đơn bán', '#a78bfa', '📦');
+    extraCard('Công nợ ròng', fmtCur(net), 'Khách nợ mình − mình nợ NCC' + (net >= 0 ? ' (đang dương)' : ' (đang âm)'), net >= 0 ? '#22c55e' : '#ef4444', '⚖️') +
+    extraCard('Hàng tồn chưa bán', fmtCur(d.ton), 'Vốn trong hàng nhập chưa gắn đơn bán', '#a78bfa', '📦');
 }
 
-// ④ ĐỐI SOÁT NCC (chỉ tính từ mốc)
 function updateNccRecon() {
   const box = document.getElementById('ncc-recon'), sel = document.getElementById('filter-ncc-nhap');
   if (!box || !sel) return;
   const ncc = sel.value;
   if (!ncc) { box.classList.remove('show'); return; }
-  const un = scoped().filter(o => o.type === 'nhap' && o.ncc === ncc && o.tt !== 'cancel' && (o.tt_ncc || 'chuathanh') !== 'daT');
+  const un = opScoped().filter(o => o.type === 'nhap' && o.ncc === ncc && o.tt !== 'cancel' && (o.tt_ncc || 'chuathanh') !== 'daT');
   document.getElementById('recon-ncc-name').textContent = ncc;
   document.getElementById('recon-count').textContent = un.length;
-  document.getElementById('recon-total').textContent = fmtCur(sumBy(un, o => o.total));
+  document.getElementById('recon-total').textContent = fmtCur(opSum(un, o => o.total));
   box.classList.add('show');
 }
 
-// ⑤ BIỂU ĐỒ 12 THÁNG
+// ============ ④ BIỂU ĐỒ ============
 function buildMonthlyChart() {
   const labels = [], dtD = [], lnD = [], gvD = [];
   for (let i = 11; i >= 0; i--) {
     let m = currentMonth - i, y = currentYear;
     while (m < 0) { m += 12; y--; }
     labels.push(`T${m + 1}/${String(y).slice(2)}`);
-    const s = calcStats(scoped().filter(o => { const d = new Date(o.ngay); return d.getMonth() === m && d.getFullYear() === y; }));
+    const s = calcStats(opScoped().filter(o => { const d = new Date(o.ngay); return d.getMonth() === m && d.getFullYear() === y; }));
     dtD.push(s.dt / 1e6); lnD.push(s.ln / 1e6); gvD.push(s.gv / 1e6);
   }
   if (monthlyChart) monthlyChart.destroy();
@@ -2040,23 +2065,101 @@ function buildMonthlyChart() {
                 y: { ticks: { color: '#64748b', font: { size: 10 }, callback: v => v + 'tr' }, grid: { color: '#2a3147' } } } }
   });
 }
-
-// ⑥ BIỂU ĐỒ TRÒN: chi phí + giá vốn hàng bán (không dùng tiền nhập)
 function buildPieChart() {
   const mo = getFilteredOrders(), data = {};
   mo.filter(o => o.type === 'chiphi' && o.tt !== 'cancel').forEach(o => { data[o.hang] = (data[o.hang] || 0) + (o.tien || 0); });
   const gv = calcStats(mo).gv; if (gv > 0) data['_gv'] = gv;
   const labels = Object.keys(data).map(k => k === '_gv' ? 'Giá vốn hàng bán' : (hangLabel[k] || k));
-  const vals = Object.values(data);
+  const vals = Object.values(data), none = vals.length === 0;
   if (pieChart) pieChart.destroy();
-  const ctx = document.getElementById('chart-pie').getContext('2d');
-  const none = vals.length === 0;
-  pieChart = new Chart(ctx, { type: 'doughnut',
-    data: { labels: none ? ['Không có dữ liệu'] : labels, datasets: [{
-      data: none ? [1] : vals, borderColor: '#1e2435', borderWidth: 2,
+  pieChart = new Chart(document.getElementById('chart-pie').getContext('2d'), { type: 'doughnut',
+    data: { labels: none ? ['Không có dữ liệu'] : labels, datasets: [{ data: none ? [1] : vals, borderColor: '#1e2435', borderWidth: 2,
       backgroundColor: none ? ['rgba(42,49,71,.6)'] : ['rgba(79,142,247,.8)','rgba(110,231,183,.8)','rgba(244,114,182,.8)','rgba(251,191,36,.8)','rgba(167,139,250,.8)','rgba(249,115,22,.8)','rgba(34,197,94,.8)'] }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 }, padding: 10 } } } } });
 }
+
+// ============ ⑤ NGÀY THANH TOÁN NCC: form nhập hàng ============
+(function injectPayDateField() {
+  const sel = document.getElementById('f-nhap-ttncc');
+  if (!sel || document.getElementById('f-nhap-ngaytt')) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'form-row full'; wrap.id = 'f-nhap-ngaytt-wrap'; wrap.style.display = 'none';
+  wrap.innerHTML = '<div class="form-group"><label class="form-label">Ngày thanh toán NCC * (ngày thực tế chuyển tiền)</label><input class="form-input" id="f-nhap-ngaytt" type="date"></div>';
+  sel.closest('.form-group').parentElement.after(wrap);
+  sel.addEventListener('change', opSyncPayField);
+})();
+
+function opSyncPayField() {
+  const paid = document.getElementById('f-nhap-ttncc').value === 'daT';
+  const inp = document.getElementById('f-nhap-ngaytt');
+  document.getElementById('f-nhap-ngaytt-wrap').style.display = paid ? '' : 'none';
+  if (paid && !inp.value) inp.value = opToday();
+  if (!paid) inp.value = '';
+}
+
+const opOrigAdd = openAddModal;
+openAddModal = function (t) {
+  opOrigAdd(t);
+  document.getElementById('f-nhap-ngaytt').value = '';
+  opSyncPayField();
+};
+const opOrigEdit = editOrder;
+editOrder = function (id) {
+  opOrigEdit(id);
+  const o = orders.find(x => x.id === id);
+  if (o && o.type === 'nhap') {
+    document.getElementById('f-nhap-ngaytt').value = opToInput(o.ngay_tt_ncc);
+    opSyncPayField();
+  }
+};
+
+const opOrigSave = saveToSheet;
+saveToSheet = async function (action, order) {
+  const modalOpen = document.getElementById('add-overlay').classList.contains('show');
+  if (order && order.type === 'nhap' && modalOpen && currentType === 'nhap') {
+    order.ngay_tt_ncc = order.tt_ncc === 'daT'
+      ? (document.getElementById('f-nhap-ngaytt').value || opToday()) : '';
+  }
+  return opOrigSave(action, order);
+};
+
+// ============ ⑥ BẤM NHANH TRÊN BẢNG NHẬP HÀNG ============
+async function opMarkPaid(id) {
+  const o = orders.find(x => x.id === id); if (!o) return;
+  const toPaid = (o.tt_ncc || 'chuathanh') !== 'daT';
+  const msg = toPaid
+    ? `Đánh dấu ĐÃ TRẢ NCC "${o.ncc || ''}" cho đơn ${id} (${fmtCur(o.total)}) vào HÔM NAY?\n(Muốn chọn ngày khác: bấm Hủy rồi dùng nút ✏️ Sửa)`
+    : `Bỏ đánh dấu "Đã thanh toán" của đơn ${id}?`;
+  if (!confirm(msg)) return;
+  const upd = { ...o, tt_ncc: toPaid ? 'daT' : 'chuathanh', ngay_tt_ncc: toPaid ? opToday() : '' };
+  const ok = await opOrigSave('update', upd);
+  if (ok) {
+    const i = orders.findIndex(x => x.id === id); if (i >= 0) orders[i] = upd;
+    renderAll(); buildCharts();
+    notify(toPaid ? 'Đã ghi nhận thanh toán NCC ✓' : 'Đã bỏ đánh dấu thanh toán', 'success');
+  }
+}
+function opDecorateNhap() {
+  document.querySelectorAll('#tbody-nhap tr').forEach(tr => {
+    const code = tr.querySelector('code'); if (!code) return;
+    const o = orders.find(x => x.id === code.textContent.trim()); if (!o) return;
+    const td = tr.children[8]; if (!td) return;
+    const paid = (o.tt_ncc || 'chuathanh') === 'daT';
+    const badge = td.querySelector('.badge');
+    if (badge) {
+      badge.classList.add('badge-click');
+      badge.title = paid ? 'Bấm để bỏ đánh dấu đã trả' : 'Bấm để đánh dấu đã trả NCC hôm nay';
+      badge.onclick = () => opMarkPaid(o.id);
+    }
+    if (paid) {
+      const d = document.createElement('div'); d.className = 'pay-date';
+      d.textContent = o.ngay_tt_ncc ? 'Trả: ' + fmtDate(o.ngay_tt_ncc) : '⚠ chưa có ngày trả';
+      td.appendChild(d);
+    }
+  });
+}
+const opOrigRender = renderTable;
+renderTable = function (kind) { opOrigRender(kind); if (kind === 'nhap') opDecorateNhap(); };
 </script>
 </body>
 </html>

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Chứng Nhận Xuất Xưởng - Thành Đạt LED</title>
+    <script src="tdl-config.js"></script>
     <style>
         @page { size: A4; margin: 0; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; }
@@ -14,18 +15,46 @@
             padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 1000; max-height: 95vh; overflow-y: auto;
         }
-        @media print { .dashboard { display: none; } body { background: white; padding: 0; } }
+        @media print { .dashboard, .modal-bg, .msg { display: none !important; } body { background: white; padding: 0; } }
 
         .dashboard h3 { margin-bottom: 10px; font-size: 16px; color: #1a365d; border-bottom: 2px solid #c53030; padding-bottom: 5px; }
         .dashboard label { display: block; font-size: 11px; font-weight: bold; margin-top: 8px; color: #555; }
         .dashboard input { width: 100%; padding: 6px; margin-top: 2px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
-        
+
         .extra-param { display: flex; gap: 5px; margin-top: 8px; padding: 8px; background: #f9f9f9; border-radius: 4px; border: 1px dashed #ccc; }
         .btn-remove { background: #ff4d4d; color: white; border: none; padding: 0 8px; border-radius: 4px; cursor: pointer; }
         .btn-add { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 15px; font-weight: bold; }
 
         .btn-update { width: 100%; padding: 12px; background: #1a365d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         .btn-print { width: 100%; padding: 12px; background: #c53030; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-save { width: 100%; padding: 12px; background: #0f766e; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-save:disabled { opacity: .6; cursor: wait; }
+        .btn-save2 { width: 100%; padding: 10px; background: #fff; color: #0f766e; border: 2px solid #0f766e; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 8px; display: none; }
+        .btn-list { width: 100%; padding: 12px; background: #7c3aed; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-new { width: 100%; padding: 8px; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 8px; }
+        .editing { display: none; background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; border-radius: 6px; padding: 6px 8px; font-size: 12px; margin-bottom: 8px; font-family: Arial, sans-serif; }
+
+        .msg { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); padding: 10px 22px; border-radius: 30px; color: #fff; font-family: Arial, sans-serif; font-size: 13px; font-weight: bold; z-index: 3000; display: none; }
+        .msg.ok { background: #16a34a; } .msg.err { background: #dc2626; }
+
+        /* Danh sách đã lưu */
+        .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 15px; }
+        .modal-bg.show { display: flex; }
+        .modal { background: #fff; width: 760px; max-width: 100%; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; font-family: Arial, sans-serif; overflow: hidden; }
+        .modal-head { padding: 14px 18px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 10px; }
+        .modal-head h3 { flex: 1; font-size: 16px; color: #1a365d; }
+        .modal-head button { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; }
+        .modal-search { padding: 10px 18px; border-bottom: 1px solid #e5e7eb; }
+        .modal-search input { width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
+        .modal-body { padding: 10px 18px 16px; overflow-y: auto; }
+        .item { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 12px; margin-top: 8px; display: flex; gap: 10px; align-items: center; }
+        .item-main { flex: 1; min-width: 0; }
+        .item-main b { font-size: 14px; color: #0f172a; }
+        .item-main div { font-size: 12px; color: #64748b; margin-top: 3px; }
+        .item button { padding: 7px 12px; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .item .b-open { background: #1a365d; color: #fff; }
+        .item .b-del { background: #fee2e2; color: #b91c1c; }
+        .empty-list { text-align: center; color: #94a3b8; padding: 30px 0; font-size: 14px; }
 
         /* Trang A4 */
         .a4-page { width: 210mm; height: 297mm; background: white; padding: 10mm; position: relative; }
@@ -62,11 +91,17 @@
 </head>
 <body>
 
+<div id="msg" class="msg"></div>
+
 <div class="dashboard">
     <h3>Cấu Hình Chứng Nhận TDL</h3>
-    <label>Ngày cấp phiếu</label><input type="text" id="in_date" value="15 tháng 05 năm 2026">
+    <div id="editing" class="editing"></div>
+
+    <label>Ngày cấp phiếu</label><input type="text" id="in_date" value="">
     <label>Dự án</label><input type="text" id="in_duan" value="DỰ ÁN CHIẾU SÁNG SÂN PICKLEBALL">
     <label>Khách hàng</label><input type="text" id="in_kh" value="CÔNG TY XÂY DỰNG THÀNH ĐẠT">
+    <label>SĐT khách (không bắt buộc, để tra cứu sau)</label><input type="text" id="in_sdt" value="" placeholder="09xxxxxxxx">
+    <label>Mã đơn hàng liên quan (không bắt buộc)</label><input type="text" id="in_madon" value="" placeholder="VD: DH1234567">
     <label>Tên sản phẩm</label><input type="text" id="in_sp" value="Đèn Led Module 200W">
     <label>Mã sản phẩm</label><input type="text" id="in_ma" value="TDL-M200-PKL">
     <label>Số lượng</label><input type="text" id="in_sl" value="20 Bộ">
@@ -81,10 +116,24 @@
     <label>7. Nguồn / Chip LED</label><input type="text" id="p7" value="Philips / Meanwell">
 
     <div id="extra-container"></div>
-    
+
     <button class="btn-add" onclick="addExtraRow()">+ Thêm biến (8, 9...)</button>
     <button class="btn-update" onclick="updateCert()">CẬP NHẬT PHIẾU</button>
-    <button class="btn-print" onclick="window.print()">IN / XUẤT PDF</button>
+    <button class="btn-print" onclick="updateCert(); window.print()">IN / XUẤT PDF</button>
+
+    <button class="btn-save" id="btn-save" onclick="luuPhieu(false)">💾 LƯU VÀO SHEET</button>
+    <button class="btn-save2" id="btn-save2" onclick="luuPhieu(true)">📄 LƯU THÀNH PHIẾU MỚI (nhân bản)</button>
+    <button class="btn-list" onclick="moDanhSach()">📂 DANH SÁCH PHIẾU ĐÃ LƯU</button>
+    <button class="btn-new" onclick="phieuMoi()">➕ Bắt đầu phiếu mới (bỏ liên kết phiếu đang mở)</button>
+</div>
+
+<!-- DANH SÁCH ĐÃ LƯU -->
+<div class="modal-bg" id="modal" onclick="if(event.target.id==='modal') dongDanhSach()">
+    <div class="modal">
+        <div class="modal-head"><h3>📂 Phiếu xuất xưởng đã lưu</h3><button onclick="dongDanhSach()">✕</button></div>
+        <div class="modal-search"><input type="text" id="q" placeholder="🔍 Tìm theo khách hàng, dự án, sản phẩm, mã SP, mã đơn, SĐT..." oninput="veDanhSach()"></div>
+        <div class="modal-body" id="list"><div class="empty-list">Đang tải...</div></div>
+    </div>
 </div>
 
 <div class="a4-page">
@@ -155,8 +204,31 @@
 </div>
 
 <script>
-    function addExtraRow() {
-        const container = document.getElementById('extra-container');
+    // ===================== TRẠNG THÁI =====================
+    let currentId = '';      // id phiếu đang mở từ Sheet ('' = phiếu mới)
+    let dsPhieu = [];
+
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const $ = id => document.getElementById(id);
+
+    function hienThongBao(type, text) {
+        const m = $('msg'); m.textContent = text; m.className = 'msg ' + type; m.style.display = 'block';
+        clearTimeout(hienThongBao.t); hienThongBao.t = setTimeout(() => m.style.display = 'none', 2800);
+    }
+
+    async function goiApi(action, data) {
+        if (typeof TDL === 'undefined' || !TDL.api) throw new Error('Không tìm thấy tdl-config.js');
+        return TDL.api(action, data || {});
+    }
+
+    function ngayHomNay() {
+        const d = new Date();
+        return `${String(d.getDate()).padStart(2, '0')} tháng ${String(d.getMonth() + 1).padStart(2, '0')} năm ${d.getFullYear()}`;
+    }
+
+    // ===================== FORM <-> DỮ LIỆU =====================
+    function addExtraRow(ten, val) {
+        const container = $('extra-container');
         const count = document.querySelectorAll('.extra-row-item').length + 8;
         const div = document.createElement('div');
         div.className = 'extra-param extra-row-item';
@@ -167,34 +239,162 @@
             </div>
             <button class="btn-remove" onclick="this.parentElement.remove()">X</button>
         `;
+        if (typeof ten === 'string') div.querySelector('.ex-name').value = ten;
+        if (typeof val === 'string') div.querySelector('.ex-val').value = val;
         container.appendChild(div);
     }
 
-    function updateCert() {
-        document.getElementById('out_date').innerText = document.getElementById('in_date').value;
-        document.getElementById('out_duan').innerText = document.getElementById('in_duan').value;
-        document.getElementById('out_kh').innerText = document.getElementById('in_kh').value;
-        document.getElementById('out_sp').innerText = document.getElementById('in_sp').value;
-        document.getElementById('out_ma').innerText = document.getElementById('in_ma').value;
-        document.getElementById('out_sl').innerText = document.getElementById('in_sl').value;
-
-        for(let i=1; i<=7; i++) {
-            document.getElementById('out_p'+i).innerText = document.getElementById('p'+i).value;
+    function layDuLieuForm() {
+        const d = {
+            id: currentId,
+            ngayCap: $('in_date').value.trim(),
+            duAn: $('in_duan').value.trim(),
+            khachHang: $('in_kh').value.trim(),
+            sdt: $('in_sdt').value.trim(),
+            maDonHang: $('in_madon').value.trim(),
+            tenSP: $('in_sp').value.trim(),
+            maSP: $('in_ma').value.trim(),
+            soLuong: $('in_sl').value.trim(),
+            extra: []
+        };
+        for (let i = 1; i <= 7; i++) d['p' + i] = $('p' + i).value;
+        const names = document.getElementsByClassName('ex-name'), vals = document.getElementsByClassName('ex-val');
+        for (let i = 0; i < names.length; i++) {
+            if (names[i].value.trim() || vals[i].value.trim()) d.extra.push({ ten: names[i].value, val: vals[i].value });
         }
+        return d;
+    }
 
-        const tableBody = document.getElementById('table-body');
+    function napVaoForm(r) {
+        $('in_date').value = r.ngayCap || '';
+        $('in_duan').value = r.duAn || '';
+        $('in_kh').value = r.khachHang || '';
+        $('in_sdt').value = r.sdt || '';
+        $('in_madon').value = r.maDonHang || '';
+        $('in_sp').value = r.tenSP || '';
+        $('in_ma').value = r.maSP || '';
+        $('in_sl').value = r.soLuong || '';
+        for (let i = 1; i <= 7; i++) $('p' + i).value = r['p' + i] == null ? '' : r['p' + i];
+        $('extra-container').innerHTML = '';
+        (r.extra || []).forEach(x => addExtraRow(String(x.ten || ''), String(x.val || '')));
+        updateCert();
+    }
+
+    function capNhatTrangThaiSua() {
+        const box = $('editing');
+        if (currentId) {
+            box.style.display = 'block';
+            box.textContent = '✏️ Đang sửa phiếu đã lưu: ' + currentId + ' — bấm "Lưu" sẽ GHI ĐÈ phiếu này.';
+            $('btn-save').textContent = '💾 CẬP NHẬT PHIẾU ĐÃ LƯU';
+            $('btn-save2').style.display = 'block';
+        } else {
+            box.style.display = 'none';
+            $('btn-save').textContent = '💾 LƯU VÀO SHEET';
+            $('btn-save2').style.display = 'none';
+        }
+    }
+
+    function phieuMoi() {
+        currentId = ''; capNhatTrangThaiSua();
+        $('in_date').value = ngayHomNay();
+        updateCert();
+        hienThongBao('ok', 'Đã bỏ liên kết phiếu cũ. Lưu lần tới sẽ tạo phiếu mới.');
+    }
+
+    // ===================== LƯU / DANH SÁCH / XÓA =====================
+    async function luuPhieu(taoMoi) {
+        updateCert();
+        const d = layDuLieuForm();
+        if (!d.khachHang && !d.tenSP) { hienThongBao('err', 'Cần ít nhất Khách hàng hoặc Tên sản phẩm'); return; }
+        if (taoMoi) d.id = '';
+        const b1 = $('btn-save'), b2 = $('btn-save2');
+        b1.disabled = b2.disabled = true; b1.textContent = '⏳ Đang lưu...';
+        try {
+            const res = await goiApi('saveXuatXuong', d);
+            if (!res || res.status !== 'ok') throw new Error((res && res.msg) || 'Lỗi không rõ');
+            currentId = res.id; capNhatTrangThaiSua();
+            hienThongBao('ok', res.updated ? '✅ Đã cập nhật phiếu ' + res.id : '✅ Đã lưu phiếu mới ' + res.id);
+        } catch (e) {
+            hienThongBao('err', '❌ Lưu thất bại: ' + e.message);
+            capNhatTrangThaiSua();
+        }
+        b1.disabled = b2.disabled = false;
+    }
+
+    async function moDanhSach() {
+        $('modal').classList.add('show');
+        $('q').value = '';
+        $('list').innerHTML = '<div class="empty-list">Đang tải...</div>';
+        try {
+            const res = await goiApi('listXuatXuong', {});
+            if (!res || res.status !== 'ok') throw new Error((res && res.msg) || 'Lỗi không rõ');
+            dsPhieu = res.rows || [];
+            veDanhSach();
+        } catch (e) {
+            $('list').innerHTML = '<div class="empty-list">❌ Không tải được: ' + esc(e.message) + '</div>';
+        }
+    }
+    function dongDanhSach() { $('modal').classList.remove('show'); }
+
+    function veDanhSach() {
+        const q = $('q').value.toLowerCase().trim();
+        const ds = dsPhieu.filter(r => !q ||
+            [r.khachHang, r.duAn, r.tenSP, r.maSP, r.maDonHang, r.sdt, r.id].some(v => String(v || '').toLowerCase().includes(q)));
+        if (!ds.length) { $('list').innerHTML = '<div class="empty-list">Chưa có phiếu nào' + (q ? ' khớp từ khóa' : '') + '</div>'; return; }
+        $('list').innerHTML = ds.map(r => `
+            <div class="item">
+                <div class="item-main">
+                    <b>${esc(r.khachHang || '(chưa có khách)')}</b> — ${esc(r.tenSP || '')} ${r.maSP ? '(' + esc(r.maSP) + ')' : ''} · ${esc(r.soLuong || '')}
+                    <div>${esc(r.duAn || '')} · ${esc(r.ngayCap || '')}${r.maDonHang ? ' · Đơn ' + esc(r.maDonHang) : ''}${r.sdt ? ' · ☎ ' + esc(r.sdt) : ''} · <i>${esc(r.id)}</i></div>
+                </div>
+                <button class="b-open" onclick="moPhieu('${esc(r.id)}')">Mở</button>
+                <button class="b-del" onclick="xoaPhieu('${esc(r.id)}')">Xóa</button>
+            </div>`).join('');
+    }
+
+    function moPhieu(id) {
+        const r = dsPhieu.find(x => String(x.id) === String(id)); if (!r) return;
+        currentId = r.id; napVaoForm(r); capNhatTrangThaiSua(); dongDanhSach();
+        hienThongBao('ok', 'Đã mở phiếu ' + r.id);
+    }
+
+    async function xoaPhieu(id) {
+        if (!confirm('Xóa phiếu ' + id + ' khỏi Sheet? Không khôi phục được.')) return;
+        try {
+            const res = await goiApi('deleteXuatXuong', { id });
+            if (!res || res.status !== 'ok') throw new Error((res && res.msg) || 'Lỗi không rõ');
+            dsPhieu = dsPhieu.filter(x => String(x.id) !== String(id));
+            if (currentId === id) { currentId = ''; capNhatTrangThaiSua(); }
+            veDanhSach(); hienThongBao('ok', 'Đã xóa phiếu ' + id);
+        } catch (e) { hienThongBao('err', '❌ Xóa thất bại: ' + e.message); }
+    }
+
+    // ===================== HIỂN THỊ PHIẾU =====================
+    function updateCert() {
+        $('out_date').innerText = $('in_date').value;
+        $('out_duan').innerText = $('in_duan').value;
+        $('out_kh').innerText = $('in_kh').value;
+        $('out_sp').innerText = $('in_sp').value;
+        $('out_ma').innerText = $('in_ma').value;
+        $('out_sl').innerText = $('in_sl').value;
+
+        for (let i = 1; i <= 7; i++) $('out_p' + i).innerText = $('p' + i).value;
+
+        const tableBody = $('table-body');
         const rows = tableBody.querySelectorAll('tr');
         for (let i = rows.length - 1; i >= 7; i--) { rows[i].remove(); }
 
         const exNames = document.getElementsByClassName('ex-name');
         const exVals = document.getElementsByClassName('ex-val');
-
         for (let i = 0; i < exNames.length; i++) {
             const row = document.createElement('tr');
-            row.innerHTML = `<td>${i + 8}</td><td class="col-name">${exNames[i].value}</td><td class="col-val">${exVals[i].value}</td>`;
+            row.innerHTML = `<td>${i + 8}</td><td class="col-name">${esc(exNames[i].value)}</td><td class="col-val">${esc(exVals[i].value)}</td>`;
             tableBody.appendChild(row);
         }
     }
+
+    $('in_date').value = ngayHomNay();
+    capNhatTrangThaiSua();
     updateCert();
 </script>
 </body>

@@ -11,28 +11,6 @@
         header { text-align: center; margin-bottom: 20px; }
         header h1 { font-size: 22px; color: #38bdf8; text-transform: uppercase; }
 
-        /* BADGE CHĂM SÓC KHÁCH HÀNG */
-        .cs-badge {
-            display: none;
-            width: 100%;
-            max-width: 600px;
-            background: rgba(232, 119, 34, 0.12);
-            border: 1px solid #e87722;
-            color: #fdba74;
-            border-radius: 10px;
-            padding: 12px 16px;
-            margin-bottom: 15px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: bold;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .cs-badge:active { background: rgba(232, 119, 34, 0.22); }
-        .cs-badge .arrow { color: #fdba74; font-weight: normal; }
-        .cs-badge.empty { border-color: #334155; background: #1e293b; color: #64748b; font-weight: normal; }
-
         /* VÙNG LƯỚI NÚT CHỨC NĂNG (4 cột) */
         .file-grid { 
             display: grid; 
@@ -70,6 +48,9 @@
         .copy-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; position: relative; }
         .copy-card h3 { font-size: 13px; color: #e87722; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 5px; text-transform: uppercase; }
         .copy-card pre { font-family: inherit; font-size: 13px; white-space: pre-wrap; color: #cbd5e1; line-height: 1.6; flex-grow: 1; }
+        .copy-card input { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 8px 10px; color: #f8fafc; font-size: 13px; margin-bottom: 10px; outline: none; width: 100%; }
+        .copy-card input:focus { border-color: #38bdf8; }
+        .copy-hint { font-size: 11px; color: #64748b; margin-top: 8px; line-height: 1.5; }
         
         .btn-copy { background: #38bdf8; color: #0f172a; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 12px; }
         .btn-copy:active { background: #22c55e; color: #fff; }
@@ -83,12 +64,6 @@
         <h1>THÀNH ĐẠT LED - TDL</h1>
     </header>
 
-    <!-- Thêm Badge thông báo chăm sóc KH nếu có -->
-    <a href="cham-soc.html" id="cs-badge" class="cs-badge">
-        <span id="cs-text">Đang tải thông tin chăm sóc...</span>
-        <span class="arrow">&rarr;</span>
-    </a>
-
     <div class="file-grid">
         <a href="phieu-xuat-xuong.html" target="_blank" class="file-card"><span>📜</span>XUẤT XƯỞNG</a>
         <a href="bao-hanh.html" target="_blank" class="file-card"><span>🛡️</span>BẢO HÀNH</a>
@@ -97,7 +72,6 @@
         <a href="tdl_bao_gia_hop_dong_xuat_kho_Zalo.html" target="_blank" class="file-card"><span>💼</span>BÁO GIÁ</a>
         <a href="quan-ly-don-hang.html" target="_blank" class="file-card"><span>📦</span>QUẢN LÝ ĐƠN HÀNG</a>
         <a href="cham-soc.html" target="_blank" class="file-card"><span>🔔</span>CHĂM SÓC KH</a>
-        <a href="cong-no.html" target="_blank" class="file-card"><span>💰</span>CÔNG NỢ</a>
         <a href="phieu-giao-hang.html" target="_blank" class="file-card"><span>🚚</span>PHIẾU GIAO HÀNG</a>
         <a href="tra-cuu.html" target="_blank" class="file-card btn-tracuu"><span>🔍</span>TRA CỨU</a>
         <a href="https://script.google.com/macros/s/AKfycbw1rww6-7QtjnBIBzSGc7LibU_AiiVIAzCOVWjJIRv6kGMcddk2NVJIWeKoArAo-spO/exec" target="_blank" class="file-card btn-tracuu"><span>💲</span>TRA CỨU GIÁ</a>
@@ -135,6 +109,21 @@ Chủ TK: Nguyễn Văn Tuấn
 Ngân hàng: Techcombank</pre>
             <button class="btn-copy" onclick="copy('tk_cn')">COPY TK CÁ NHÂN</button>
         </div>
+
+        <div class="copy-card">
+            <h3>🏦 KHÁCH CK CÔNG TY → CÔNG TY</h3>
+            <input id="ten_cty_khach" placeholder="Tên công ty khách (không dấu), VD: Cong ty A" oninput="capNhatNoiDungCK()">
+            <pre id="nd_khach">Cong ty A thanh toan THANH DAT LED</pre>
+            <div class="copy-hint">Gửi cho khách làm nội dung chuyển khoản khi khách chuyển từ TK công ty sang TK công ty mình. Gõ tên công ty khách vào ô trên để tự thay "Cong ty A".</div>
+            <button class="btn-copy" onclick="copy('nd_khach')">COPY NỘI DUNG CK KHÁCH</button>
+        </div>
+
+        <div class="copy-card">
+            <h3>🏭 TDL CK TRẢ NCC</h3>
+            <pre id="nd_ncc">THANH DAT LED tt Cty</pre>
+            <div class="copy-hint">Nội dung chuyển khoản khi Thành Đạt LED thanh toán tiền hàng cho nhà cung cấp.</div>
+            <button class="btn-copy" onclick="copy('nd_ncc')">COPY NỘI DUNG CK NCC</button>
+        </div>
     </div>
 
     <div id="toast" class="toast">Đã copy! ✅</div>
@@ -149,27 +138,11 @@ Ngân hàng: Techcombank</pre>
             });
         }
 
-        function loadCareBadge() {
-            const badge = document.getElementById('cs-badge');
-            const text = document.getElementById('cs-text');
-            TDL.live('bootstrap', {}, (res) => {
-                const count = (res.tasks || []).length;
-                const no = (res.congNo || {}).tong || 0;
-                badge.style.display = 'flex';
-                if (count > 0) {
-                    badge.classList.remove('empty');
-                    text.textContent = '🔔 ' + count + ' việc cần chăm sóc hôm nay'
-                        + (no ? ' · 💰 nợ ' + TDL.tien(no) : '');
-                } else {
-                    badge.classList.add('empty');
-                    text.textContent = '✅ Không có việc cần chăm sóc hôm nay'
-                        + (no ? ' · 💰 nợ ' + TDL.tien(no) : '');
-                }
-            }, (e, coCache) => {
-                if (!coCache) badge.style.display = 'none';
-            });
+        // Tự thay tên công ty khách vào nội dung chuyển khoản
+        function capNhatNoiDungCK() {
+            const ten = document.getElementById('ten_cty_khach').value.trim() || 'Cong ty A';
+            document.getElementById('nd_khach').textContent = ten + ' thanh toan THANH DAT LED';
         }
-        loadCareBadge();
     </script>
 </body>
 </html>

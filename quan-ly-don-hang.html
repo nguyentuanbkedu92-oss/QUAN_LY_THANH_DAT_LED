@@ -2208,6 +2208,7 @@ let topPeriod = 'day';
     <div style="display:flex;gap:6px">
       <button class="date-filter-btn top-tab active" data-p="day"   onclick="setTopPeriod('day')">Hôm nay</button>
       <button class="date-filter-btn top-tab"        data-p="month" onclick="setTopPeriod('month')">Tháng này</button>
+      <button class="date-filter-btn top-tab"        data-p="lastmonth" onclick="setTopPeriod('lastmonth')">Tháng trước</button>
       <button class="date-filter-btn top-tab"        data-p="year"  onclick="setTopPeriod('year')">Năm nay</button>
     </div>
   </div>
@@ -2228,11 +2229,14 @@ function setTopPeriod(p) {
 function getTopRange() {
   const n = new Date();
   const today = new Date(n.getFullYear(), n.getMonth(), n.getDate());
-  const end = new Date(n.getFullYear(), n.getMonth(), n.getDate(), 23, 59, 59, 999);
-  let start;
-  if (topPeriod === 'day')        start = today;
-  else if (topPeriod === 'month') start = new Date(n.getFullYear(), n.getMonth(), 1);
-  else                            start = new Date(n.getFullYear(), 0, 1);
+  let start, end = new Date(n.getFullYear(), n.getMonth(), n.getDate(), 23, 59, 59, 999);
+  if (topPeriod === 'day')            start = today;
+  else if (topPeriod === 'month')     start = new Date(n.getFullYear(), n.getMonth(), 1);
+  else if (topPeriod === 'lastmonth') {
+    start = new Date(n.getFullYear(), n.getMonth() - 1, 1);
+    end   = new Date(n.getFullYear(), n.getMonth(), 0, 23, 59, 59, 999);
+  }
+  else                                start = new Date(n.getFullYear(), 0, 1);
   return { start, end };
 }
 

@@ -2193,5 +2193,103 @@ function renderKPI() {
     extraCard('Cọc đơn chờ xử lý', fmtCur(coc), 'Tiền cọc của các đơn bán chưa hoàn thành', '#38bdf8', '📌');
 }
 </script>
+<script>
+// ===== TOP SẢN PHẨM BÁN CHẠY (Hôm nay / Tháng này / Năm nay) =====
+let topPeriod = 'day';
+
+(function injectTopCard() {
+  const anchor = document.getElementById('recent-tbody');
+  if (!anchor || document.getElementById('top-tbody')) return;
+  const recentCard = anchor.closest('.table-card');
+  recentCard.insertAdjacentHTML('beforebegin', `
+<div class="table-card" style="margin-bottom:24px">
+  <div class="table-header">
+    <div class="table-title">🏆 Sản phẩm bán chạy</div>
+    <div style="display:flex;gap:6px">
+      <button class="date-filter-btn top-tab active" data-p="day"   onclick="setTopPeriod('day')">Hôm nay</button>
+      <button class="date-filter-btn top-tab"        data-p="month" onclick="setTopPeriod('month')">Tháng này</button>
+      <button class="date-filter-btn top-tab"        data-p="year"  onclick="setTopPeriod('year')">Năm nay</button>
+    </div>
+  </div>
+  <div class="desktop-table"><table><thead><tr>
+    <th>#</th><th>Sản phẩm</th><th class="text-right">Đã bán (SL)</th>
+    <th class="text-right">Doanh thu</th><th class="text-right">Lợi nhuận</th>
+  </tr></thead><tbody id="top-tbody"></tbody></table></div>
+  <div class="mobile-cards" id="top-mcards"></div>
+</div>`);
+})();
+
+function setTopPeriod(p) {
+  topPeriod = p;
+  document.querySelectorAll('.top-tab').forEach(b => b.classList.toggle('active', b.dataset.p === p));
+  renderTopProducts();
+}
+
+function getTopRange() {
+  const n = new Date();
+  const today = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  const end = new Date(n.getFullYear(), n.getMonth(), n.getDate(), 23, 59, 59, 999);
+  let start;
+  if (topPeriod === 'day')        start = today;
+  else if (topPeriod === 'month') start = new Date(n.getFullYear(), n.getMonth(), 1);
+  else                            start = new Date(n.getFullYear(), 0, 1);
+  return { start, end };
+}
+
+function renderTopProducts() {
+  const tb = document.getElementById('top-tbody');
+  const mc = document.getElementById('top-mcards');
+  if (!tb) return;
+  const { start, end } = getTopRange();
+  const map = {};
+
+  opScoped()
+    .filter(o => o.type === 'ban' && o.tt !== 'cancel' && o.ngay)
+    .filter(o => { const d = new Date(o.ngay); return d >= start && d <= end; })
+    .forEach(o => {
+      const items = (o.products && o.products.length)
+        ? o.products
+        : [{ ten: o.ten, sl: o.sl, gia: o.gia, von: o.von }];
+      items.forEach(p => {
+        const k = (p.ten || '(không tên)').trim();
+        if (!map[k]) map[k] = { ten: k, sl: 0, dt: 0, ln: 0 };
+        const sl = Number(p.sl) || 0, gia = Number(p.gia) || 0, von = Number(p.von) || 0;
+        map[k].sl += sl;
+        map[k].dt += sl * gia;
+        map[k].ln += sl * (gia - von);
+      });
+    });
+
+  const list = Object.values(map).sort((a, b) => b.sl - a.sl || b.dt - a.dt).slice(0, 10);
+
+  if (!list.length) {
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty-state" style="padding:30px"><div class="empty-icon">📭</div><div class="empty-text">Chưa có sản phẩm nào được bán</div></div></td></tr>`;
+    if (mc) mc.innerHTML = `<div class="m-empty"><div class="empty-icon">📭</div><div class="empty-text">Chưa có dữ liệu</div></div>`;
+    return;
+  }
+
+  const medal = i => ['🥇','🥈','🥉'][i] || (i + 1);
+  tb.innerHTML = list.map((p, i) => `<tr>
+    <td>${medal(i)}</td>
+    <td class="font-bold">${p.ten}</td>
+    <td class="text-right font-bold">${p.sl}</td>
+    <td class="text-right text-green">${fmtCur(p.dt)}</td>
+    <td class="text-right" style="color:${p.ln >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtCur(p.ln)}</td>
+  </tr>`).join('');
+
+  if (mc) mc.innerHTML = list.map((p, i) => `<div class="m-card">
+    <div class="m-card-top">
+      <div class="m-card-title">${medal(i)} ${p.ten}</div>
+      <div class="m-card-amount text-green">${fmtCur(p.dt)}</div>
+    </div>
+    <div class="m-card-meta"><span>Đã bán: <b>${p.sl}</b></span>
+      <span style="color:var(--green)">LN: ${fmtCur(p.ln)}</span></div>
+  </div>`).join('');
+}
+
+// Tự cập nhật mỗi khi dashboard render lại (tải dữ liệu, đổi tháng, đổi bộ lọc...)
+const _origRenderKPI = renderKPI;
+renderKPI = function () { _origRenderKPI(); renderTopProducts(); };
+</script>
 </body>
 </html>
